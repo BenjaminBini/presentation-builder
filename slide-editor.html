@@ -154,7 +154,71 @@
         </div>
     </div>
 
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3>Importer une présentation</h3>
+                <button class="modal-close" onclick="closeModal('importModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Import Tabs -->
+                <div class="import-tabs">
+                    <button class="import-tab active" data-tab="file" onclick="switchImportTab('file')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Fichier JSON
+                    </button>
+                    <button class="import-tab" data-tab="code" onclick="switchImportTab('code')">
+                        <svg class="icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        Code JSON
+                    </button>
+                </div>
+
+                <!-- File Drop Zone Tab -->
+                <div class="import-tab-content active" id="importTabFile">
+                    <div class="file-drop-zone" id="fileDropZone" onclick="document.getElementById('importFileInput').click()">
+                        <div class="file-drop-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <div class="file-drop-text">
+                            <p class="file-drop-main">Glissez-déposez votre fichier JSON ici</p>
+                            <p class="file-drop-sub">ou cliquez pour sélectionner un fichier</p>
+                        </div>
+                        <span class="file-drop-hint">Formats acceptés : .json</span>
+                    </div>
+                    <div class="file-selected" id="fileSelected" style="display: none;">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span id="selectedFileName"></span>
+                        <button class="btn-icon" onclick="clearSelectedFile(event)">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Code Input Tab -->
+                <div class="import-tab-content" id="importTabCode">
+                    <div class="code-input-wrapper">
+                        <div class="code-input-header">
+                            <span>JSON</span>
+                            <button class="btn btn-ghost btn-sm" onclick="formatJsonInput()">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+                                Formater
+                            </button>
+                        </div>
+                        <textarea id="jsonCodeInput" class="json-code-input" placeholder='{"metadata": {"title": "Ma présentation"}, "slides": [...]}'></textarea>
+                        <div class="code-input-error" id="jsonError"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmImport()">Importer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden file input for import -->
+    <input type="file" id="importFileInput" class="hidden-input" accept=".json" onchange="handleFileSelect(event)">
     <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="handleImport(event)">
 
     <!-- Toast -->

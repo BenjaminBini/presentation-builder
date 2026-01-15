@@ -1667,3 +1667,231 @@ body {
     background: var(--gl-orange);
     transition: width 0.3s ease;
 }
+
+/* ============================================================================
+   IMPORT MODAL
+   ============================================================================ */
+
+.modal-lg {
+    width: 640px;
+}
+
+/* Import Tabs */
+.import-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.import-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--gl-gray-100);
+    border: 2px solid var(--gl-gray-200);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gl-gray-600);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.import-tab:hover {
+    background: var(--gl-gray-200);
+    border-color: var(--gl-gray-300);
+}
+
+.import-tab.active {
+    background: rgba(252, 109, 38, 0.08);
+    border-color: var(--gl-orange);
+    color: var(--gl-orange);
+}
+
+.import-tab-content {
+    display: none;
+}
+
+.import-tab-content.active {
+    display: block;
+}
+
+/* File Drop Zone */
+.file-drop-zone {
+    border: 2px dashed var(--gl-gray-300);
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gl-gray-100);
+}
+
+.file-drop-zone:hover {
+    border-color: var(--gl-orange);
+    background: rgba(252, 109, 38, 0.02);
+}
+
+.file-drop-zone.drag-over {
+    border-color: var(--gl-orange);
+    background: rgba(252, 109, 38, 0.08);
+    border-style: solid;
+}
+
+.file-drop-icon {
+    margin-bottom: 16px;
+}
+
+.file-drop-icon svg {
+    width: 48px;
+    height: 48px;
+    stroke: var(--gl-gray-400);
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.file-drop-zone:hover .file-drop-icon svg,
+.file-drop-zone.drag-over .file-drop-icon svg {
+    stroke: var(--gl-orange);
+}
+
+.file-drop-text {
+    margin-bottom: 12px;
+}
+
+.file-drop-main {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--gl-gray-700);
+    margin-bottom: 4px;
+}
+
+.file-drop-sub {
+    font-size: 14px;
+    color: var(--gl-gray-500);
+}
+
+.file-drop-hint {
+    font-size: 12px;
+    color: var(--gl-gray-400);
+}
+
+/* File Selected Display */
+.file-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(252, 109, 38, 0.08);
+    border: 1px solid rgba(252, 109, 38, 0.3);
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.file-selected .icon {
+    color: var(--gl-orange);
+    flex-shrink: 0;
+}
+
+.file-selected span {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gl-gray-700);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--gl-gray-500);
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--gl-gray-700);
+}
+
+/* Code Input */
+.code-input-wrapper {
+    border: 1px solid var(--gl-gray-300);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--gl-gray-900);
+}
+
+.code-input-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--gl-gray-800);
+    border-bottom: 1px solid var(--gl-gray-700);
+}
+
+.code-input-header span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gl-gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-input-header .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+.json-code-input {
+    width: 100%;
+    min-height: 280px;
+    padding: 16px;
+    border: none;
+    resize: vertical;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    background: var(--gl-gray-900);
+    color: #a9dc76;
+    tab-size: 2;
+}
+
+.json-code-input:focus {
+    outline: none;
+}
+
+.json-code-input::placeholder {
+    color: var(--gl-gray-600);
+}
+
+/* JSON Syntax Colors (for placeholder styling) */
+.json-code-input::selection {
+    background: rgba(252, 109, 38, 0.3);
+}
+
+.code-input-error {
+    display: none;
+    padding: 10px 12px;
+    background: rgba(221, 43, 14, 0.15);
+    border-top: 1px solid rgba(221, 43, 14, 0.3);
+    color: #ff6b6b;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.code-input-error.show {
+    display: block;
+}
