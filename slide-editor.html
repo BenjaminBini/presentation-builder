@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Editor - GitLab Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="slide-editor-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>
+                <svg viewBox="0 0 380 380" fill="none">
+                    <path d="M190 362.42L253.31 167.69H126.69L190 362.42Z" fill="#E24329"/>
+                    <path d="M190 362.42L126.69 167.69H20.28L190 362.42Z" fill="#FC6D26"/>
+                    <path d="M20.28 167.69L2.53 222.23C0.91 227.22 2.69 232.67 6.97 235.78L190 362.42L20.28 167.69Z" fill="#FCA326"/>
+                    <path d="M20.28 167.69H126.69L80.89 26.87C78.95 21.01 70.74 21.01 68.8 26.87L20.28 167.69Z" fill="#E24329"/>
+                    <path d="M190 362.42L253.31 167.69H359.72L190 362.42Z" fill="#FC6D26"/>
+                    <path d="M359.72 167.69L377.47 222.23C379.09 227.22 377.31 232.67 373.03 235.78L190 362.42L359.72 167.69Z" fill="#FCA326"/>
+                    <path d="M359.72 167.69H253.31L299.11 26.87C301.05 21.01 309.26 21.01 311.2 26.87L359.72 167.69Z" fill="#E24329"/>
+                </svg>
+                Slide Editor
+            </h1>
+            <div class="header-project-name" onclick="editProjectTitle()">
+                <span id="headerProjectName">Sans titre</span>
+                <svg class="edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <input type="text" id="headerProjectInput" class="header-project-input" onblur="finishEditProjectTitle()" onkeydown="handleTitleKeydown(event)">
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-ghost" onclick="newProject()" title="Nouveau projet">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                    Nouveau
+                </button>
+                <button class="btn btn-ghost" onclick="openProjectsModal()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    Projets
+                </button>
+                <button class="btn btn-secondary" onclick="importProject()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Importer
+                </button>
+                <button class="btn btn-secondary" onclick="exportProject()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Exporter JSON
+                </button>
+                <button class="btn btn-primary" onclick="startPresentation()">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Présenter
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="slides" onclick="switchSidebarTab('slides')">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Slides
+                </button>
+                <button class="sidebar-tab" data-tab="settings" onclick="switchSidebarTab('settings')">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Paramètres
+                </button>
+            </div>
+            <div class="sidebar-content" id="sidebarContent" data-tab="slides">
+                <!-- Slides Panel -->
+                <div class="slides-panel">
+                    <div class="sidebar-header">
+                        <h2>Slides</h2>
+                        <button class="btn btn-primary" onclick="addSlide()" style="padding: 6px 12px; font-size: 13px;">+ Ajouter</button>
+                    </div>
+                    <div class="slide-list" id="slideList"></div>
+                </div>
+                <!-- Settings Panel -->
+                <div class="settings-panel" id="settingsPanel">
+                    <div class="settings-section">
+                        <h3>Thème</h3>
+                        <div class="theme-selector" id="themeSelector"></div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Personnalisation des couleurs</h3>
+                        <div class="color-list" id="colorList"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Preview -->
+            <div class="preview-panel">
+                <div class="preview-wrapper" id="previewWrapper">
+                    <div class="preview-scale-container">
+                        <div class="preview-slide" id="previewSlide"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor - Below Preview -->
+            <div class="editor-panel">
+                <div class="editor-header">
+                    <h2>Propriétés</h2>
+                </div>
+                <div class="editor-content" id="editorContent">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><svg class="icon icon-xl" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+                        <h3>Aucune slide sélectionnée</h3>
+                        <p>Sélectionnez une slide ou ajoutez-en une nouvelle</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Slide Modal -->
+    <div class="modal-overlay" id="addSlideModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Ajouter une slide</h3>
+                <button class="modal-close" onclick="closeModal('addSlideModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="template-grid" id="templateGrid"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addSlideModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmAddSlide()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Modal -->
+    <div class="modal-overlay" id="projectsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Projets sauvegardés</h3>
+                <button class="modal-close" onclick="closeModal('projectsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Nom du projet actuel</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="projectName" placeholder="Ma présentation">
+                        <button class="btn btn-primary" onclick="saveProject()">Sauvegarder</button>
+                    </div>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--gl-gray-200); margin: 20px 0;">
+                <h4 style="font-size: 14px; margin-bottom: 12px;">Projets existants</h4>
+                <div class="project-list" id="projectList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3>Importer une présentation</h3>
+                <button class="modal-close" onclick="closeModal('importModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Import Tabs -->
+                <div class="import-tabs">
+                    <button class="import-tab active" data-tab="file" onclick="switchImportTab('file')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Fichier JSON
+                    </button>
+                    <button class="import-tab" data-tab="code" onclick="switchImportTab('code')">
+                        <svg class="icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        Code JSON
+                    </button>
+                </div>
+
+                <!-- File Drop Zone Tab -->
+                <div class="import-tab-content active" id="importTabFile">
+                    <div class="file-drop-zone" id="fileDropZone" onclick="document.getElementById('importFileInput').click()">
+                        <div class="file-drop-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <div class="file-drop-text">
+                            <p class="file-drop-main">Glissez-déposez votre fichier JSON ici</p>
+                            <p class="file-drop-sub">ou cliquez pour sélectionner un fichier</p>
+                        </div>
+                        <span class="file-drop-hint">Formats acceptés : .json</span>
+                    </div>
+                    <div class="file-selected" id="fileSelected" style="display: none;">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span id="selectedFileName"></span>
+                        <button class="btn-icon" onclick="clearSelectedFile(event)">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Code Input Tab -->
+                <div class="import-tab-content" id="importTabCode">
+                    <div class="code-input-wrapper">
+                        <div class="code-input-header">
+                            <span>JSON</span>
+                            <button class="btn btn-ghost btn-sm" onclick="formatJsonInput()">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+                                Formater
+                            </button>
+                        </div>
+                        <textarea id="jsonCodeInput" class="json-code-input" placeholder='{"metadata": {"title": "Ma présentation"}, "slides": [...]}'></textarea>
+                        <div class="code-input-error" id="jsonError"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmImport()">Importer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFileInput" class="hidden-input" accept=".json" onchange="handleFileSelect(event)">
+    <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="handleImport(event)">
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Presentation Player -->
+    <div class="presentation-player" id="presentationPlayer">
+        <div class="player-header">
+            <div class="player-info">
+                <span class="player-title" id="playerTitle"></span>
+                <span class="player-counter" id="playerCounter"></span>
+            </div>
+            <button class="btn btn-ghost player-exit" onclick="exitPresentation()">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Quitter
+            </button>
+        </div>
+        <div class="player-content">
+            <button class="player-nav player-nav-prev" onclick="prevSlidePlayer()" title="Slide précédente">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="player-slide-wrapper">
+                <div class="player-slide" id="playerSlide"></div>
+            </div>
+            <button class="player-nav player-nav-next" onclick="nextSlidePlayer()" title="Slide suivante">
+                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+        <div class="player-progress">
+            <div class="player-progress-bar" id="playerProgressBar"></div>
+        </div>
+    </div>
+
+    <!-- Load scripts in order: config first, then templates, editor, projects, and finally app -->
+    <script src="slide-editor-config.js"></script>
+    <script src="slide-editor-templates.js"></script>
+    <script src="slide-editor-editor.js"></script>
+    <script src="slide-editor-projects.js"></script>
+    <script src="slide-editor-app.js"></script>
+</body>
+</html>
