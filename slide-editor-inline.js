@@ -104,6 +104,10 @@ const InlineEditor = {
         if (deleteItemBtn) {
             event.preventDefault();
             event.stopPropagation();
+            // Save any pending inline edit before deleting
+            if (this.currentEditingElement) {
+                this.endTextEdit(true);
+            }
             const listKey = deleteItemBtn.dataset.listKey;
             const itemIndex = parseInt(deleteItemBtn.dataset.itemIndex);
             this.deleteListItem(listKey, itemIndex);
@@ -114,9 +118,52 @@ const InlineEditor = {
         if (addItemBtn) {
             event.preventDefault();
             event.stopPropagation();
+            // Save any pending inline edit before adding
+            if (this.currentEditingElement) {
+                this.endTextEdit(true);
+            }
             const listKey = addItemBtn.dataset.listKey;
             const listType = addItemBtn.dataset.listType || 'string';
             this.addListItem(listKey, listType);
+            return;
+        }
+
+        // Table controls (comparison template)
+        const addColBtn = event.target.closest('.table-add-col-btn');
+        if (addColBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.currentEditingElement) this.endTextEdit(true);
+            this.addTableColumn();
+            return;
+        }
+
+        const deleteColBtn = event.target.closest('.table-delete-col-btn');
+        if (deleteColBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.currentEditingElement) this.endTextEdit(true);
+            const colIndex = parseInt(deleteColBtn.dataset.colIndex);
+            this.deleteTableColumn(colIndex);
+            return;
+        }
+
+        const addRowBtn = event.target.closest('.table-add-row-btn');
+        if (addRowBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.currentEditingElement) this.endTextEdit(true);
+            this.addTableRow();
+            return;
+        }
+
+        const deleteRowBtn = event.target.closest('.table-delete-row-btn');
+        if (deleteRowBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.currentEditingElement) this.endTextEdit(true);
+            const rowIndex = parseInt(deleteRowBtn.dataset.rowIndex);
+            this.deleteTableRow(rowIndex);
             return;
         }
 
@@ -143,6 +190,9 @@ const InlineEditor = {
             event.preventDefault();
             const isAnnotated = editableElement.dataset.codeAnnotated === 'true';
             this.openCodeEditor(fieldKey, fieldIndex, isAnnotated);
+        } else if (editType === 'drawio') {
+            event.preventDefault();
+            this.openDrawioEditor(fieldKey, fieldIndex);
         } else if (editType === 'text' || editType === 'multiline') {
             // Don't restart edit if clicking same element
             if (this.currentEditingElement === editableElement) {
@@ -282,16 +332,68 @@ const InlineEditor = {
                 break;
             case 'Tab':
                 event.preventDefault();
-                this.isNavigatingToNextEditable = true;
-                this.endTextEdit(true);
-                if (event.shiftKey) {
-                    this.focusPreviousEditable();
+                // Check if this is a bullet list item that supports indentation
+                const element = this.currentEditingElement;
+                const isBulletItem = element.closest('.template-bullets') &&
+                                     element.dataset.fieldKey === 'items' &&
+                                     element.dataset.fieldIndex !== undefined;
+
+                if (isBulletItem) {
+                    // Change indentation level
+                    this.changeItemIndentation(element, event.shiftKey ? -1 : 1);
                 } else {
-                    this.focusNextEditable();
+                    // Default tab behavior: navigate to next/previous editable
+                    this.isNavigatingToNextEditable = true;
+                    this.endTextEdit(true);
+                    if (event.shiftKey) {
+                        this.focusPreviousEditable();
+                    } else {
+                        this.focusNextEditable();
+                    }
+                    this.isNavigatingToNextEditable = false;
                 }
-                this.isNavigatingToNextEditable = false;
                 break;
         }
+    },
+
+    changeItemIndentation(element, delta) {
+        const index = parseInt(element.dataset.fieldIndex, 10);
+        const currentLevel = parseInt(element.dataset.itemLevel || '0', 10);
+        const newLevel = Math.max(0, Math.min(3, currentLevel + delta)); // 0-3 (4 levels)
+
+        if (newLevel === currentLevel) return;
+
+        // Get current slide data
+        const slide = currentProject.slides[selectedSlideIndex];
+        if (!slide || !slide.data.items) return;
+
+        // Get the current item
+        let item = slide.data.items[index];
+
+        // Convert string item to object if needed
+        if (typeof item === 'string') {
+            item = { text: item, level: newLevel };
+        } else {
+            item = { ...item, level: newLevel };
+        }
+
+        // Update the slide data
+        slide.data.items[index] = item;
+
+        // Update the element attributes
+        element.dataset.itemLevel = newLevel;
+        if (newLevel > 0) {
+            element.dataset.level = newLevel;
+            element.setAttribute('data-level', newLevel);
+        } else {
+            delete element.dataset.level;
+            element.removeAttribute('data-level');
+        }
+
+        markAsChanged();
+
+        // Keep focus on the element
+        element.focus();
     },
 
     handlePaste(event) {
@@ -415,11 +517,20 @@ const InlineEditor = {
         } else if (index !== null && index !== undefined) {
             // Simple array: items[0]
             if (!target[finalKey]) target[finalKey] = [];
-            target[finalKey][index] = value;
+            // Preserve object structure for bullet items with levels
+            const existingItem = target[finalKey][index];
+            if (typeof existingItem === 'object' && existingItem !== null && 'level' in existingItem) {
+                target[finalKey][index] = { ...existingItem, text: value };
+            } else {
+                target[finalKey][index] = value;
+            }
         } else {
             // Direct field: title
             target[finalKey] = value;
         }
+
+        // Mark as changed for save button
+        markAsChanged();
 
         // Sync UI
         renderEditor();
@@ -450,7 +561,12 @@ const InlineEditor = {
         if (index !== null && index !== undefined && subkey) {
             return target?.[index]?.[subkey] ?? null;
         } else if (index !== null && index !== undefined) {
-            return target?.[index] ?? null;
+            const item = target?.[index];
+            // If item is object with text property (bullet items with levels), return the text
+            if (typeof item === 'object' && item !== null && 'text' in item) {
+                return item.text ?? null;
+            }
+            return item ?? null;
         }
         return target ?? null;
     },
@@ -686,6 +802,115 @@ const InlineEditor = {
     },
 
     // ========================================================================
+    // DRAW.IO EDITOR
+    // ========================================================================
+
+    drawioEditorFieldKey: null,
+    drawioEditorFieldIndex: null,
+
+    openDrawioEditor(fieldKey, fieldIndex) {
+        this.drawioEditorFieldKey = fieldKey;
+        this.drawioEditorFieldIndex = fieldIndex !== undefined ? parseInt(fieldIndex) : null;
+
+        const currentValue = this.getFieldValue(fieldKey, this.drawioEditorFieldIndex, null) || '';
+        const modal = document.getElementById('drawioEditorModal');
+        const iframe = document.getElementById('drawioEditorFrame');
+
+        if (!modal || !iframe) return;
+
+        // draw.io embed URL with configuration (dark=0 forces light mode)
+        const drawioUrl = 'https://embed.diagrams.net/?embed=1&spin=1&proto=json&ui=kennedy&dark=0';
+        iframe.src = drawioUrl;
+
+        // Listen for messages from draw.io
+        window.drawioMessageHandler = (event) => {
+            if (event.origin !== 'https://embed.diagrams.net') return;
+
+            let msg;
+            try {
+                msg = JSON.parse(event.data);
+            } catch (e) {
+                return;
+            }
+
+            if (msg.event === 'init') {
+                // Send current diagram to editor
+                let diagramData = '';
+                if (currentValue && currentValue.startsWith('data:image/svg+xml;base64,')) {
+                    try {
+                        // Properly decode base64 with UTF-8 support
+                        const base64 = currentValue.substring('data:image/svg+xml;base64,'.length);
+                        const binary = atob(base64);
+                        const bytes = new Uint8Array(binary.length);
+                        for (let i = 0; i < binary.length; i++) {
+                            bytes[i] = binary.charCodeAt(i);
+                        }
+                        diagramData = new TextDecoder('utf-8').decode(bytes);
+                    } catch (e) {
+                        console.warn('Failed to decode diagram data:', e);
+                    }
+                }
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    action: 'load',
+                    xml: diagramData,
+                    autosave: 0
+                }), '*');
+            } else if (msg.event === 'save') {
+                // Show saving status
+                this.updateDrawioStatus('saving', 'Enregistrement...');
+                // Request export as SVG with embedded XML for re-editing
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    action: 'export',
+                    format: 'xmlsvg',
+                    background: '#ffffff',
+                    spinKey: 'saving'
+                }), '*');
+            } else if (msg.event === 'export') {
+                // Save the SVG data
+                this.updateSlideData(this.drawioEditorFieldKey, msg.data, this.drawioEditorFieldIndex, null);
+                updatePreview();
+                // Close the editor after saving
+                this.closeDrawioEditor();
+            } else if (msg.event === 'exit') {
+                this.closeDrawioEditor();
+            }
+        };
+        window.addEventListener('message', window.drawioMessageHandler);
+
+        // Clear status and show modal
+        this.updateDrawioStatus('', '');
+        modal.classList.add('active');
+    },
+
+    updateDrawioStatus(state, text) {
+        const status = document.getElementById('drawioSaveStatus');
+        if (status) {
+            status.textContent = text;
+            status.className = 'drawio-save-status' + (state ? ' ' + state : '');
+        }
+    },
+
+    closeDrawioEditor() {
+        const modal = document.getElementById('drawioEditorModal');
+        const iframe = document.getElementById('drawioEditorFrame');
+
+        if (window.drawioMessageHandler) {
+            window.removeEventListener('message', window.drawioMessageHandler);
+            window.drawioMessageHandler = null;
+        }
+
+        if (iframe) {
+            iframe.src = '';
+        }
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        this.updateDrawioStatus('', '');
+        this.drawioEditorFieldKey = null;
+        this.drawioEditorFieldIndex = null;
+    },
+
+    // ========================================================================
     // ANNOTATION MANAGEMENT
     // ========================================================================
 
@@ -701,6 +926,9 @@ const InlineEditor = {
 
         // Remove the annotation at the specified index
         slide.data.annotations.splice(annotationIndex, 1);
+
+        // Mark as changed
+        markAsChanged();
 
         // Update UI
         renderEditor();
@@ -734,6 +962,9 @@ const InlineEditor = {
         // Add the annotation and sort by line number
         slide.data.annotations.push(newAnnotation);
         slide.data.annotations.sort((a, b) => a.line - b.line);
+
+        // Mark as changed
+        markAsChanged();
 
         // Update UI
         renderEditor();
@@ -906,6 +1137,9 @@ const InlineEditor = {
         // Remove the item
         target.splice(itemIndex, 1);
 
+        // Mark as changed
+        markAsChanged();
+
         // Update UI
         renderEditor();
         updatePreview();
@@ -945,36 +1179,139 @@ const InlineEditor = {
             return;
         }
 
-        // Create new item based on type
+        // Create new item based on type and template
         let newItem;
-        if (listType === 'object') {
-            // Determine the type of object based on listKey
-            if (listKey === 'steps') {
-                newItem = {
-                    icon: String(target.length + 1),
-                    title: 'Nouvelle étape',
-                    description: 'Description'
-                };
-            } else if (listKey === 'stats') {
-                newItem = {
-                    value: '0',
-                    label: 'Nouveau',
-                    change: '+0%'
-                };
-            } else {
-                newItem = {};
-            }
+        const template = slide.template;
+
+        if (listKey === 'steps') {
+            newItem = {
+                icon: String(target.length + 1),
+                title: 'Nouvelle étape',
+                description: 'Description'
+            };
+        } else if (listKey === 'stats') {
+            newItem = {
+                value: '0',
+                label: 'Nouveau',
+                change: '+0%'
+            };
+        } else if (listKey === 'items' && template === 'agenda') {
+            // Agenda items
+            newItem = {
+                title: `Point ${target.length + 1}`,
+                subtitle: '',
+                duration: ''
+            };
+        } else if (listType === 'object') {
+            newItem = {};
         } else {
+            // Simple string items (bullets, two-columns, etc.)
             newItem = 'Nouvel élément';
         }
 
         // Add the item
         target.push(newItem);
 
+        // Mark as changed
+        markAsChanged();
+
         // Update UI
         renderEditor();
         updatePreview();
         showToast('Élément ajouté');
+    },
+
+    // Table manipulation methods for comparison template
+    addTableColumn() {
+        if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) return;
+        const slide = currentProject.slides[selectedSlideIndex];
+        if (slide.template !== 'comparison') return;
+
+        const data = slide.data;
+        if (!data.columns) data.columns = [];
+        if (!data.rows) data.rows = [];
+
+        // Add new column header
+        data.columns.push(`Colonne ${data.columns.length + 1}`);
+
+        // Add empty cell to each row
+        data.rows.forEach(row => row.push(''));
+
+        markAsChanged();
+        renderEditor();
+        updatePreview();
+        showToast('Colonne ajoutée');
+    },
+
+    deleteTableColumn(colIndex) {
+        if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) return;
+        const slide = currentProject.slides[selectedSlideIndex];
+        if (slide.template !== 'comparison') return;
+
+        const data = slide.data;
+        if (!data.columns || data.columns.length <= 1) {
+            showToast('Impossible de supprimer la dernière colonne');
+            return;
+        }
+
+        // Remove column header
+        data.columns.splice(colIndex, 1);
+
+        // Remove cell from each row
+        data.rows.forEach(row => row.splice(colIndex, 1));
+
+        // Adjust highlight column if needed
+        if (data.highlightColumn) {
+            const highlightIdx = parseInt(data.highlightColumn);
+            if (highlightIdx === colIndex + 1) {
+                data.highlightColumn = null;
+            } else if (highlightIdx > colIndex + 1) {
+                data.highlightColumn = highlightIdx - 1;
+            }
+        }
+
+        markAsChanged();
+        renderEditor();
+        updatePreview();
+        showToast('Colonne supprimée');
+    },
+
+    addTableRow() {
+        if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) return;
+        const slide = currentProject.slides[selectedSlideIndex];
+        if (slide.template !== 'comparison') return;
+
+        const data = slide.data;
+        if (!data.columns) data.columns = ['Colonne 1'];
+        if (!data.rows) data.rows = [];
+
+        // Create new row with empty cells matching column count
+        const newRow = data.columns.map((_, i) => i === 0 ? `Ligne ${data.rows.length + 1}` : '');
+        data.rows.push(newRow);
+
+        markAsChanged();
+        renderEditor();
+        updatePreview();
+        showToast('Ligne ajoutée');
+    },
+
+    deleteTableRow(rowIndex) {
+        if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) return;
+        const slide = currentProject.slides[selectedSlideIndex];
+        if (slide.template !== 'comparison') return;
+
+        const data = slide.data;
+        if (!data.rows || data.rows.length <= 1) {
+            showToast('Impossible de supprimer la dernière ligne');
+            return;
+        }
+
+        data.rows.splice(rowIndex, 1);
+
+        markAsChanged();
+        renderEditor();
+        updatePreview();
+        showToast('Ligne supprimée');
     }
 };
 
@@ -1000,6 +1337,10 @@ function closeCodeEditor() {
 
 function confirmCodeEdit() {
     InlineEditor.confirmCodeEdit();
+}
+
+function closeDrawioEditor() {
+    InlineEditor.closeDrawioEditor();
 }
 
 function updateCodeEditorLineNumbers() {

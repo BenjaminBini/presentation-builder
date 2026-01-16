@@ -69,43 +69,158 @@ function renderEditor() {
         return;
     }
 
-    const groups = FIELD_GROUPS[slide.template];
-    let fieldsHtml = '';
+    // Render color settings as inline toolbar
+    const colorSettings = TEMPLATE_COLOR_SETTINGS[slide.template] || [];
+    const slideColors = slide.data.colors || {};
 
-    if (groups) {
-        // Render with grouping
-        fieldsHtml = groups.map(group => {
-            const groupFields = template.fields.filter(f => group.fields.includes(f.key));
-            if (groupFields.length === 0) return '';
+    const colorItemsHtml = colorSettings.map(setting => {
+        const currentValue = slideColors[setting.key] || setting.default;
+        return renderInlineColorSelector(setting.key, setting.label, currentValue);
+    }).join('');
 
-            return `
-                <div class="editor-section">
-                    <div class="editor-section-header">${group.label}</div>
-                    <div class="editor-section-content">
-                        ${groupFields.map(field => renderField(field, slide.data)).join('')}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    } else {
-        // Simple render without grouping
-        fieldsHtml = template.fields.map(field => renderField(field, slide.data)).join('');
-    }
+    // Render template-specific settings
+    const templateSettingsHtml = renderTemplateSettings(slide);
 
     container.innerHTML = `
-        <div class="editor-template-header">
-            <div class="editor-template-icon">${template.icon}</div>
-            <div class="editor-template-info">
-                <select class="editor-template-select" onchange="changeTemplate(this.value)">
-                    ${Object.entries(TEMPLATES).map(([key, t]) =>
-                        `<option value="${key}" ${key === slide.template ? 'selected' : ''}>${t.name}</option>`
-                    ).join('')}
-                </select>
-                <p class="editor-template-desc">${TEMPLATE_DESCRIPTIONS[slide.template] || ''}</p>
+        <div class="editor-toolbar">
+            <div class="editor-toolbar-section">
+                <span class="editor-toolbar-label">Couleurs</span>
+                <div class="color-toolbar">
+                    ${colorItemsHtml}
+                </div>
+            </div>
+            ${templateSettingsHtml}
+        </div>
+    `;
+}
+
+// Render template-specific settings (sliders, toggles, etc.)
+function renderTemplateSettings(slide) {
+    const settings = [];
+
+    if (slide.template === 'title') {
+        const logoSize = slide.data.logoSize || 100;
+        settings.push(`
+            <div class="editor-toolbar-section">
+                <span class="editor-toolbar-label">Logo</span>
+                <div class="slider-control">
+                    <input type="range" min="50" max="200" value="${logoSize}"
+                           oninput="updateField('logoSize', parseInt(this.value)); this.nextElementSibling.textContent = this.value + '%'">
+                    <span class="slider-value">${logoSize}%</span>
+                </div>
+            </div>
+        `);
+    }
+
+    if (slide.template === 'bullets') {
+        const showTag = slide.data.showTag !== false;
+        settings.push(`
+            <div class="editor-toolbar-section">
+                <label class="toolbar-toggle">
+                    <input type="checkbox" ${showTag ? 'checked' : ''}
+                           onchange="updateField('showTag', this.checked); updatePreview();">
+                    <span class="toolbar-toggle-label">Tag</span>
+                </label>
+            </div>
+        `);
+    }
+
+    if (slide.template === 'agenda') {
+        const showDuration = slide.data.showDuration !== false;
+        settings.push(`
+            <div class="editor-toolbar-section editor-toolbar-section-block">
+                <span class="editor-toolbar-label">Affichage</span>
+                <label class="toolbar-toggle">
+                    <input type="checkbox" ${showDuration ? 'checked' : ''}
+                           onchange="updateField('showDuration', this.checked); updatePreview();">
+                    <span class="toolbar-toggle-label">Durées</span>
+                </label>
+            </div>
+        `);
+    }
+
+    return settings.join('');
+}
+
+// Render an inline color selector (compact toolbar style)
+function renderInlineColorSelector(key, label, currentValue) {
+    const themeColors = Object.keys(COLOR_LABELS);
+    const grayColors = Object.keys(GRAY_PALETTE);
+
+    return `
+        <div class="inline-color-selector" data-color-key="${key}">
+            <button class="inline-color-btn" onclick="toggleColorPicker('${key}')" title="${label}">
+                <span class="inline-color-swatch" style="background-color: var(--${currentValue});"></span>
+                <span class="inline-color-label">${label}</span>
+            </button>
+            <div class="inline-color-dropdown" id="colorDropdown-${key}">
+                <div class="color-swatches-row">
+                    ${themeColors.map(color => `
+                        <button type="button"
+                            class="color-swatch-btn ${currentValue === color ? 'selected' : ''}"
+                            style="background-color: var(--${color});"
+                            onclick="selectSlideColor('${key}', '${color}')">
+                            <span class="color-tooltip">${COLOR_LABELS[color]}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="color-swatches-row">
+                    ${grayColors.map(color => `
+                        <button type="button"
+                            class="color-swatch-btn ${currentValue === color ? 'selected' : ''}"
+                            style="background-color: var(--${color});"
+                            onclick="selectSlideColor('${key}', '${color}')">
+                            <span class="color-tooltip">${GRAY_LABELS[color]}</span>
+                        </button>
+                    `).join('')}
+                </div>
             </div>
         </div>
-        ${fieldsHtml}
     `;
+}
+
+// Legacy color selector (keeping for compatibility)
+function renderColorSelector(key, label, currentValue) {
+    return renderInlineColorSelector(key, label, currentValue);
+}
+
+// Toggle color picker dropdown
+function toggleColorPicker(key) {
+    const dropdown = document.getElementById(`colorDropdown-${key}`);
+    const selector = dropdown.closest('.inline-color-selector') || dropdown.closest('.color-selector-group');
+    const isOpen = dropdown.classList.contains('open');
+
+    // Close all other dropdowns
+    document.querySelectorAll('.inline-color-dropdown.open, .color-swatches-dropdown.open').forEach(el => {
+        el.classList.remove('open');
+        const parent = el.closest('.inline-color-selector') || el.closest('.color-selector-group');
+        if (parent) parent.classList.remove('picker-open');
+    });
+
+    // Toggle this one
+    if (!isOpen) {
+        dropdown.classList.add('open');
+        if (selector) selector.classList.add('picker-open');
+    }
+}
+
+// Select color and close dropdown
+function selectSlideColor(key, value) {
+    updateSlideColor(key, value);
+    // Dropdown will close when editor re-renders
+}
+
+// Update slide color setting
+function updateSlideColor(key, value) {
+    if (selectedSlideIndex >= 0) {
+        if (!currentProject.slides[selectedSlideIndex].data.colors) {
+            currentProject.slides[selectedSlideIndex].data.colors = {};
+        }
+        currentProject.slides[selectedSlideIndex].data.colors[key] = value;
+        renderEditor();
+        updatePreview();
+        markAsChanged();
+    }
 }
 
 // ============================================================================
@@ -177,6 +292,19 @@ function renderField(field, data) {
                 </div>
             `;
 
+        case 'toggle':
+            const isChecked = value !== false && (value === true || field.default !== false);
+            return `
+                <div class="${wrapperClass} toggle-field">
+                    <label class="toggle-label">
+                        <span class="toggle-text">${field.label}</span>
+                        <input type="checkbox" class="toggle-input" ${isChecked ? 'checked' : ''}
+                               onchange="updateField('${field.key}', this.checked)">
+                        <span class="toggle-switch"></span>
+                    </label>
+                </div>
+            `;
+
         case 'textarea':
             const isCode = field.key === 'code' || field.key === 'diagram';
             return `
@@ -211,6 +339,9 @@ function renderField(field, data) {
         case 'table-rows':
             return renderTableRowsField(field, value || []);
 
+        case 'agenda-items':
+            return renderAgendaItemsField(field, value || []);
+
         default:
             return '';
     }
@@ -230,7 +361,7 @@ function renderArrayField(field, items) {
                         <input type="text" value="${escapeHtml(item)}"
                                onchange="updateArrayItem('${field.key}', ${i}, this.value)"
                                oninput="updateArrayItem('${field.key}', ${i}, this.value)">
-                        <button onclick="removeArrayItem('${field.key}', ${i})">×</button>
+                        <button onclick="removeArrayItem('${field.key}', ${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                     </div>
                 `).join('')}
                 <button class="array-add-btn" onclick="addArrayItem('${field.key}')">+ Ajouter</button>
@@ -262,7 +393,7 @@ function renderColumnField(field, column) {
                                    placeholder="Élément ${i + 1}"
                                    onchange="updateColumnItem('${field.key}', ${i}, this.value)"
                                    oninput="updateColumnItem('${field.key}', ${i}, this.value)">
-                            <button class="column-item-delete" onclick="removeColumnItem('${field.key}', ${i})">×</button>
+                            <button class="column-item-delete" onclick="removeColumnItem('${field.key}', ${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                         </div>
                     `).join('')}
                     <button class="array-add-btn" onclick="addColumnItem('${field.key}')">+ Ajouter un élément</button>
@@ -282,7 +413,7 @@ function renderStatsField(field, stats) {
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <span class="stat-card-number">#${i + 1}</span>
-                            <button class="stat-card-delete" onclick="removeStatItem(${i})" title="Supprimer">×</button>
+                            <button class="stat-card-delete" onclick="removeStatItem(${i})" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                         </div>
                         <div class="stat-card-fields">
                             <div class="stat-field stat-field-value">
@@ -336,7 +467,7 @@ function renderAnnotationsField(field, annotations) {
                                        onchange="updateAnnotationItem(${i}, 'lineTo', this.value ? parseInt(this.value) : null)"
                                        oninput="updateAnnotationItem(${i}, 'lineTo', this.value ? parseInt(this.value) : null)">
                             </div>
-                            <button class="annotation-delete" onclick="removeAnnotationItem(${i})" title="Supprimer">×</button>
+                            <button class="annotation-delete" onclick="removeAnnotationItem(${i})" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                         </div>
                         <div class="annotation-card-content">
                             <input type="text" class="annotation-title-input" value="${escapeHtml(ann.title || '')}"
@@ -381,7 +512,7 @@ function renderStepsField(field, steps) {
                                    onchange="updateStepItem(${i}, 'description', this.value)"
                                    oninput="updateStepItem(${i}, 'description', this.value)">
                         </div>
-                        <button class="step-card-delete" onclick="removeStepItem(${i})" title="Supprimer">×</button>
+                        <button class="step-card-delete" onclick="removeStepItem(${i})" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                     </div>
                 `).join('')}
                 <button class="array-add-btn" onclick="addStepItem()">+ Ajouter une étape</button>
@@ -402,7 +533,7 @@ function renderRowsField(field, rows) {
                     <div class="object-item">
                         <div class="object-item-header">
                             <span class="object-item-title">Ligne ${i + 1}</span>
-                            <button class="slide-item-btn delete" onclick="removeRowItem(${i})">×</button>
+                            <button class="slide-item-btn delete" onclick="removeRowItem(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                         </div>
                         ${columns.map((col, j) => `
                             <div class="form-group">
@@ -433,14 +564,14 @@ function renderTableRowsField(field, rows) {
                 <table class="table-editor-grid">
                     <thead>
                         <tr>
-                            ${columns.map((col, j) => `<th>${escapeHtml(col)}</th>`).join('')}
+                            ${columns.map(col => `<th>${escapeHtml(col)}</th>`).join('')}
                             <th class="table-actions-col"></th>
                         </tr>
                     </thead>
                     <tbody>
                         ${rows.map((row, i) => `
                             <tr>
-                                ${columns.map((col, j) => `
+                                ${columns.map((_, j) => `
                                     <td>
                                         <input type="text"
                                                value="${escapeHtml(String(row[j] ?? ''))}"
@@ -450,13 +581,47 @@ function renderTableRowsField(field, rows) {
                                     </td>
                                 `).join('')}
                                 <td class="table-actions-col">
-                                    <button class="slide-item-btn delete" onclick="removeTableRow(${i})" title="Supprimer">×</button>
+                                    <button class="slide-item-btn delete" onclick="removeTableRow(${i})" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                                 </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
                 <button class="array-add-btn" onclick="addTableRow()">+ Ajouter une ligne</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderAgendaItemsField(field, items) {
+    return `
+        <div class="form-group full-width">
+            <label>${field.label}</label>
+            ${field.hint ? `<small class="field-hint" style="margin-bottom: 10px;">${field.hint}</small>` : ''}
+            <div class="agenda-editor">
+                ${items.map((item, i) => `
+                    <div class="agenda-item-card">
+                        <div class="agenda-item-number">${i + 1}</div>
+                        <div class="agenda-item-fields">
+                            <input type="text" class="agenda-item-title" value="${escapeHtml(item.title || '')}"
+                                   placeholder="Sujet"
+                                   onchange="updateAgendaItem(${i}, 'title', this.value)"
+                                   oninput="updateAgendaItem(${i}, 'title', this.value)">
+                            <div class="agenda-item-row">
+                                <input type="text" class="agenda-item-subtitle" value="${escapeHtml(item.subtitle || '')}"
+                                       placeholder="Sous-titre (optionnel)"
+                                       onchange="updateAgendaItem(${i}, 'subtitle', this.value)"
+                                       oninput="updateAgendaItem(${i}, 'subtitle', this.value)">
+                                <input type="text" class="agenda-item-duration" value="${escapeHtml(item.duration || '')}"
+                                       placeholder="Durée"
+                                       onchange="updateAgendaItem(${i}, 'duration', this.value)"
+                                       oninput="updateAgendaItem(${i}, 'duration', this.value)">
+                            </div>
+                        </div>
+                        <button class="agenda-item-delete" onclick="removeAgendaItem(${i})" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>
+                `).join('')}
+                <button class="array-add-btn" onclick="addAgendaItem()">+ Ajouter un point</button>
             </div>
         </div>
     `;
@@ -694,5 +859,41 @@ function removeTableRow(index) {
         currentProject.slides[selectedSlideIndex].data.rows.splice(index, 1);
         renderEditor();
         updatePreview();
+    }
+}
+
+// Agenda item functions
+function updateAgendaItem(index, field, value) {
+    if (selectedSlideIndex >= 0) {
+        if (!currentProject.slides[selectedSlideIndex].data.items) {
+            currentProject.slides[selectedSlideIndex].data.items = [];
+        }
+        if (!currentProject.slides[selectedSlideIndex].data.items[index]) {
+            currentProject.slides[selectedSlideIndex].data.items[index] = {};
+        }
+        currentProject.slides[selectedSlideIndex].data.items[index][field] = value;
+        updatePreview();
+    }
+}
+
+function addAgendaItem() {
+    if (selectedSlideIndex >= 0) {
+        if (!currentProject.slides[selectedSlideIndex].data.items) {
+            currentProject.slides[selectedSlideIndex].data.items = [];
+        }
+        const num = currentProject.slides[selectedSlideIndex].data.items.length + 1;
+        currentProject.slides[selectedSlideIndex].data.items.push({ title: `Point ${num}`, subtitle: '', duration: '' });
+        renderEditor();
+        updatePreview();
+        markAsChanged();
+    }
+}
+
+function removeAgendaItem(index) {
+    if (selectedSlideIndex >= 0) {
+        currentProject.slides[selectedSlideIndex].data.items.splice(index, 1);
+        renderEditor();
+        updatePreview();
+        markAsChanged();
     }
 }

@@ -24,6 +24,9 @@ let selectedSlideIndex = -1;
 let selectedTemplate = null;
 let currentSidebarTab = 'slides'; // 'slides' or 'settings'
 let draggedIndex = null;
+let hasUnsavedChanges = false;
+let autosaveTimeout = null;
+const AUTOSAVE_DELAY = 1500; // 1.5 seconds debounce
 
 // ============================================================================
 // INITIALIZATION
@@ -40,10 +43,32 @@ function initializeApp() {
     // Initialize UI components
     initTemplateGrid();
     renderSlideList();
+    renderEditor();
     renderSettingsPanel();
     updatePreview();
     updateHeaderTitle();
     initMermaid();
+    initPanelStates();
+
+    // Close color picker dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.color-selector-group') && !e.target.closest('.inline-color-selector')) {
+            document.querySelectorAll('.color-swatches-dropdown.open, .inline-color-dropdown.open').forEach(el => {
+                el.classList.remove('open');
+                const parent = el.closest('.color-selector-group') || el.closest('.inline-color-selector');
+                if (parent) parent.classList.remove('picker-open');
+            });
+        }
+    });
+
+    // Update scaling dynamically when container size changes
+    const previewPanel = document.querySelector('.preview-panel');
+    if (previewPanel) {
+        new ResizeObserver(() => scalePreviewSlide()).observe(previewPanel);
+    }
+
+    // Also listen to window resize as fallback
+    window.addEventListener('resize', scalePreviewSlide);
 }
 
 function loadInitialProject() {
@@ -70,6 +95,15 @@ function loadInitialProject() {
         ensureTheme();
         selectedSlideIndex = currentProject.slides.length > 0 ? 0 : -1;
         showToast(`Projet "${currentProject.name}" chargé`);
+    }
+
+    // Restore selected slide index from session storage
+    const savedSlideIndex = sessionStorage.getItem('selectedSlideIndex');
+    if (savedSlideIndex !== null) {
+        const index = parseInt(savedSlideIndex, 10);
+        if (index >= 0 && index < currentProject.slides.length) {
+            selectedSlideIndex = index;
+        }
     }
 }
 
@@ -104,6 +138,7 @@ function finishEditProjectTitle() {
     if (newName && newName !== currentProject.name) {
         currentProject.name = newName;
         updateHeaderTitle();
+        markAsChanged();
         showToast('Nom du projet mis à jour');
     }
 
@@ -121,17 +156,72 @@ function handleTitleKeydown(event) {
     }
 }
 
+// ============================================================================
+// UNSAVED CHANGES TRACKING
+// ============================================================================
+
+function markAsChanged() {
+    hasUnsavedChanges = true;
+    updateSaveButtonState();
+
+    // Debounced autosave
+    if (autosaveTimeout) {
+        clearTimeout(autosaveTimeout);
+    }
+    autosaveTimeout = setTimeout(() => {
+        autosave();
+    }, AUTOSAVE_DELAY);
+}
+
+function autosave() {
+    if (!hasUnsavedChanges) return;
+
+    currentProject.savedAt = new Date().toISOString();
+
+    const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
+    const existingIndex = projects.findIndex(p => p.name === currentProject.name);
+
+    if (existingIndex >= 0) {
+        projects[existingIndex] = currentProject;
+    } else {
+        projects.push(currentProject);
+    }
+
+    localStorage.setItem('slideProjects', JSON.stringify(projects));
+    clearUnsavedChanges();
+}
+
+function clearUnsavedChanges() {
+    hasUnsavedChanges = false;
+    updateSaveButtonState();
+}
+
+function updateSaveButtonState() {
+    const saveBtn = document.getElementById('headerSaveBtn');
+    if (saveBtn) {
+        saveBtn.disabled = !hasUnsavedChanges;
+        saveBtn.classList.toggle('has-changes', hasUnsavedChanges);
+    }
+}
+
 function initMermaid() {
     const colors = getThemeColors();
     mermaid.initialize({
         startOnLoad: false,
         theme: 'base',
+        fontSize: 20,
+        flowchart: {
+            useMaxWidth: false,
+            htmlLabels: true,
+            nodeSpacing: 85,
+            rankSpacing: 68
+        },
         themeVariables: {
-            primaryColor: colors['orange'],
-            primaryTextColor: colors['dark'],
-            primaryBorderColor: colors['orange-dark'],
-            lineColor: colors['gray-600'],
-            secondaryColor: colors['orange-light'],
+            primaryColor: colors['accent-main'],
+            primaryTextColor: colors['text-main'],
+            primaryBorderColor: colors['accent-alt'],
+            lineColor: '#525059',
+            secondaryColor: colors['accent-third'],
             tertiaryColor: '#F5F5F5'
         }
     });
@@ -181,6 +271,7 @@ function selectTheme(themeKey) {
     renderSettingsPanel();
     updatePreview();
     initMermaid(); // Re-init mermaid with new colors
+    markAsChanged();
     showToast('Thème appliqué');
 }
 
@@ -196,7 +287,7 @@ function renderColorList() {
         return `
             <div class="color-item ${isOverridden ? 'overridden' : ''}" data-color="${key}">
                 <div class="color-swatch" style="background-color: ${currentValue};">
-                    <input type="color" value="${currentValue}" onchange="setColorOverride('${key}', this.value)">
+                    <input type="color" value="${currentValue}" oninput="setColorOverride('${key}', this.value)">
                 </div>
                 <div class="color-info">
                     <div class="color-name">${COLOR_LABELS[key] || key}</div>
@@ -220,6 +311,7 @@ function setColorOverride(colorKey, value) {
     currentProject.theme.overrides[colorKey] = value;
     renderColorList();
     updatePreview();
+    markAsChanged();
 }
 
 function resetColorOverride(colorKey) {
@@ -227,6 +319,7 @@ function resetColorOverride(colorKey) {
         delete currentProject.theme.overrides[colorKey];
         renderColorList();
         updatePreview();
+        markAsChanged();
         showToast('Couleur réinitialisée');
     }
 }
@@ -260,6 +353,7 @@ function renderSlideList() {
                 <p>Cliquez sur "Ajouter" pour créer votre première slide</p>
             </div>
         `;
+        renderCompactSlideList();
         return;
     }
 
@@ -285,6 +379,9 @@ function renderSlideList() {
             </div>
         `;
     }).join('');
+
+    // Also update compact slide list
+    renderCompactSlideList();
 }
 
 // ============================================================================
@@ -293,6 +390,7 @@ function renderSlideList() {
 
 function selectSlide(index) {
     selectedSlideIndex = index;
+    sessionStorage.setItem('selectedSlideIndex', index);
     renderSlideList();
     renderEditor();
     updatePreview();
@@ -305,21 +403,10 @@ function addSlide() {
 }
 
 function selectTemplate(template) {
-    selectedTemplate = template;
-    document.querySelectorAll('.template-option').forEach(el => {
-        el.classList.toggle('selected', el.dataset.template === template);
-    });
-}
-
-function confirmAddSlide() {
-    if (!selectedTemplate) {
-        showToast('Veuillez sélectionner un template', 'error');
-        return;
-    }
-
+    // Directly add the slide with the selected template
     const newSlide = {
-        template: selectedTemplate,
-        data: getDefaultData(selectedTemplate)
+        template: template,
+        data: getDefaultData(template)
     };
 
     currentProject.slides.push(newSlide);
@@ -329,7 +416,17 @@ function confirmAddSlide() {
     renderSlideList();
     renderEditor();
     updatePreview();
+    markAsChanged();
     showToast('Slide ajoutée');
+}
+
+function confirmAddSlide() {
+    // Legacy function - kept for compatibility but no longer used
+    if (!selectedTemplate) {
+        showToast('Veuillez sélectionner un template', 'error');
+        return;
+    }
+    selectTemplate(selectedTemplate);
 }
 
 function deleteSlide(index) {
@@ -341,6 +438,7 @@ function deleteSlide(index) {
         renderSlideList();
         renderEditor();
         updatePreview();
+        markAsChanged();
         showToast('Slide supprimée');
     }
 }
@@ -352,6 +450,7 @@ function duplicateSlide(index) {
     renderSlideList();
     renderEditor();
     updatePreview();
+    markAsChanged();
     showToast('Slide dupliquée');
 }
 
@@ -382,11 +481,12 @@ function handleDrop(event, targetIndex) {
         }
         renderSlideList();
         updatePreview();
+        markAsChanged();
     }
     document.querySelectorAll('.slide-item').forEach(el => el.classList.remove('drag-over'));
 }
 
-function handleDragEnd(event) {
+function handleDragEnd() {
     draggedIndex = null;
     document.querySelectorAll('.slide-item').forEach(el => {
         el.classList.remove('dragging', 'drag-over');
@@ -403,13 +503,7 @@ function updatePreview() {
         return;
     }
 
-    const wrapper = document.getElementById('previewWrapper');
     const preview = document.getElementById('previewSlide');
-
-    // Always calculate and apply scale
-    const wrapperWidth = wrapper.offsetWidth;
-    const scale = Math.min(1, wrapperWidth / 1280);
-    preview.style.transform = `scale(${scale})`;
 
     if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) {
         preview.innerHTML = `
@@ -426,12 +520,37 @@ function updatePreview() {
     const slide = currentProject.slides[selectedSlideIndex];
     preview.innerHTML = renderSlidePreview(slide);
 
+    // Apply scaling after content is rendered
+    scalePreviewSlide();
+
     // Re-render mermaid if needed
     if (slide.template === 'mermaid') {
         setTimeout(() => {
             mermaid.run({ nodes: preview.querySelectorAll('.mermaid') });
         }, 100);
     }
+}
+
+function scalePreviewSlide() {
+    const panel = document.querySelector('.preview-panel');
+    const wrapper = document.getElementById('previewWrapper');
+    const preview = document.getElementById('previewSlide');
+    if (!panel || !wrapper || !preview) return;
+
+    // Account for panel padding (20px on each side)
+    const availableWidth = panel.clientWidth - 40;
+    const availableHeight = panel.clientHeight - 40;
+
+    // Calculate scale to fit within available space while maintaining aspect ratio
+    const scaleX = availableWidth / 1280;
+    const scaleY = availableHeight / 720;
+    const scale = Math.min(1, scaleX, scaleY);
+
+    preview.style.transform = `scale(${scale})`;
+
+    // Size the wrapper to match scaled dimensions
+    wrapper.style.width = `${1280 * scale}px`;
+    wrapper.style.height = `${720 * scale}px`;
 }
 
 function renderSlidePreview(slide) {
@@ -444,18 +563,12 @@ function renderSlidePreview(slide) {
 // RESIZE HANDLER
 // ============================================================================
 
-window.addEventListener('resize', () => {
-    updatePreview();
-    if (document.getElementById('presentationPlayer').classList.contains('active')) {
-        updatePlayerSlide();
-    }
-});
-
 // ============================================================================
 // PRESENTATION PLAYER
 // ============================================================================
 
 let playerSlideIndex = 0;
+let playerResizeObserver = null;
 
 function startPresentation() {
     if (currentProject.slides.length === 0) {
@@ -472,11 +585,28 @@ function startPresentation() {
 
     // Add keyboard listener
     document.addEventListener('keydown', handlePlayerKeydown);
+
+    // Set up resize observer for player
+    const playerContent = document.querySelector('.player-content');
+    if (playerContent && !playerResizeObserver) {
+        playerResizeObserver = new ResizeObserver(() => scalePlayerSlide());
+        playerResizeObserver.observe(playerContent);
+    }
+
+    // Also listen to window resize
+    window.addEventListener('resize', scalePlayerSlide);
 }
 
 function exitPresentation() {
     document.getElementById('presentationPlayer').classList.remove('active');
     document.removeEventListener('keydown', handlePlayerKeydown);
+    window.removeEventListener('resize', scalePlayerSlide);
+
+    // Clean up resize observer
+    if (playerResizeObserver) {
+        playerResizeObserver.disconnect();
+        playerResizeObserver = null;
+    }
 
     // Sync selected slide with player position
     selectedSlideIndex = playerSlideIndex;
@@ -488,7 +618,6 @@ function exitPresentation() {
 function updatePlayerSlide() {
     const player = document.getElementById('presentationPlayer');
     const slideContainer = document.getElementById('playerSlide');
-    const wrapper = slideContainer.parentElement;
 
     if (!player.classList.contains('active')) return;
 
@@ -496,12 +625,8 @@ function updatePlayerSlide() {
     if (slide) {
         slideContainer.innerHTML = renderSlidePreview(slide);
 
-        // Calculate scale to fit wrapper
-        const wrapperRect = wrapper.getBoundingClientRect();
-        const scaleX = wrapperRect.width / 1280;
-        const scaleY = wrapperRect.height / 720;
-        const scale = Math.min(scaleX, scaleY, 1);
-        slideContainer.style.transform = `scale(${scale})`;
+        // Apply scaling after content is rendered
+        scalePlayerSlide();
 
         // Re-render mermaid if needed
         if (slide.template === 'mermaid') {
@@ -510,6 +635,27 @@ function updatePlayerSlide() {
             }, 100);
         }
     }
+}
+
+function scalePlayerSlide() {
+    const content = document.querySelector('.player-content');
+    const wrapper = document.querySelector('.player-slide-wrapper');
+    const slide = document.getElementById('playerSlide');
+    if (!content || !wrapper || !slide) return;
+
+    // Account for nav buttons (60px each + gap) and padding
+    const availableWidth = content.clientWidth - 180;
+    const availableHeight = content.clientHeight - 40;
+
+    const scaleX = availableWidth / 1280;
+    const scaleY = availableHeight / 720;
+    const scale = Math.min(1, scaleX, scaleY);
+
+    slide.style.transform = `scale(${scale})`;
+
+    // Size the wrapper to match scaled dimensions
+    wrapper.style.width = `${1280 * scale}px`;
+    wrapper.style.height = `${720 * scale}px`;
 }
 
 function updatePlayerControls() {
@@ -572,4 +718,129 @@ function handlePlayerKeydown(event) {
             exitPresentation();
             break;
     }
+}
+
+// ============================================================================
+// PANEL STATE MANAGEMENT
+// ============================================================================
+
+let sidebarCollapsed = false;
+let editorCollapsed = false;
+let editorHeight = null;
+let isResizingEditor = false;
+
+function initPanelStates() {
+    // Restore from sessionStorage
+    const savedSidebarCollapsed = sessionStorage.getItem('sidebarCollapsed');
+    const savedEditorCollapsed = sessionStorage.getItem('editorCollapsed');
+    const savedEditorHeight = sessionStorage.getItem('editorHeight');
+
+    if (savedSidebarCollapsed === 'true') {
+        sidebarCollapsed = true;
+        document.querySelector('.app').classList.add('sidebar-collapsed');
+        document.getElementById('sidebar').classList.add('collapsed');
+    }
+
+    if (savedEditorCollapsed === 'true') {
+        editorCollapsed = true;
+        document.getElementById('editorPanel').classList.add('collapsed');
+    }
+
+    if (savedEditorHeight) {
+        editorHeight = parseInt(savedEditorHeight, 10);
+    } else {
+        editorHeight = 220; // Default height
+    }
+
+    if (!editorCollapsed) {
+        document.getElementById('editorPanel').style.height = editorHeight + 'px';
+    }
+
+    // Render compact slide list
+    renderCompactSlideList();
+
+    // Initialize resize handle
+    initEditorResize();
+}
+
+function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    document.querySelector('.app').classList.toggle('sidebar-collapsed', sidebarCollapsed);
+    document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+    sessionStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+
+    // Update preview scaling after layout change
+    setTimeout(scalePreviewSlide, 250);
+}
+
+function toggleEditorPanel() {
+    editorCollapsed = !editorCollapsed;
+    document.getElementById('editorPanel').classList.toggle('collapsed', editorCollapsed);
+    sessionStorage.setItem('editorCollapsed', editorCollapsed);
+
+    // Restore height when expanding
+    if (!editorCollapsed && editorHeight) {
+        document.getElementById('editorPanel').style.height = editorHeight + 'px';
+    }
+
+    // Update preview scaling after layout change
+    setTimeout(scalePreviewSlide, 250);
+}
+
+function renderCompactSlideList() {
+    const list = document.getElementById('compactSlideList');
+    if (!list) return;
+
+    list.innerHTML = currentProject.slides.map((_, index) => `
+        <div class="compact-slide-item ${index === selectedSlideIndex ? 'active' : ''}"
+             onclick="selectSlide(${index})"
+             title="Slide ${index + 1}">
+            ${index + 1}
+        </div>
+    `).join('');
+}
+
+function initEditorResize() {
+    const handle = document.getElementById('editorResizeHandle');
+    const panel = document.getElementById('editorPanel');
+    const mainContent = document.querySelector('.main-content');
+
+    if (!handle || !panel || !mainContent) return;
+
+    handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isResizingEditor = true;
+        handle.classList.add('resizing');
+        document.body.style.cursor = 'ns-resize';
+        document.body.style.userSelect = 'none';
+
+        const startY = e.clientY;
+        const startHeight = panel.offsetHeight;
+
+        function onMouseMove(e) {
+            if (!isResizingEditor) return;
+            const deltaY = startY - e.clientY;
+            const newHeight = Math.max(100, Math.min(startHeight + deltaY, mainContent.offsetHeight - 200));
+            panel.style.height = newHeight + 'px';
+            editorHeight = newHeight;
+            scalePreviewSlide();
+        }
+
+        function onMouseUp() {
+            isResizingEditor = false;
+            handle.classList.remove('resizing');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+
+            // Save to sessionStorage
+            if (editorHeight) {
+                sessionStorage.setItem('editorHeight', editorHeight);
+            }
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
 }

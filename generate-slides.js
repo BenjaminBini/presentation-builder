@@ -74,19 +74,28 @@ const templates = {
         </div>
     `,
 
-    bullets: (data) => `
+    bullets: (data) => {
+        const showTag = data.showTag !== false;
+        const renderItem = (item) => {
+            const isObject = typeof item === 'object';
+            const text = isObject ? item.text : item;
+            const level = isObject ? (item.level || 0) : 0;
+            return `<li${level > 0 ? ` data-level="${level}"` : ''}>${escapeHtml(text)}</li>`;
+        };
+        return `
         <div class="slide template-bullets">
             <div class="header-bar">
                 <h2>${escapeHtml(data.title)}</h2>
-                ${data.tag ? `<span class="slide-tag">${escapeHtml(data.tag)}</span>` : ''}
+                ${showTag && data.tag ? `<span class="slide-tag">${escapeHtml(data.tag)}</span>` : ''}
             </div>
             <div class="content">
                 <ul>
-                    ${data.items.map(item => `<li>${escapeHtml(item)}</li>`).join('\n                    ')}
+                    ${data.items.map(renderItem).join('\n                    ')}
                 </ul>
             </div>
         </div>
-    `,
+    `;
+    },
 
     'two-columns': (data) => {
         const renderColumn = (col) => {
@@ -274,6 +283,7 @@ const templates = {
     },
 
     timeline: (data) => {
+        const stepCount = data.steps.length;
         const stepsHtml = data.steps.map((step, i) => `
             <div class="timeline-item">
                 <div class="timeline-icon">${escapeHtml(step.icon) || (i + 1)}</div>
@@ -285,7 +295,10 @@ const templates = {
         return `
         <div class="slide template-timeline">
             <h2>${escapeHtml(data.title)}</h2>
-            <div class="timeline">${stepsHtml}</div>
+            <div class="timeline-wrapper">
+                <div class="timeline-line" style="left: calc(50% / ${stepCount || 1}); right: calc(50% / ${stepCount || 1});"></div>
+                <div class="timeline">${stepsHtml}</div>
+            </div>
         </div>
         `;
     },
@@ -328,7 +341,20 @@ const templates = {
                 <pre class="mermaid">${escapeHtml(data.diagram)}</pre>
             </div>
         </div>
-    `
+    `,
+
+    drawio: (data) => {
+        const placeholderSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="6" rx="1"/><rect x="14" y="2" width="8" height="6" rx="1"/><rect x="8" y="16" width="8" height="6" rx="1"/><path d="M6 8v4h6M18 8v4h-6M12 12v4"/></svg>';
+        return `
+        <div class="slide template-drawio">
+            <h2>${escapeHtml(data.title)}</h2>
+            ${data.description ? `<p class="drawio-description">${escapeHtml(data.description)}</p>` : ''}
+            <div class="drawio-container">
+                ${data.diagram ? `<img class="drawio-svg" src="${escapeHtml(data.diagram)}" alt="Diagram">` : `<div class="drawio-placeholder">${placeholderSvg}<p>Aucun diagramme</p></div>`}
+            </div>
+        </div>
+    `;
+    }
 };
 
 // Render a single slide
@@ -547,6 +573,12 @@ const CSS_STYLES = `
             border-radius: 6px;
             transform: rotate(45deg);
         }
+        .template-bullets li[data-level="1"] { margin-left: 40px; font-size: 24px; }
+        .template-bullets li[data-level="1"]::before { width: 18px; height: 18px; top: 10px; border-radius: 50%; transform: none; }
+        .template-bullets li[data-level="2"] { margin-left: 80px; font-size: 22px; }
+        .template-bullets li[data-level="2"]::before { width: 14px; height: 14px; top: 10px; border-radius: 0; opacity: 0.8; }
+        .template-bullets li[data-level="3"] { margin-left: 120px; font-size: 20px; }
+        .template-bullets li[data-level="3"]::before { width: 10px; height: 10px; top: 10px; border-radius: 50%; transform: none; opacity: 0.6; }
 
         /* Template: Two Columns */
         .template-two-columns {
@@ -612,7 +644,7 @@ const CSS_STYLES = `
         .template-image-text .image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
         .template-image-text .image-placeholder {
             width: 200px;
@@ -956,28 +988,29 @@ const CSS_STYLES = `
             margin-bottom: 60px;
             text-align: center;
         }
+        .template-timeline .timeline-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        .template-timeline .timeline-line {
+            position: absolute;
+            top: 40px;
+            height: 4px;
+            background: var(--gl-gray-200);
+            z-index: 0;
+        }
         .template-timeline .timeline {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             position: relative;
-            padding: 0 40px;
-        }
-        .template-timeline .timeline::before {
-            content: '';
-            position: absolute;
-            top: 40px;
-            left: 80px;
-            right: 80px;
-            height: 4px;
-            background: var(--gl-gray-200);
         }
         .template-timeline .timeline-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            width: 200px;
+            flex: 1;
             position: relative;
             z-index: 1;
         }
@@ -994,6 +1027,8 @@ const CSS_STYLES = `
             font-weight: 700;
             margin-bottom: 24px;
             box-shadow: 0 10px 30px rgba(252, 109, 38, 0.3);
+            position: relative;
+            z-index: 2;
         }
         .template-timeline .timeline-title {
             font-size: 20px;
@@ -1055,18 +1090,21 @@ const CSS_STYLES = `
             padding: 50px 60px;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         .template-mermaid h2 {
             font-size: 36px;
             font-weight: 700;
             color: var(--gl-dark);
             margin-bottom: 16px;
+            flex-shrink: 0;
         }
         .template-mermaid .mermaid-description {
             font-size: 18px;
             color: var(--gl-gray-600);
             margin-bottom: 24px;
             line-height: 1.5;
+            flex-shrink: 0;
         }
         .template-mermaid .mermaid-container {
             flex: 1;
@@ -1077,13 +1115,78 @@ const CSS_STYLES = `
             border-radius: 16px;
             padding: 30px;
             overflow: hidden;
+            min-height: 0;
+            position: relative;
         }
         .template-mermaid .mermaid {
             font-family: 'Inter', sans-serif;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .template-mermaid .mermaid svg {
             max-width: 100%;
             max-height: 100%;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        /* Template: Draw.io */
+        .template-drawio {
+            background: var(--gl-white);
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .template-drawio h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gl-dark);
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .template-drawio .drawio-description {
+            font-size: 18px;
+            color: var(--gl-gray-600);
+            margin-bottom: 24px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+        .template-drawio .drawio-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            overflow: hidden;
+            min-height: 0;
+        }
+        .template-drawio .drawio-placeholder {
+            color: var(--gl-gray-400);
+            text-align: center;
+        }
+        .template-drawio .drawio-placeholder svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        .template-drawio .drawio-placeholder p {
+            font-size: 16px;
+        }
+        .template-drawio img.drawio-svg {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            color-scheme: light only;
         }
 `;
 
@@ -1099,7 +1202,7 @@ function generateHtml(presentationData) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
     <style>${CSS_STYLES}
     </style>
 </head>
@@ -1125,6 +1228,13 @@ ${slidesHtml}
         mermaid.initialize({
             startOnLoad: true,
             theme: 'base',
+            fontSize: 20,
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                nodeSpacing: 85,
+                rankSpacing: 68
+            },
             themeVariables: {
                 primaryColor: '#FC6D26',
                 primaryTextColor: '#171321',
