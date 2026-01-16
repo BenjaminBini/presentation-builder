@@ -387,7 +387,7 @@ const SAMPLE_PROJECT = {
                 items: [
                     '12 templates de slides professionnels',
                     'Personnalisation des couleurs du thème',
-                    'Export JSON pour generate-slides.js',
+                    'Export JSON et génération HTML',
                     'Sauvegarde locale automatique',
                     'Interface intuitive drag & drop'
                 ]

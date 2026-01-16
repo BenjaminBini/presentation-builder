@@ -1,0 +1,309 @@
+/* Slide Template Editors - Advanced Components */
+/* Agenda Editor */
+.agenda-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agenda-item-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+}
+
+.agenda-item-card:hover {
+  border-color: var(--gray-300);
+}
+
+.agenda-item-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-main);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.agenda-item-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agenda-item-title {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+}
+
+.agenda-item-row {
+  display: flex;
+  gap: 8px;
+}
+
+.agenda-item-subtitle {
+  flex: 1;
+  font-size: 13px;
+  padding: 5px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  color: var(--gray-600);
+}
+
+.agenda-item-duration {
+  width: 80px;
+  font-size: 13px;
+  padding: 5px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.agenda-item-delete {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--gray-400);
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.agenda-item-delete svg {
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.agenda-item-card:hover .agenda-item-delete {
+  opacity: 1;
+}
+
+.agenda-item-delete:hover {
+  background: var(--error);
+  color: white;
+}
+
+/* Annotations Editor */
+.annotations-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.annotation-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 12px;
+  border-left: 3px solid var(--purple);
+  transition: border-color 0.2s;
+}
+
+.annotation-card:hover {
+  border-color: var(--gray-300);
+  border-left-color: var(--purple);
+}
+
+.annotation-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.annotation-lines {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gray-100);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.annotation-line-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.annotation-line-input {
+  width: 50px;
+  padding: 4px 6px;
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  font-family: monospace;
+}
+
+.annotation-line-sep {
+  color: var(--gray-400);
+  font-size: 12px;
+}
+
+.annotation-delete {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--gray-400);
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.annotation-delete svg {
+  width: 100%;
+  height: 100%;
+}
+
+.annotation-card:hover .annotation-delete {
+  opacity: 1;
+}
+
+.annotation-delete:hover {
+  background: var(--error);
+  color: white;
+}
+
+.annotation-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.annotation-title-input {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+}
+
+.annotation-text-input {
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+}
+
+/* Column Editor (Two-Columns Template) */
+.column-editor {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  border-left: 3px solid var(--info);
+  overflow: hidden;
+}
+
+.column-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.column-editor-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+.column-title-input {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  background: var(--white);
+}
+
+.column-editor-items {
+  padding: 12px 14px;
+}
+
+.column-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.column-item-bullet {
+  color: var(--gray-400);
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.column-item input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.column-item-delete {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--gray-400);
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.column-item-delete svg {
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.column-item:hover .column-item-delete {
+  opacity: 1;
+}
+
+.column-item-delete:hover {
+  background: var(--error);
+  color: white;
+}
+

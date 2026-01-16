@@ -29,7 +29,7 @@ A visual slide presentation editor with a GitLab-style theme. Create professiona
 ### Generate Static HTML (Node.js)
 
 ```bash
-node generate-slides.js presentation-data.json output.html
+node slide-generator/index.js presentation-data.json output.html
 ```
 
 ## For LLMs / AI Integration
@@ -72,7 +72,12 @@ See **[LLM_INSTRUCTIONS.md](LLM_INSTRUCTIONS.md)** for detailed instructions on 
 ├── slide-editor.html      # Main editor interface
 ├── slide-editor-*.js      # Editor JavaScript modules
 ├── slide-editor-*.css     # Editor styles
-├── generate-slides.js     # Static HTML generator (Node.js)
+├── slide-generator/       # Static HTML generator (Node.js)
+│   ├── index.js          # CLI entry point
+│   ├── templates.js      # Template registry
+│   ├── renderers.js      # Template renderers
+│   ├── styles.js         # CSS styles
+│   └── utils.js          # Utility functions
 ├── presentation-data.json # Example presentation
 ├── LLM_INSTRUCTIONS.md    # AI/LLM integration guide
 └── README.md             # This file

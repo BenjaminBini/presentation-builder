@@ -452,19 +452,19 @@ The default theme is GitLab-style. You can override specific colors:
 
 The system can generate:
 1. **JSON Export** - Portable data format for backup/sharing
-2. **Static HTML** - Self-contained presentation file via `generate-slides.js`
+2. **Static HTML** - Self-contained presentation file via `slide-generator/index.js`
 
 ## Usage with Node.js
 
 To generate static HTML from JSON:
 
 ```bash
-node generate-slides.js presentation-data.json output.html
+node slide-generator/index.js presentation-data.json output.html
 ```
 
 Or import and use programmatically:
 
 ```javascript
-const fs = require('fs');
-// ... (see generate-slides.js for full implementation)
+const { loadPresentationData, generateHtml, writeOutput } = require('./slide-generator');
+// ... (see slide-generator/index.js for full implementation)
 ```

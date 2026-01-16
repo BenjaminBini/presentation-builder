@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slide Editor - GitLab Style</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="slide-editor-styles.css">
+    <link rel="stylesheet" href="styles/main.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -377,12 +377,60 @@
         </div>
     </div>
 
-    <!-- Load scripts in order: config first, then templates, editor, projects, inline, and finally app -->
+    <!-- Load scripts in order: utils first, then config, templates, editor modules, projects modules, inline modules, and finally app -->
+    <script src="utils/html-utils.js"></script>
+    <script src="utils/svg-utils.js"></script>
     <script src="slide-editor-config.js"></script>
-    <script src="slide-editor-templates.js"></script>
-    <script src="slide-editor-editor.js"></script>
-    <script src="slide-editor-projects.js"></script>
-    <script src="slide-editor-inline.js"></script>
-    <script src="slide-editor-app.js"></script>
+    <!-- Template modules - loaded in dependency order -->
+    <script src="templates/theme.js"></script>
+    <script src="templates/preview-styles.js"></script>
+    <script src="templates/utilities.js"></script>
+    <script src="templates/components/basic.js"></script>
+    <script src="templates/components/layout.js"></script>
+    <script src="templates/components/code.js"></script>
+    <script src="templates/components/comparison.js"></script>
+    <script src="templates/components/data.js"></script>
+    <script src="templates/renderer.js"></script>
+    <!-- Editor modules - loaded in dependency order -->
+    <script src="editor/color-selector.js"></script>
+    <script src="editor/template-settings.js"></script>
+    <script src="editor/fields/base.js"></script>
+    <script src="editor/fields/text.js"></script>
+    <script src="editor/fields/array.js"></script>
+    <script src="editor/fields/table.js"></script>
+    <script src="editor/fields/complex.js"></script>
+    <script src="editor/handlers.js"></script>
+    <script src="editor/panel.js"></script>
+    <!-- Projects modules - loaded in dependency order -->
+    <script src="projects/notifications.js"></script>
+    <script src="projects/modal.js"></script>
+    <script src="projects/manager.js"></script>
+    <script src="projects/import-export.js"></script>
+    <script src="projects/export-templates.js"></script>
+    <script src="projects/export-css.js"></script>
+    <script src="projects/export-html.js"></script>
+    <!-- Inline editing modules - loaded in dependency order -->
+    <script src="inline-editing/core.js"></script>
+    <script src="inline-editing/data-updates.js"></script>
+    <script src="inline-editing/text-editor.js"></script>
+    <script src="inline-editing/navigation.js"></script>
+    <script src="inline-editing/image-picker.js"></script>
+    <script src="inline-editing/code-editor.js"></script>
+    <script src="inline-editing/drawio-editor.js"></script>
+    <script src="inline-editing/annotations.js"></script>
+    <script src="inline-editing/list-table-manager.js"></script>
+    <script src="inline-editing/html-adapters.js"></script>
+    <!-- App modules - loaded in dependency order -->
+    <script src="app/state.js"></script>
+    <script src="app/project.js"></script>
+    <script src="app/theme.js"></script>
+    <script src="app/sidebar.js"></script>
+    <script src="app/slides/list.js"></script>
+    <script src="app/slides/preview.js"></script>
+    <script src="app/slides/management.js"></script>
+    <script src="app/presentation.js"></script>
+    <script src="app/panels.js"></script>
+    <!-- Main initialization - must load last -->
+    <script src="app/index.js"></script>
 </body>
 </html>
