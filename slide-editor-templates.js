@@ -106,8 +106,8 @@ function getPreviewStyles() {
         /* Code */
         .template-code { background: var(--gl-gradient-dark); padding: 50px 60px; height: 100%; }
         .template-code h2 { font-size: 36px; font-weight: 700; color: var(--gl-white); margin-bottom: 30px; }
-        .template-code .code-container { background: #252030; border-radius: 16px; overflow: hidden; }
-        .template-code .code-header { background: var(--gl-gray-800); padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
+        .template-code .code-container { background: #0d0a12; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+        .template-code .code-header { background: #1a1520; padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
         .template-code .code-dot { width: 12px; height: 12px; border-radius: 50%; }
         .template-code .code-dot.red { background: #FF5F56; }
         .template-code .code-dot.yellow { background: #FFBD2E; }
@@ -123,8 +123,8 @@ function getPreviewStyles() {
         .template-code-annotated { background: var(--gl-gradient-dark); padding: 40px 50px; height: 100%; }
         .template-code-annotated h2 { font-size: 32px; font-weight: 700; color: var(--gl-white); margin-bottom: 24px; }
         .template-code-annotated .code-annotated-container { display: grid; grid-template-columns: 1fr 380px; gap: 30px; height: calc(100% - 80px); }
-        .template-code-annotated .code-container { background: #252030; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-        .template-code-annotated .code-header { background: var(--gl-gray-800); padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
+        .template-code-annotated .code-container { background: #0d0a12; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+        .template-code-annotated .code-header { background: #1a1520; padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
         .template-code-annotated .code-dot { width: 12px; height: 12px; border-radius: 50%; }
         .template-code-annotated .code-dot.red { background: #FF5F56; }
         .template-code-annotated .code-dot.yellow { background: #FFBD2E; }
