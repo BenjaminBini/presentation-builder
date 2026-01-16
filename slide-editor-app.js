@@ -398,6 +398,11 @@ function handleDragEnd(event) {
 // ============================================================================
 
 function updatePreview() {
+    // Skip re-render if inline editing is active
+    if (typeof InlineEditor !== 'undefined' && InlineEditor.isEditing) {
+        return;
+    }
+
     const wrapper = document.getElementById('previewWrapper');
     const preview = document.getElementById('previewSlide');
 

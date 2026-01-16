@@ -113,8 +113,11 @@ function getPreviewStyles() {
         .template-code .code-dot.yellow { background: #FFBD2E; }
         .template-code .code-dot.green { background: #27CA40; }
         .template-code .code-filename { margin-left: 16px; color: var(--gl-gray-400); font-size: 14px; }
-        .template-code pre { padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 16px; line-height: 1.6; overflow: auto; }
-        .template-code code { color: var(--gl-gray-200); }
+        .template-code .code-body { padding: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 16px; line-height: 1.6; overflow: auto; }
+        .template-code .code-line { display: flex; padding: 0 20px; }
+        .template-code .code-line.ellipsis { opacity: 0.5; }
+        .template-code .line-number { color: var(--gl-gray-600); width: 40px; flex-shrink: 0; text-align: right; padding-right: 16px; user-select: none; }
+        .template-code .line-content { color: var(--gl-gray-200); white-space: pre; }
         .template-code .code-description { margin-top: 30px; color: var(--gl-gray-400); font-size: 18px; }
         /* Code annotated */
         .template-code-annotated { background: var(--gl-gradient-dark); padding: 40px 50px; height: 100%; }
@@ -131,6 +134,7 @@ function getPreviewStyles() {
         .template-code-annotated .code-line { display: flex; padding: 0 20px; border-left: 3px solid transparent; }
         .template-code-annotated .code-line.highlighted { background: rgba(252,109,38,0.15); border-left-color: var(--gl-orange); }
         .template-code-annotated .code-line.highlighted .line-number { color: var(--gl-orange); }
+        .template-code-annotated .code-line.annotation-boundary { border-bottom: 1px solid var(--gl-orange); }
         .template-code-annotated .code-line.ellipsis { opacity: 0.5; }
         .template-code-annotated .line-number { color: var(--gl-gray-600); width: 40px; flex-shrink: 0; text-align: right; padding-right: 16px; }
         .template-code-annotated .line-content { color: var(--gl-gray-200); white-space: pre; }
@@ -176,20 +180,22 @@ function renderTemplate(template, data) {
         case 'title':
             return `
                 <div class="slide-content template-title">
-                    ${data.logo ? `<img src="${data.logo}" class="logo">` : getGitLabLogo()}
-                    <h1>${escapeHtml(data.title || '')}</h1>
-                    ${data.subtitle ? `<div class="subtitle">${escapeHtml(data.subtitle)}</div>` : ''}
-                    ${data.author ? `<div class="author">${escapeHtml(data.author)}</div>` : ''}
-                    ${data.date ? `<div class="date">${escapeHtml(data.date)}</div>` : ''}
+                    <div class="logo-container" data-editable="image" data-field-key="logo" style="position:relative;">
+                        ${data.logo ? `<img src="${data.logo}" class="logo">` : getGitLabLogo()}
+                    </div>
+                    <h1 data-editable="text" data-field-key="title" data-placeholder="Titre de la présentation">${escapeHtml(data.title || '')}</h1>
+                    <div class="subtitle" data-editable="text" data-field-key="subtitle" data-placeholder="Sous-titre">${escapeHtml(data.subtitle || '')}</div>
+                    <div class="author" data-editable="text" data-field-key="author" data-placeholder="Auteur">${escapeHtml(data.author || '')}</div>
+                    <div class="date" data-editable="text" data-field-key="date" data-placeholder="Date">${escapeHtml(data.date || '')}</div>
                 </div>
             `;
 
         case 'section':
             return `
                 <div class="slide-content template-section">
-                    <span class="section-number">${escapeHtml(data.number || '')}</span>
-                    <h2>${escapeHtml(data.title || '')}</h2>
-                    ${data.subtitle ? `<div class="section-subtitle">${escapeHtml(data.subtitle)}</div>` : ''}
+                    <span class="section-number" data-editable="text" data-field-key="number" data-placeholder="01">${escapeHtml(data.number || '')}</span>
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre de section">${escapeHtml(data.title || '')}</h2>
+                    <div class="section-subtitle" data-editable="text" data-field-key="subtitle" data-placeholder="Sous-titre">${escapeHtml(data.subtitle || '')}</div>
                 </div>
             `;
 
@@ -197,11 +203,12 @@ function renderTemplate(template, data) {
             return `
                 <div class="slide-content template-bullets">
                     <div class="header-bar">
-                        <h2>${escapeHtml(data.title || '')}</h2>
-                        ${data.tag ? `<span class="slide-tag">${escapeHtml(data.tag)}</span>` : ''}
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
+                        <span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(data.tag || '')}</span>
                     </div>
-                    <ul>
-                        ${(data.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+                    <ul class="repeatable-list" data-list-key="items">
+                        ${(data.items || []).map((item, i) => `<li class="repeatable-item" data-editable="text" data-field-key="items" data-field-index="${i}" data-placeholder="Point ${i + 1}">${escapeHtml(item)}<button class="delete-item-btn" data-list-key="items" data-item-index="${i}" title="Supprimer">×</button></li>`).join('')}
+                        <li class="add-item-row"><button class="add-item-btn" data-list-key="items" title="Ajouter un élément">+ Ajouter</button></li>
                     </ul>
                 </div>
             `;
@@ -209,15 +216,21 @@ function renderTemplate(template, data) {
         case 'two-columns':
             return `
                 <div class="slide-content template-two-columns">
-                    <h2>${escapeHtml(data.title || '')}</h2>
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
                     <div class="columns">
                         <div class="column">
-                            ${data.left?.title ? `<h3>${escapeHtml(data.left.title)}</h3>` : ''}
-                            <ul>${(data.left?.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                            <h3 data-editable="text" data-field-key="left.title" data-placeholder="Titre colonne gauche">${escapeHtml(data.left?.title || '')}</h3>
+                            <ul class="repeatable-list" data-list-key="left.items">
+                                ${(data.left?.items || []).map((item, i) => `<li class="repeatable-item" data-editable="text" data-field-key="left.items" data-field-index="${i}" data-placeholder="Point ${i + 1}">${escapeHtml(item)}<button class="delete-item-btn" data-list-key="left.items" data-item-index="${i}" title="Supprimer">×</button></li>`).join('')}
+                                <li class="add-item-row"><button class="add-item-btn" data-list-key="left.items" title="Ajouter un élément">+ Ajouter</button></li>
+                            </ul>
                         </div>
                         <div class="column">
-                            ${data.right?.title ? `<h3>${escapeHtml(data.right.title)}</h3>` : ''}
-                            <ul>${(data.right?.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                            <h3 data-editable="text" data-field-key="right.title" data-placeholder="Titre colonne droite">${escapeHtml(data.right?.title || '')}</h3>
+                            <ul class="repeatable-list" data-list-key="right.items">
+                                ${(data.right?.items || []).map((item, i) => `<li class="repeatable-item" data-editable="text" data-field-key="right.items" data-field-index="${i}" data-placeholder="Point ${i + 1}">${escapeHtml(item)}<button class="delete-item-btn" data-list-key="right.items" data-item-index="${i}" title="Supprimer">×</button></li>`).join('')}
+                                <li class="add-item-row"><button class="add-item-btn" data-list-key="right.items" title="Ajouter un élément">+ Ajouter</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -227,12 +240,12 @@ function renderTemplate(template, data) {
             const textArray = Array.isArray(data.text) ? data.text : (data.text || '').split('\n');
             return `
                 <div class="slide-content template-image-text">
-                    <div class="image-side">
+                    <div class="image-side" data-editable="image" data-field-key="image" style="position:relative;cursor:pointer;">
                         ${data.image ? `<img src="${data.image}" alt="${escapeHtml(data.imageAlt || '')}">` : '<div class="image-placeholder"><svg style="width:64px;height:64px;stroke:currentColor;stroke-width:1.5;fill:none;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>'}
                     </div>
                     <div class="text-side">
-                        <h2>${escapeHtml(data.title || '')}</h2>
-                        ${textArray.map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
+                        ${textArray.map((p, i) => `<p data-editable="text" data-field-key="text" data-field-index="${i}" data-placeholder="Paragraphe ${i + 1}">${escapeHtml(p)}</p>`).join('')}
                     </div>
                 </div>
             `;
@@ -242,12 +255,14 @@ function renderTemplate(template, data) {
             return `
                 <div class="slide-content template-quote">
                     <div class="quote-content">
-                        <blockquote>${escapeHtml(data.quote || '')}</blockquote>
+                        <blockquote data-editable="multiline" data-field-key="quote" data-placeholder="Citation">${escapeHtml(data.quote || '')}</blockquote>
                         <div class="author-info">
-                            ${data.authorImage ? `<img src="${data.authorImage}" class="author-avatar">` : `<div class="author-avatar">${initials}</div>`}
+                            <div class="author-avatar-container" data-editable="image" data-field-key="authorImage" style="position:relative;">
+                                ${data.authorImage ? `<img src="${data.authorImage}" class="author-avatar">` : `<div class="author-avatar">${initials}</div>`}
+                            </div>
                             <div>
-                                <div class="author-name">${escapeHtml(data.authorName || '')}</div>
-                                <div class="author-title">${escapeHtml(data.authorTitle || '')}</div>
+                                <div class="author-name" data-editable="text" data-field-key="authorName" data-placeholder="Nom de l'auteur">${escapeHtml(data.authorName || '')}</div>
+                                <div class="author-title" data-editable="text" data-field-key="authorTitle" data-placeholder="Titre de l'auteur">${escapeHtml(data.authorTitle || '')}</div>
                             </div>
                         </div>
                     </div>
@@ -257,15 +272,17 @@ function renderTemplate(template, data) {
         case 'stats':
             return `
                 <div class="slide-content template-stats">
-                    <h2>${escapeHtml(data.title || '')}</h2>
-                    <div class="stats-grid">
-                        ${(data.stats || []).map(stat => `
-                            <div class="stat-card">
-                                <div class="stat-value">${escapeHtml(stat.value || '')}</div>
-                                <div class="stat-label">${escapeHtml(stat.label || '')}</div>
-                                ${stat.change ? `<span class="stat-change ${stat.change.startsWith('-') ? 'negative' : 'positive'}">${escapeHtml(stat.change)}</span>` : ''}
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
+                    <div class="stats-grid repeatable-list" data-list-key="stats" data-list-type="object">
+                        ${(data.stats || []).map((stat, i) => `
+                            <div class="stat-card repeatable-item" data-item-index="${i}">
+                                <button class="delete-item-btn" data-list-key="stats" data-item-index="${i}" title="Supprimer">×</button>
+                                <div class="stat-value" data-editable="text" data-field-key="stats" data-field-index="${i}" data-field-subkey="value" data-placeholder="Valeur">${escapeHtml(stat.value || '')}</div>
+                                <div class="stat-label" data-editable="text" data-field-key="stats" data-field-index="${i}" data-field-subkey="label" data-placeholder="Label">${escapeHtml(stat.label || '')}</div>
+                                <span class="stat-change ${(stat.change || '').startsWith('-') ? 'negative' : 'positive'}" data-editable="text" data-field-key="stats" data-field-index="${i}" data-field-subkey="change" data-placeholder="+0%">${escapeHtml(stat.change || '')}</span>
                             </div>
                         `).join('')}
+                        <div class="stat-card add-item-row"><button class="add-item-btn" data-list-key="stats" data-list-type="object" title="Ajouter une statistique">+</button></div>
                     </div>
                 </div>
             `;
@@ -273,17 +290,17 @@ function renderTemplate(template, data) {
         case 'code':
             return `
                 <div class="slide-content template-code">
-                    <h2>${escapeHtml(data.title || '')}</h2>
-                    <div class="code-container">
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
+                    <div class="code-container" data-editable="code" data-field-key="code">
                         <div class="code-header">
                             <span class="code-dot red"></span>
                             <span class="code-dot yellow"></span>
                             <span class="code-dot green"></span>
-                            <span class="code-filename">${escapeHtml(data.filename || 'code.js')}</span>
+                            <span class="code-filename" data-editable="text" data-field-key="filename" data-placeholder="fichier.js">${escapeHtml(data.filename || 'code.js')}</span>
                         </div>
-                        <pre><code>${escapeHtml(data.code || '')}</code></pre>
+                        <div class="code-body">${renderCodeLines(data.code || '', data.showLineNumbers, data.startLine || 1, data.showEllipsisBefore, data.showEllipsisAfter)}</div>
                     </div>
-                    ${data.description ? `<p class="code-description">${escapeHtml(data.description)}</p>` : ''}
+                    <p class="code-description" data-editable="text" data-field-key="description" data-placeholder="Description du code">${escapeHtml(data.description || '')}</p>
                 </div>
             `;
 
@@ -293,15 +310,17 @@ function renderTemplate(template, data) {
         case 'timeline':
             return `
                 <div class="slide-content template-timeline">
-                    <h2>${escapeHtml(data.title || '')}</h2>
-                    <div class="timeline">
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
+                    <div class="timeline repeatable-list" data-list-key="steps" data-list-type="object">
                         ${(data.steps || []).map((step, i) => `
-                            <div class="timeline-item">
-                                <div class="timeline-icon">${escapeHtml(step.icon || String(i + 1))}</div>
-                                <div class="timeline-title">${escapeHtml(step.title || '')}</div>
-                                <div class="timeline-desc">${escapeHtml(step.description || '')}</div>
+                            <div class="timeline-item repeatable-item" data-item-index="${i}">
+                                <button class="delete-item-btn" data-list-key="steps" data-item-index="${i}" title="Supprimer">×</button>
+                                <div class="timeline-icon" data-editable="text" data-field-key="steps" data-field-index="${i}" data-field-subkey="icon" data-placeholder="${i + 1}">${escapeHtml(step.icon || String(i + 1))}</div>
+                                <div class="timeline-title" data-editable="text" data-field-key="steps" data-field-index="${i}" data-field-subkey="title" data-placeholder="Étape ${i + 1}">${escapeHtml(step.title || '')}</div>
+                                <div class="timeline-desc" data-editable="text" data-field-key="steps" data-field-index="${i}" data-field-subkey="description" data-placeholder="Description">${escapeHtml(step.description || '')}</div>
                             </div>
                         `).join('')}
+                        <div class="timeline-item add-item-row"><button class="add-item-btn" data-list-key="steps" data-list-type="object" title="Ajouter une étape">+</button></div>
                     </div>
                 </div>
             `;
@@ -310,19 +329,22 @@ function renderTemplate(template, data) {
             const highlightIdx = data.highlightColumn ? parseInt(data.highlightColumn) - 1 : -1;
             return `
                 <div class="slide-content template-comparison">
-                    <h2>${escapeHtml(data.title || '')}</h2>
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
                     <table>
                         <thead>
-                            <tr>${(data.columns || []).map((col, i) => `<th class="${i === highlightIdx ? 'highlight-col' : ''}">${escapeHtml(col)}</th>`).join('')}</tr>
+                            <tr>${(data.columns || []).map((col, i) => `<th class="${i === highlightIdx ? 'highlight-col' : ''}" data-editable="text" data-field-key="columns" data-field-index="${i}" data-placeholder="Colonne ${i + 1}">${escapeHtml(col)}</th>`).join('')}</tr>
                         </thead>
                         <tbody>
-                            ${(data.rows || []).map(row => `
-                                <tr>${row.map((cell, i) => {
+                            ${(data.rows || []).map((row, rowIdx) => `
+                                <tr>${row.map((cell, colIdx) => {
                                     let content = cell;
+                                    let isBoolean = cell === true || cell === 'true' || cell === false || cell === 'false';
                                     if (cell === true || cell === 'true') content = '<span class="check">✓</span>';
                                     else if (cell === false || cell === 'false') content = '<span class="cross">✗</span>';
                                     else content = escapeHtml(String(cell));
-                                    return `<td class="${i === highlightIdx ? 'highlight-col' : ''}">${content}</td>`;
+                                    // For boolean cells, don't make them directly editable (use property panel)
+                                    const editableAttr = isBoolean ? '' : `data-editable="text" data-field-key="rows" data-field-index="${rowIdx}" data-field-subkey="${colIdx}" data-placeholder="Cellule"`;
+                                    return `<td class="${colIdx === highlightIdx ? 'highlight-col' : ''}" ${editableAttr}>${content}</td>`;
                                 }).join('')}</tr>
                             `).join('')}
                         </tbody>
@@ -333,9 +355,9 @@ function renderTemplate(template, data) {
         case 'mermaid':
             return `
                 <div class="slide-content template-mermaid">
-                    <h2>${escapeHtml(data.title || '')}</h2>
-                    ${data.description ? `<p class="mermaid-description">${escapeHtml(data.description)}</p>` : ''}
-                    <div class="mermaid-container">
+                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
+                    <p class="mermaid-description" data-editable="text" data-field-key="description" data-placeholder="Description du diagramme">${escapeHtml(data.description || '')}</p>
+                    <div class="mermaid-container" data-editable="code" data-field-key="diagram">
                         <pre class="mermaid">${escapeHtml(data.diagram || '')}</pre>
                     </div>
                 </div>
@@ -354,8 +376,9 @@ function renderCodeAnnotated(data) {
     const lineHeight = 28;
     const codeStartOffset = 52;
     const startLineNum = data.startLine || 1;
-    const hasCodeBefore = startLineNum > 1;
-    const hasCodeAfter = data.notEndOfFile === true;
+    const showLineNumbers = data.showLineNumbers !== false; // Default true for annotated code
+    const showEllipsisBefore = data.showEllipsisBefore || false;
+    const showEllipsisAfter = data.showEllipsisAfter || data.notEndOfFile || false; // Support legacy
 
     const highlightedLines = new Set();
     (data.annotations || []).forEach(ann => {
@@ -364,29 +387,58 @@ function renderCodeAnnotated(data) {
         for (let i = start; i <= end; i++) highlightedLines.add(i);
     });
 
-    const ellipsisLine = `<div class="code-line ellipsis"><span class="line-number">...</span><span class="line-content"></span></div>`;
+    const ellipsisLine = showLineNumbers
+        ? `<div class="code-line ellipsis"><span class="line-number">...</span><span class="line-content"></span></div>`
+        : `<div class="code-line ellipsis"><span class="line-content">...</span></div>`;
+
+    // Build a map of which annotation each line belongs to
+    const lineToAnnotation = new Map();
+    (data.annotations || []).forEach((ann, idx) => {
+        const start = ann.line;
+        const end = ann.lineTo || ann.line;
+        for (let i = start; i <= end; i++) {
+            lineToAnnotation.set(i, idx);
+        }
+    });
 
     const codeLines = lines.map((line, i) => {
         const lineNum = startLineNum + i;
         const isHighlighted = highlightedLines.has(lineNum);
-        return `<div class="code-line${isHighlighted ? ' highlighted' : ''}"><span class="line-number">${lineNum}</span><span class="line-content">${escapeHtml(line) || ' '}</span></div>`;
+        const canAnnotate = !isHighlighted;
+        const addBtn = canAnnotate ? `<button class="add-annotation-btn" data-line="${lineNum}" title="Ajouter une annotation"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></button>` : '';
+
+        // Check if this is the last line of an annotation and next line starts a different annotation
+        const currentAnnotation = lineToAnnotation.get(lineNum);
+        const nextAnnotation = lineToAnnotation.get(lineNum + 1);
+        const isAnnotationBoundary = isHighlighted && nextAnnotation !== undefined && currentAnnotation !== nextAnnotation;
+
+        const classes = ['code-line'];
+        if (isHighlighted) classes.push('highlighted');
+        if (isAnnotationBoundary) classes.push('annotation-boundary');
+
+        if (showLineNumbers) {
+            return `<div class="${classes.join(' ')}" data-line-num="${lineNum}" data-can-annotate="${canAnnotate}"><span class="line-number">${lineNum}</span><span class="line-content">${escapeHtml(line) || ' '}</span>${addBtn}</div>`;
+        } else {
+            return `<div class="${classes.join(' ')}" data-line-num="${lineNum}" data-can-annotate="${canAnnotate}"><span class="line-content">${escapeHtml(line) || ' '}</span>${addBtn}</div>`;
+        }
     }).join('');
 
-    const allCodeLines = [hasCodeBefore ? ellipsisLine : '', codeLines, hasCodeAfter ? ellipsisLine : ''].filter(Boolean).join('');
-    const annotationOffset = hasCodeBefore ? lineHeight : 0;
+    const allCodeLines = [showEllipsisBefore ? ellipsisLine : '', codeLines, showEllipsisAfter ? ellipsisLine : ''].filter(Boolean).join('');
+    const annotationOffset = showEllipsisBefore ? lineHeight : 0;
 
-    const annotationsHtml = (data.annotations || []).map(ann => {
+    const annotationsHtml = (data.annotations || []).map((ann, i) => {
         const startLine = ann.line;
         const endLine = ann.lineTo || ann.line;
         const midLine = (startLine + endLine) / 2;
         const lineIndex = midLine - startLineNum;
         const topPosition = codeStartOffset + annotationOffset + (lineIndex * lineHeight);
         return `
-            <div class="annotation" style="top: ${topPosition}px;">
+            <div class="annotation" style="top: ${topPosition}px;" data-annotation-index="${i}">
                 <div class="annotation-arrow"></div>
                 <div class="annotation-content">
-                    ${ann.title ? `<div class="annotation-title">${escapeHtml(ann.title)}</div>` : ''}
-                    <div class="annotation-text">${escapeHtml(ann.text || '')}</div>
+                    <button class="delete-annotation-btn" data-annotation-index="${i}" title="Supprimer l'annotation">×</button>
+                    <div class="annotation-title" data-editable="text" data-field-key="annotations" data-field-index="${i}" data-field-subkey="title" data-placeholder="Titre">${escapeHtml(ann.title || '')}</div>
+                    <div class="annotation-text" data-editable="text" data-field-key="annotations" data-field-index="${i}" data-field-subkey="text" data-placeholder="Description">${escapeHtml(ann.text || '')}</div>
                 </div>
             </div>
         `;
@@ -394,15 +446,15 @@ function renderCodeAnnotated(data) {
 
     return `
         <div class="slide-content template-code-annotated">
-            <h2>${escapeHtml(data.title || '')}</h2>
+            <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(data.title || '')}</h2>
             <div class="code-annotated-container">
                 <div class="code-panel">
-                    <div class="code-container">
+                    <div class="code-container" data-editable="code" data-field-key="code" data-code-annotated="true">
                         <div class="code-header">
                             <span class="code-dot red"></span>
                             <span class="code-dot yellow"></span>
                             <span class="code-dot green"></span>
-                            <span class="code-filename">${escapeHtml(data.filename || 'code.js')}</span>
+                            <span class="code-filename" data-editable="text" data-field-key="filename" data-placeholder="fichier.js">${escapeHtml(data.filename || 'code.js')}</span>
                         </div>
                         <div class="code-body">${allCodeLines}</div>
                     </div>
@@ -439,4 +491,29 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+/**
+ * Render code lines with optional line numbers and ellipsis
+ */
+function renderCodeLines(code, showLineNumbers, startLine, showEllipsisBefore, showEllipsisAfter) {
+    const lines = (code || '').split('\n');
+    const start = startLine || 1;
+
+    const ellipsisLine = `<div class="code-line ellipsis"><span class="line-number">...</span><span class="line-content"></span></div>`;
+    const ellipsisLineNoNum = `<div class="code-line ellipsis"><span class="line-content">...</span></div>`;
+
+    const codeLines = lines.map((line, i) => {
+        const lineNum = start + i;
+        if (showLineNumbers) {
+            return `<div class="code-line"><span class="line-number">${lineNum}</span><span class="line-content">${escapeHtml(line) || ' '}</span></div>`;
+        } else {
+            return `<div class="code-line"><span class="line-content">${escapeHtml(line) || ' '}</span></div>`;
+        }
+    }).join('');
+
+    const ellipsisBefore = showEllipsisBefore ? (showLineNumbers ? ellipsisLine : ellipsisLineNoNum) : '';
+    const ellipsisAfter = showEllipsisAfter ? (showLineNumbers ? ellipsisLine : ellipsisLineNoNum) : '';
+
+    return ellipsisBefore + codeLines + ellipsisAfter;
 }

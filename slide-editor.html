@@ -217,9 +217,100 @@
         </div>
     </div>
 
+    <!-- Code Editor Modal -->
+    <div class="modal-overlay" id="codeEditorModal">
+        <div class="modal modal-xl">
+            <div class="modal-header">
+                <h3>Éditer le code</h3>
+                <button class="modal-close" onclick="closeCodeEditor()">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Code editor options -->
+                <div class="code-editor-options" id="codeEditorOptions">
+                    <div class="code-editor-option">
+                        <label>
+                            <input type="checkbox" id="codeShowLineNumbers" onchange="updateCodeEditorLineNumbers()">
+                            Afficher les numéros de ligne
+                        </label>
+                    </div>
+                    <div class="code-editor-option">
+                        <label for="codeStartLine">Ligne de départ</label>
+                        <input type="number" id="codeStartLine" min="1" value="1" onchange="updateCodeEditorLineNumbers()">
+                    </div>
+                    <div class="code-editor-option">
+                        <label>
+                            <input type="checkbox" id="codeShowEllipsisBefore" onchange="updateCodeEditorEllipsis()">
+                            "..." au début
+                        </label>
+                    </div>
+                    <div class="code-editor-option">
+                        <label>
+                            <input type="checkbox" id="codeShowEllipsisAfter" onchange="updateCodeEditorEllipsis()">
+                            "..." à la fin
+                        </label>
+                    </div>
+                </div>
+                <!-- Code editor with line numbers and ellipsis -->
+                <div class="code-editor-wrapper">
+                    <div class="code-editor-line-numbers" id="codeEditorLineNumbers"></div>
+                    <div class="code-editor-content">
+                        <div class="code-editor-ellipsis-line" id="codeEllipsisBefore">...</div>
+                        <textarea id="codeEditorInput" class="code-editor-input" spellcheck="false" placeholder="// Votre code ici" oninput="updateCodeEditorLineNumbers()" onscroll="syncLineNumbersScroll()"></textarea>
+                        <div class="code-editor-ellipsis-line" id="codeEllipsisAfter">...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCodeEditor()">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmCodeEdit()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Picker Modal -->
+    <div class="modal-overlay" id="imagePickerModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3>Choisir une image</h3>
+                <button class="modal-close" onclick="closeImagePicker()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="image-picker-tabs">
+                    <button class="image-picker-tab active" data-tab="url" onclick="switchImagePickerTab('url')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        URL
+                    </button>
+                    <button class="image-picker-tab" data-tab="upload" onclick="switchImagePickerTab('upload')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Télécharger
+                    </button>
+                </div>
+                <div class="image-picker-content" id="imagePickerUrl">
+                    <input type="text" id="imageUrlInput" placeholder="https://example.com/image.jpg" oninput="handleImageUrlInput(this.value)">
+                </div>
+                <div class="image-picker-content" id="imagePickerUpload" style="display:none">
+                    <div class="image-drop-zone" id="imageDropZone">
+                        <p>Glissez-déposez une image ici</p>
+                        <p>ou cliquez pour sélectionner</p>
+                    </div>
+                </div>
+                <div class="image-preview-container" id="imagePreviewContainer" style="display:none">
+                    <img id="imagePreview" src="" alt="Preview">
+                    <p class="image-size-warning" id="imageSizeWarning" style="display:none"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="clearImage()">Supprimer l'image</button>
+                <button class="btn btn-secondary" onclick="closeImagePicker()">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmImageSelection()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden file input for import -->
     <input type="file" id="importFileInput" class="hidden-input" accept=".json" onchange="handleFileSelect(event)">
     <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="handleImport(event)">
+    <input type="file" id="imageFileInput" class="hidden-input" accept="image/*" onchange="handleImageFileSelect(event)">
 
     <!-- Toast -->
     <div class="toast" id="toast"></div>
@@ -252,11 +343,12 @@
         </div>
     </div>
 
-    <!-- Load scripts in order: config first, then templates, editor, projects, and finally app -->
+    <!-- Load scripts in order: config first, then templates, editor, projects, inline, and finally app -->
     <script src="slide-editor-config.js"></script>
     <script src="slide-editor-templates.js"></script>
     <script src="slide-editor-editor.js"></script>
     <script src="slide-editor-projects.js"></script>
+    <script src="slide-editor-inline.js"></script>
     <script src="slide-editor-app.js"></script>
 </body>
 </html>
