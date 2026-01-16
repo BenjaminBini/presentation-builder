@@ -242,7 +242,7 @@ function renderArrayField(field, items) {
 
 function renderColumnField(field, column) {
     const isLeft = field.key === 'left';
-    const borderColor = isLeft ? 'var(--gl-blue)' : 'var(--gl-green)';
+    const borderColor = isLeft ? 'var(--info)' : 'var(--confirm)';
 
     return `
         <div class="form-group full-width">
@@ -428,7 +428,7 @@ function renderTableRowsField(field, rows) {
     return `
         <div class="form-group">
             <label>${field.label}</label>
-            ${field.hint ? `<small style="display: block; color: var(--gl-gray-500); margin-bottom: 8px;">${field.hint}</small>` : ''}
+            ${field.hint ? `<small style="display: block; color: var(--gray-500); margin-bottom: 8px;">${field.hint}</small>` : ''}
             <div class="table-editor">
                 <table class="table-editor-grid">
                     <thead>

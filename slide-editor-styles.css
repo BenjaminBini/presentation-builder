@@ -23,32 +23,40 @@
 }
 
 :root {
-    --gl-orange: #FC6D26;
-    --gl-orange-dark: #E24329;
-    --gl-orange-light: #FCA326;
-    --gl-dark: #171321;
-    --gl-gray-900: #1F1A24;
-    --gl-gray-800: #2E2A35;
-    --gl-gray-700: #3F3A47;
-    --gl-gray-600: #525059;
-    --gl-gray-500: #737278;
-    --gl-gray-400: #9A99A0;
-    --gl-gray-300: #BFBFC3;
-    --gl-gray-200: #DCDCDE;
-    --gl-gray-100: #ECECEF;
-    --gl-white: #FFFFFF;
-    --gl-purple: #6B4FBB;
-    --gl-blue: #1F75CB;
-    --gl-green: #108548;
-    --gl-green-light: #2DA160;
-    --gl-red: #DD2B0E;
+    /* Theme colors (can be overridden) */
+    --accent-main: #FC6D26;
+    --accent-alt: #E24329;
+    --accent-third: #FCA326;
+    --text-main: #FFFFFF;
+    --text-alt: #BFBFC3;
+    --text-third: #737278;
+    --bg-main: #171321;
+    --bg-alt: #1F1A24;
+    --bg-third: #2E2A35;
+    --confirm: #108548;
+    --info: #1F75CB;
+    --warn: #FCA326;
+    --error: #DD2B0E;
+    /* Static palette */
+    --gray-900: #1F1A24;
+    --gray-800: #2E2A35;
+    --gray-700: #3F3A47;
+    --gray-600: #525059;
+    --gray-500: #737278;
+    --gray-400: #9A99A0;
+    --gray-300: #BFBFC3;
+    --gray-200: #DCDCDE;
+    --gray-100: #ECECEF;
+    --white: #FFFFFF;
+    --purple: #6B4FBB;
+    --confirm-light: #2DA160;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     height: 100vh;
     overflow: hidden;
 }
@@ -64,16 +72,16 @@ body {
 /* Header */
 .header {
     grid-column: 1 / -1;
-    background: var(--gl-dark);
+    background: var(--bg-main);
     display: flex;
     align-items: center;
     padding: 0 20px;
     gap: 20px;
-    border-bottom: 1px solid var(--gl-gray-800);
+    border-bottom: 1px solid var(--gray-800);
 }
 
 .header h1 {
-    color: var(--gl-white);
+    color: var(--white);
     font-size: 18px;
     font-weight: 600;
     display: flex;
@@ -96,7 +104,7 @@ body {
 }
 
 .header-project-name:hover span {
-    background: var(--gl-gray-700);
+    background: var(--gray-700);
 }
 
 .header-project-name:hover .edit-icon {
@@ -104,11 +112,11 @@ body {
 }
 
 .header-project-name span {
-    color: var(--gl-white);
+    color: var(--white);
     font-size: 14px;
     font-weight: 500;
     padding: 6px 12px;
-    background: var(--gl-gray-800);
+    background: var(--gray-800);
     border-radius: 6px;
     max-width: 300px;
     white-space: nowrap;
@@ -120,7 +128,7 @@ body {
 .header-project-name .edit-icon {
     width: 16px;
     height: 16px;
-    stroke: var(--gl-gray-500);
+    stroke: var(--gray-500);
     stroke-width: 2;
     fill: none;
     opacity: 0;
@@ -135,10 +143,10 @@ body {
 
 .header-project-input {
     display: none;
-    background: var(--gl-gray-800);
-    border: 2px solid var(--gl-orange);
+    background: var(--gray-800);
+    border: 2px solid var(--accent-main);
     border-radius: 6px;
-    color: var(--gl-white);
+    color: var(--white);
     font-size: 14px;
     font-weight: 500;
     padding: 4px 10px;
@@ -170,36 +178,36 @@ body {
 }
 
 .btn-primary {
-    background: var(--gl-orange);
+    background: var(--accent-main);
     color: white;
 }
 
 .btn-primary:hover {
-    background: var(--gl-orange-dark);
+    background: var(--accent-alt);
 }
 
 .btn-secondary {
-    background: var(--gl-gray-700);
-    color: var(--gl-gray-200);
+    background: var(--gray-700);
+    color: var(--gray-200);
 }
 
 .btn-secondary:hover {
-    background: var(--gl-gray-600);
+    background: var(--gray-600);
 }
 
 .btn-ghost {
     background: transparent;
-    color: var(--gl-gray-300);
+    color: var(--gray-300);
 }
 
 .btn-ghost:hover {
-    background: var(--gl-gray-800);
+    background: var(--gray-800);
 }
 
 /* Sidebar */
 .sidebar {
-    background: var(--gl-white);
-    border-right: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -207,7 +215,7 @@ body {
 
 .sidebar-header {
     padding: 16px;
-    border-bottom: 1px solid var(--gl-gray-200);
+    border-bottom: 1px solid var(--gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -216,13 +224,13 @@ body {
 .sidebar-header h2 {
     font-size: 14px;
     font-weight: 600;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
 }
 
 /* Sidebar Tabs */
 .sidebar-tabs {
     display: flex;
-    border-bottom: 1px solid var(--gl-gray-200);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .sidebar-tab {
@@ -232,20 +240,20 @@ body {
     border: none;
     font-size: 13px;
     font-weight: 500;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     cursor: pointer;
     transition: all 0.2s;
     border-bottom: 2px solid transparent;
 }
 
 .sidebar-tab:hover {
-    color: var(--gl-gray-700);
-    background: var(--gl-gray-100);
+    color: var(--gray-700);
+    background: var(--gray-100);
 }
 
 .sidebar-tab.active {
-    color: var(--gl-orange);
-    border-bottom-color: var(--gl-orange);
+    color: var(--accent-main);
+    border-bottom-color: var(--accent-main);
 }
 
 .sidebar-content {
@@ -275,7 +283,7 @@ body {
 }
 
 .slide-item {
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 8px;
@@ -286,25 +294,25 @@ body {
 }
 
 .slide-item:hover {
-    border-color: var(--gl-gray-300);
+    border-color: var(--gray-300);
 }
 
 .slide-item.active {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     background: rgba(252, 109, 38, 0.05);
 }
 
 .slide-item-number {
     font-size: 11px;
     font-weight: 600;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     margin-bottom: 4px;
 }
 
 .slide-item-title {
     font-size: 13px;
     font-weight: 500;
-    color: var(--gl-gray-800);
+    color: var(--gray-800);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -312,7 +320,7 @@ body {
 
 .slide-item-template {
     font-size: 11px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     margin-top: 4px;
 }
 
@@ -333,8 +341,8 @@ body {
     height: 24px;
     border-radius: 4px;
     border: none;
-    background: var(--gl-white);
-    color: var(--gl-gray-600);
+    background: var(--white);
+    color: var(--gray-600);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -343,18 +351,18 @@ body {
 }
 
 .slide-item-btn:hover {
-    background: var(--gl-gray-200);
+    background: var(--gray-200);
 }
 
 .slide-item-btn.delete:hover {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
 }
 
 /* Drag and Drop */
 .drag-handle {
     cursor: grab;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     padding: 4px;
 }
 
@@ -367,7 +375,7 @@ body {
 }
 
 .slide-item.drag-over {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     border-style: dashed;
 }
 
@@ -413,8 +421,8 @@ body {
 
 /* Editor Panel */
 .editor-panel {
-    background: var(--gl-white);
-    border-top: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -423,14 +431,14 @@ body {
 
 .editor-header {
     padding: 12px 20px;
-    border-bottom: 1px solid var(--gl-gray-200);
+    border-bottom: 1px solid var(--gray-200);
     flex-shrink: 0;
 }
 
 .editor-header h2 {
     font-size: 16px;
     font-weight: 600;
-    color: var(--gl-gray-800);
+    color: var(--gray-800);
 }
 
 .editor-content {
@@ -460,9 +468,9 @@ body {
     display: flex;
     gap: 14px;
     padding: 16px;
-    background: linear-gradient(135deg, var(--gl-gray-100) 0%, rgba(252, 109, 38, 0.05) 100%);
+    background: linear-gradient(135deg, var(--gray-100) 0%, rgba(252, 109, 38, 0.05) 100%);
     border-radius: 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     margin-bottom: 20px;
     grid-column: 1 / -1;
 }
@@ -470,12 +478,12 @@ body {
 .editor-template-icon {
     width: 52px;
     height: 52px;
-    background: var(--gl-white);
+    background: var(--white);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--gl-orange);
+    color: var(--accent-main);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
 }
@@ -493,7 +501,7 @@ body {
 .editor-template-select {
     font-size: 16px;
     font-weight: 600;
-    color: var(--gl-gray-800);
+    color: var(--gray-800);
     background: transparent;
     border: none;
     padding: 0;
@@ -508,7 +516,7 @@ body {
 
 .editor-template-desc {
     font-size: 12px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     line-height: 1.4;
     margin: 0;
 }
@@ -516,8 +524,8 @@ body {
 /* Editor Sections */
 .editor-section {
     grid-column: 1 / -1;
-    background: var(--gl-white);
-    border: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 4px;
@@ -528,10 +536,10 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     padding: 10px 16px;
-    background: var(--gl-gray-100);
-    border-bottom: 1px solid var(--gl-gray-200);
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .editor-section-content {
@@ -559,19 +567,19 @@ body {
     display: block;
     font-size: 13px;
     font-weight: 500;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     margin-bottom: 6px;
 }
 
 .form-group label .required-mark {
-    color: var(--gl-orange);
+    color: var(--accent-main);
     font-weight: 600;
 }
 
 .field-hint {
     display: block;
     font-size: 11px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     margin-top: 4px;
     line-height: 1.4;
 }
@@ -583,27 +591,27 @@ body {
     gap: 10px;
     cursor: pointer;
     padding: 10px 14px;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     border-radius: 8px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     transition: all 0.2s;
 }
 
 .checkbox-label:hover {
-    border-color: var(--gl-gray-300);
-    background: var(--gl-gray-50);
+    border-color: var(--gray-300);
+    background: var(--gray-50);
 }
 
 .checkbox-label input[type="checkbox"] {
     width: 18px !important;
     height: 18px;
-    accent-color: var(--gl-orange);
+    accent-color: var(--accent-main);
     cursor: pointer;
 }
 
 .checkbox-text {
     font-size: 13px;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
 }
 
 /* Code textarea */
@@ -611,18 +619,18 @@ body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
     font-size: 13px;
     line-height: 1.5;
-    background: var(--gl-gray-900);
-    color: var(--gl-gray-100);
-    border-color: var(--gl-gray-700) !important;
+    background: var(--gray-900);
+    color: var(--gray-100);
+    border-color: var(--gray-700) !important;
     min-height: 150px;
 }
 
 .code-textarea:focus {
-    border-color: var(--gl-orange) !important;
+    border-color: var(--accent-main) !important;
 }
 
 .code-textarea::placeholder {
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
 }
 
 .form-group input,
@@ -630,7 +638,7 @@ body {
 .form-group select {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid var(--gl-gray-300);
+    border: 1px solid var(--gray-300);
     border-radius: 6px;
     font-size: 14px;
     font-family: inherit;
@@ -641,7 +649,7 @@ body {
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
 }
 
 .form-group textarea {
@@ -652,16 +660,16 @@ body {
 .form-group small {
     display: block;
     font-size: 12px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     margin-top: 4px;
 }
 
 /* Array Fields */
 .array-field {
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 8px;
     padding: 12px;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
 }
 
 .array-item {
@@ -678,40 +686,40 @@ body {
     width: 32px;
     height: 38px;
     border: none;
-    background: var(--gl-gray-200);
+    background: var(--gray-200);
     border-radius: 6px;
     cursor: pointer;
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
 }
 
 .array-item button:hover {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
 }
 
 .array-add-btn {
     width: 100%;
     padding: 8px;
-    border: 1px dashed var(--gl-gray-300);
+    border: 1px dashed var(--gray-300);
     background: transparent;
     border-radius: 6px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     cursor: pointer;
     font-size: 13px;
 }
 
 .array-add-btn:hover {
-    border-color: var(--gl-orange);
-    color: var(--gl-orange);
+    border-color: var(--accent-main);
+    color: var(--accent-main);
 }
 
 /* Object Fields */
 .object-item {
-    background: var(--gl-white);
+    background: var(--white);
     border-radius: 6px;
     padding: 12px;
     margin-bottom: 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
 }
 
 .object-item-header {
@@ -724,7 +732,7 @@ body {
 .object-item-title {
     font-size: 12px;
     font-weight: 600;
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
 }
 
 .object-item .form-group {
@@ -737,7 +745,7 @@ body {
 
 /* Table Editor */
 .table-editor {
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     border-radius: 8px;
     padding: 12px;
 }
@@ -750,14 +758,14 @@ body {
 }
 
 .table-editor-grid th {
-    background: var(--gl-gray-200);
+    background: var(--gray-200);
     padding: 8px 10px;
     text-align: left;
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
-    color: var(--gl-gray-600);
-    border-bottom: 1px solid var(--gl-gray-300);
+    color: var(--gray-600);
+    border-bottom: 1px solid var(--gray-300);
 }
 
 .table-editor-grid th:first-child {
@@ -770,7 +778,7 @@ body {
 
 .table-editor-grid td {
     padding: 4px;
-    border-bottom: 1px solid var(--gl-gray-200);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .table-editor-grid tr:last-child td {
@@ -780,14 +788,14 @@ body {
 .table-editor-grid td input {
     width: 100%;
     padding: 6px 8px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 4px;
     font-size: 13px;
     background: white;
 }
 
 .table-editor-grid td input:focus {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     outline: none;
 }
 
@@ -812,15 +820,15 @@ body {
 }
 
 .stat-card {
-    background: var(--gl-white);
-    border: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
     border-radius: 10px;
     padding: 14px;
     transition: border-color 0.2s;
 }
 
 .stat-card:hover {
-    border-color: var(--gl-gray-300);
+    border-color: var(--gray-300);
 }
 
 .stat-card-header {
@@ -833,7 +841,7 @@ body {
 .stat-card-number {
     font-size: 11px;
     font-weight: 600;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
 }
 
 .stat-card-delete {
@@ -841,7 +849,7 @@ body {
     height: 22px;
     border: none;
     background: transparent;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     cursor: pointer;
     border-radius: 4px;
     font-size: 16px;
@@ -854,7 +862,7 @@ body {
 }
 
 .stat-card-delete:hover {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
 }
 
@@ -872,7 +880,7 @@ body {
 
 .stat-field input {
     padding: 8px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
     font-size: 13px;
 }
@@ -880,20 +888,20 @@ body {
 .stat-field-value input {
     font-size: 18px;
     font-weight: 600;
-    color: var(--gl-orange);
+    color: var(--accent-main);
     text-align: center;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
 }
 
 .stat-field-change input {
     font-family: monospace;
-    color: var(--gl-green);
+    color: var(--confirm);
 }
 
 .stat-field-label {
     font-size: 10px;
     text-transform: uppercase;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     letter-spacing: 0.5px;
 }
 
@@ -908,15 +916,15 @@ body {
     display: flex;
     gap: 12px;
     align-items: flex-start;
-    background: var(--gl-white);
-    border: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
     border-radius: 10px;
     padding: 12px;
     transition: border-color 0.2s;
 }
 
 .step-card:hover {
-    border-color: var(--gl-gray-300);
+    border-color: var(--gray-300);
 }
 
 .step-card-icon {
@@ -926,12 +934,12 @@ body {
 .step-card-icon input {
     width: 44px;
     height: 44px;
-    border: 2px solid var(--gl-orange);
+    border: 2px solid var(--accent-main);
     border-radius: 50%;
     text-align: center;
     font-size: 16px;
     font-weight: 600;
-    color: var(--gl-orange);
+    color: var(--accent-main);
     background: rgba(252, 109, 38, 0.08);
 }
 
@@ -951,15 +959,15 @@ body {
     font-size: 14px;
     font-weight: 500;
     padding: 6px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
 }
 
 .step-desc-input {
     font-size: 13px;
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
     padding: 6px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
 }
 
@@ -968,7 +976,7 @@ body {
     height: 28px;
     border: none;
     background: transparent;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     cursor: pointer;
     border-radius: 4px;
     font-size: 18px;
@@ -982,7 +990,7 @@ body {
 }
 
 .step-card-delete:hover {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
 }
 
@@ -994,17 +1002,17 @@ body {
 }
 
 .annotation-card {
-    background: var(--gl-white);
-    border: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
     border-radius: 10px;
     padding: 12px;
-    border-left: 3px solid var(--gl-purple);
+    border-left: 3px solid var(--purple);
     transition: border-color 0.2s;
 }
 
 .annotation-card:hover {
-    border-color: var(--gl-gray-300);
-    border-left-color: var(--gl-purple);
+    border-color: var(--gray-300);
+    border-left-color: var(--purple);
 }
 
 .annotation-card-header {
@@ -1018,7 +1026,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     padding: 6px 10px;
     border-radius: 6px;
 }
@@ -1026,13 +1034,13 @@ body {
 .annotation-line-label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
 }
 
 .annotation-line-input {
     width: 50px;
     padding: 4px 6px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 4px;
     font-size: 13px;
     text-align: center;
@@ -1040,7 +1048,7 @@ body {
 }
 
 .annotation-line-sep {
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     font-size: 12px;
 }
 
@@ -1049,7 +1057,7 @@ body {
     height: 24px;
     border: none;
     background: transparent;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     cursor: pointer;
     border-radius: 4px;
     font-size: 16px;
@@ -1062,7 +1070,7 @@ body {
 }
 
 .annotation-delete:hover {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
 }
 
@@ -1076,23 +1084,23 @@ body {
     font-size: 13px;
     font-weight: 500;
     padding: 6px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
 }
 
 .annotation-text-input {
     font-size: 13px;
     padding: 6px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
 }
 
 /* Column Editor (Two-Columns Template) */
 .column-editor {
-    background: var(--gl-white);
-    border: 1px solid var(--gl-gray-200);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
     border-radius: 10px;
-    border-left: 3px solid var(--gl-blue);
+    border-left: 3px solid var(--info);
     overflow: hidden;
 }
 
@@ -1101,15 +1109,15 @@ body {
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
-    background: var(--gl-gray-100);
-    border-bottom: 1px solid var(--gl-gray-200);
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .column-editor-label {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     white-space: nowrap;
 }
 
@@ -1118,9 +1126,9 @@ body {
     font-size: 14px;
     font-weight: 500;
     padding: 6px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
-    background: var(--gl-white);
+    background: var(--white);
 }
 
 .column-editor-items {
@@ -1135,7 +1143,7 @@ body {
 }
 
 .column-item-bullet {
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     font-size: 18px;
     width: 20px;
     text-align: center;
@@ -1145,7 +1153,7 @@ body {
 .column-item input {
     flex: 1;
     padding: 8px 10px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 6px;
     font-size: 13px;
 }
@@ -1155,7 +1163,7 @@ body {
     height: 28px;
     border: none;
     background: transparent;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     cursor: pointer;
     border-radius: 4px;
     font-size: 16px;
@@ -1169,20 +1177,20 @@ body {
 }
 
 .column-item-delete:hover {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
 }
 
 /* Settings Panel */
 .settings-section {
     padding: 16px;
-    border-bottom: 1px solid var(--gl-gray-200);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .settings-section h3 {
     font-size: 13px;
     font-weight: 600;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     margin-bottom: 12px;
 }
 
@@ -1194,21 +1202,21 @@ body {
 
 .theme-option {
     padding: 10px 16px;
-    border: 2px solid var(--gl-gray-200);
+    border: 2px solid var(--gray-200);
     border-radius: 8px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
-    background: var(--gl-white);
+    background: var(--white);
     transition: all 0.2s;
 }
 
 .theme-option:hover {
-    border-color: var(--gl-gray-300);
+    border-color: var(--gray-300);
 }
 
 .theme-option.active {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     background: rgba(252, 109, 38, 0.05);
 }
 
@@ -1225,7 +1233,7 @@ body {
     gap: 10px;
     padding: 8px;
     border-radius: 6px;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
 }
 
 .color-item.overridden {
@@ -1237,7 +1245,7 @@ body {
     width: 28px;
     height: 28px;
     border-radius: 6px;
-    border: 1px solid var(--gl-gray-300);
+    border: 1px solid var(--gray-300);
     cursor: pointer;
     position: relative;
 }
@@ -1260,12 +1268,12 @@ body {
 .color-name {
     font-size: 12px;
     font-weight: 500;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
 }
 
 .color-value {
     font-size: 11px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     font-family: monospace;
 }
 
@@ -1274,7 +1282,7 @@ body {
     height: 24px;
     border: none;
     background: transparent;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     cursor: pointer;
     border-radius: 4px;
     display: flex;
@@ -1289,8 +1297,8 @@ body {
 }
 
 .color-reset:hover {
-    background: var(--gl-gray-200);
-    color: var(--gl-gray-700);
+    background: var(--gray-200);
+    color: var(--gray-700);
 }
 
 /* Modal */
@@ -1325,7 +1333,7 @@ body {
 
 .modal-header {
     padding: 20px;
-    border-bottom: 1px solid var(--gl-gray-200);
+    border-bottom: 1px solid var(--gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1343,12 +1351,12 @@ body {
     background: transparent;
     cursor: pointer;
     font-size: 20px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     border-radius: 6px;
 }
 
 .modal-close:hover {
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
 }
 
 .modal-body {
@@ -1359,7 +1367,7 @@ body {
 
 .modal-footer {
     padding: 16px 20px;
-    border-top: 1px solid var(--gl-gray-200);
+    border-top: 1px solid var(--gray-200);
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -1374,7 +1382,7 @@ body {
 
 .template-option {
     padding: 14px 10px;
-    border: 2px solid var(--gl-gray-200);
+    border: 2px solid var(--gray-200);
     border-radius: 10px;
     cursor: pointer;
     text-align: center;
@@ -1386,12 +1394,12 @@ body {
 }
 
 .template-option:hover {
-    border-color: var(--gl-orange-light);
+    border-color: var(--accent-third);
     background: rgba(252, 109, 38, 0.02);
 }
 
 .template-option.selected {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     background: rgba(252, 109, 38, 0.08);
 }
 
@@ -1401,20 +1409,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     border-radius: 8px;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     transition: all 0.2s;
 }
 
 .template-option:hover .template-option-icon {
     background: rgba(252, 109, 38, 0.1);
-    color: var(--gl-orange);
+    color: var(--accent-main);
 }
 
 .template-option.selected .template-option-icon {
     background: rgba(252, 109, 38, 0.15);
-    color: var(--gl-orange);
+    color: var(--accent-main);
 }
 
 .template-option-icon .template-icon {
@@ -1425,12 +1433,12 @@ body {
 .template-option-name {
     font-size: 12px;
     font-weight: 500;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     line-height: 1.2;
 }
 
 .template-option.selected .template-option-name {
-    color: var(--gl-orange-dark);
+    color: var(--accent-alt);
 }
 
 /* Project Selector */
@@ -1441,7 +1449,7 @@ body {
 
 .project-item {
     padding: 12px;
-    border: 1px solid var(--gl-gray-200);
+    border: 1px solid var(--gray-200);
     border-radius: 8px;
     margin-bottom: 8px;
     cursor: pointer;
@@ -1451,7 +1459,7 @@ body {
 }
 
 .project-item:hover {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
 }
 
 .project-item-info h4 {
@@ -1462,7 +1470,7 @@ body {
 
 .project-item-info span {
     font-size: 12px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
 }
 
 .project-item-actions {
@@ -1474,7 +1482,7 @@ body {
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
 }
 
 .empty-state-icon {
@@ -1486,7 +1494,7 @@ body {
 .empty-state h3 {
     font-size: 16px;
     margin-bottom: 8px;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
 }
 
 .empty-state p {
@@ -1499,7 +1507,7 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: var(--gl-gray-900);
+    background: var(--gray-900);
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
@@ -1516,11 +1524,11 @@ body {
 }
 
 .toast.success {
-    background: var(--gl-green);
+    background: var(--confirm);
 }
 
 .toast.error {
-    background: var(--gl-red);
+    background: var(--error);
 }
 
 /* Hidden Elements */
@@ -1538,7 +1546,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--gl-dark);
+    background: var(--bg-main);
     z-index: 1000;
     display: none;
     flex-direction: column;
@@ -1564,25 +1572,25 @@ body {
 }
 
 .player-title {
-    color: var(--gl-white);
+    color: var(--white);
     font-size: 16px;
     font-weight: 600;
 }
 
 .player-counter {
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     font-size: 14px;
-    background: var(--gl-gray-800);
+    background: var(--gray-800);
     padding: 4px 12px;
     border-radius: 20px;
 }
 
 .player-exit {
-    color: var(--gl-gray-300);
+    color: var(--gray-300);
 }
 
 .player-exit:hover {
-    color: var(--gl-white);
+    color: var(--white);
     background: rgba(255, 255, 255, 0.1);
 }
 
@@ -1613,7 +1621,7 @@ body {
 .player-nav svg {
     width: 28px;
     height: 28px;
-    stroke: var(--gl-gray-300);
+    stroke: var(--gray-300);
     stroke-width: 2;
     fill: none;
 }
@@ -1623,7 +1631,7 @@ body {
 }
 
 .player-nav:hover svg {
-    stroke: var(--gl-white);
+    stroke: var(--white);
 }
 
 .player-nav:disabled {
@@ -1649,7 +1657,7 @@ body {
     width: 1280px;
     height: 720px;
     position: absolute;
-    background: var(--gl-white);
+    background: var(--white);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
@@ -1658,13 +1666,13 @@ body {
 
 .player-progress {
     height: 4px;
-    background: var(--gl-gray-800);
+    background: var(--gray-800);
     flex-shrink: 0;
 }
 
 .player-progress-bar {
     height: 100%;
-    background: var(--gl-orange);
+    background: var(--accent-main);
     transition: width 0.3s ease;
 }
 
@@ -1690,25 +1698,25 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 12px 16px;
-    background: var(--gl-gray-100);
-    border: 2px solid var(--gl-gray-200);
+    background: var(--gray-100);
+    border: 2px solid var(--gray-200);
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .import-tab:hover {
-    background: var(--gl-gray-200);
-    border-color: var(--gl-gray-300);
+    background: var(--gray-200);
+    border-color: var(--gray-300);
 }
 
 .import-tab.active {
     background: rgba(252, 109, 38, 0.08);
-    border-color: var(--gl-orange);
-    color: var(--gl-orange);
+    border-color: var(--accent-main);
+    color: var(--accent-main);
 }
 
 .import-tab-content {
@@ -1721,22 +1729,22 @@ body {
 
 /* File Drop Zone */
 .file-drop-zone {
-    border: 2px dashed var(--gl-gray-300);
+    border: 2px dashed var(--gray-300);
     border-radius: 12px;
     padding: 40px 20px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
 }
 
 .file-drop-zone:hover {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     background: rgba(252, 109, 38, 0.02);
 }
 
 .file-drop-zone.drag-over {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     background: rgba(252, 109, 38, 0.08);
     border-style: solid;
 }
@@ -1748,14 +1756,14 @@ body {
 .file-drop-icon svg {
     width: 48px;
     height: 48px;
-    stroke: var(--gl-gray-400);
+    stroke: var(--gray-400);
     stroke-width: 1.5;
     fill: none;
 }
 
 .file-drop-zone:hover .file-drop-icon svg,
 .file-drop-zone.drag-over .file-drop-icon svg {
-    stroke: var(--gl-orange);
+    stroke: var(--accent-main);
 }
 
 .file-drop-text {
@@ -1765,18 +1773,18 @@ body {
 .file-drop-main {
     font-size: 16px;
     font-weight: 500;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     margin-bottom: 4px;
 }
 
 .file-drop-sub {
     font-size: 14px;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
 }
 
 .file-drop-hint {
     font-size: 12px;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
 }
 
 /* File Selected Display */
@@ -1792,7 +1800,7 @@ body {
 }
 
 .file-selected .icon {
-    color: var(--gl-orange);
+    color: var(--accent-main);
     flex-shrink: 0;
 }
 
@@ -1800,7 +1808,7 @@ body {
     flex: 1;
     font-size: 14px;
     font-weight: 500;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1811,7 +1819,7 @@ body {
     height: 28px;
     border: none;
     background: transparent;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     cursor: pointer;
     border-radius: 4px;
     display: flex;
@@ -1822,15 +1830,15 @@ body {
 
 .btn-icon:hover {
     background: rgba(0, 0, 0, 0.1);
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
 }
 
 /* Code Input */
 .code-input-wrapper {
-    border: 1px solid var(--gl-gray-300);
+    border: 1px solid var(--gray-300);
     border-radius: 8px;
     overflow: hidden;
-    background: var(--gl-gray-900);
+    background: var(--gray-900);
 }
 
 .code-input-header {
@@ -1838,14 +1846,14 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: var(--gl-gray-800);
-    border-bottom: 1px solid var(--gl-gray-700);
+    background: var(--gray-800);
+    border-bottom: 1px solid var(--gray-700);
 }
 
 .code-input-header span {
     font-size: 12px;
     font-weight: 600;
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1864,7 +1872,7 @@ body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
     font-size: 13px;
     line-height: 1.6;
-    background: var(--gl-gray-900);
+    background: var(--gray-900);
     color: #a9dc76;
     tab-size: 2;
 }
@@ -1874,7 +1882,7 @@ body {
 }
 
 .json-code-input::placeholder {
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
 }
 
 /* JSON Syntax Colors (for placeholder styling) */
@@ -1907,7 +1915,7 @@ body {
 }
 
 .preview-slide [data-editable]:hover {
-    outline: 2px dashed var(--gl-orange-light);
+    outline: 2px dashed var(--accent-third);
     outline-offset: 4px;
 }
 
@@ -1926,7 +1934,7 @@ body {
 
 /* Active editing state */
 .preview-slide .inline-editing {
-    outline: 2px solid var(--gl-orange) !important;
+    outline: 2px solid var(--accent-main) !important;
     outline-offset: 4px;
     min-width: 50px;
     min-height: 1em;
@@ -1939,13 +1947,13 @@ body {
 /* Specific fix for title slide gradient text */
 .preview-slide .template-title h1.inline-editing {
     background: rgba(252, 109, 38, 0.1) !important;
-    color: var(--gl-orange) !important;
+    color: var(--accent-main) !important;
 }
 
 /* Specific fix for stats gradient text */
 .preview-slide .template-stats .stat-value.inline-editing {
     background: rgba(252, 109, 38, 0.1) !important;
-    color: var(--gl-orange) !important;
+    color: var(--accent-main) !important;
 }
 
 
@@ -1953,7 +1961,7 @@ body {
 .preview-slide [data-editable]:empty::before,
 .preview-slide [data-editable]:not(:focus):empty::before {
     content: attr(data-placeholder);
-    color: var(--gl-gray-400);
+    color: var(--gray-400);
     font-style: italic;
     pointer-events: none;
 }
@@ -2043,7 +2051,7 @@ body {
     width: 24px;
     height: 24px;
     border: none;
-    background: var(--gl-orange);
+    background: var(--accent-main);
     color: white;
     line-height: 1;
     border-radius: 4px;
@@ -2072,13 +2080,13 @@ body {
 
 .preview-slide .add-annotation-btn:hover {
     transform: translateY(-50%) scale(1.15);
-    background: var(--gl-orange-dark);
+    background: var(--accent-alt);
 }
 
 /* Code line selection for multi-line annotations */
 .preview-slide .code-line.selecting {
     background: rgba(252, 109, 38, 0.25) !important;
-    border-left-color: var(--gl-orange) !important;
+    border-left-color: var(--accent-main) !important;
 }
 
 .preview-slide .code-line.selection-start {
@@ -2161,9 +2169,9 @@ body {
 
 /* Add item button */
 .preview-slide .add-item-btn {
-    border: 2px dashed var(--gl-gray-400);
+    border: 2px dashed var(--gray-400);
     background: transparent;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     font-size: 14px;
     padding: 8px 16px;
     border-radius: 8px;
@@ -2176,8 +2184,8 @@ body {
 }
 
 .preview-slide .add-item-btn:hover {
-    border-color: var(--gl-orange);
-    color: var(--gl-orange);
+    border-color: var(--accent-main);
+    color: var(--accent-main);
     background: rgba(252, 109, 38, 0.1);
 }
 
@@ -2213,7 +2221,7 @@ body {
     align-items: center;
     justify-content: center;
     background: transparent;
-    border: 2px dashed var(--gl-gray-600);
+    border: 2px dashed var(--gray-600);
     border-radius: 20px;
 }
 
@@ -2252,8 +2260,8 @@ body {
 .image-picker-tab {
     flex: 1;
     padding: 12px;
-    background: var(--gl-gray-100);
-    border: 2px solid var(--gl-gray-200);
+    background: var(--gray-100);
+    border: 2px solid var(--gray-200);
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
@@ -2266,14 +2274,14 @@ body {
 }
 
 .image-picker-tab:hover {
-    background: var(--gl-gray-50);
-    border-color: var(--gl-gray-300);
+    background: var(--gray-50);
+    border-color: var(--gray-300);
 }
 
 .image-picker-tab.active {
     background: rgba(252, 109, 38, 0.08);
-    border-color: var(--gl-orange);
-    color: var(--gl-orange);
+    border-color: var(--accent-main);
+    color: var(--accent-main);
 }
 
 .image-picker-content {
@@ -2283,7 +2291,7 @@ body {
 .image-picker-content input[type="text"] {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid var(--gl-gray-300);
+    border: 1px solid var(--gray-300);
     border-radius: 8px;
     font-size: 14px;
     transition: border-color 0.2s ease;
@@ -2291,11 +2299,11 @@ body {
 
 .image-picker-content input[type="text"]:focus {
     outline: none;
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
 }
 
 .image-drop-zone {
-    border: 2px dashed var(--gl-gray-300);
+    border: 2px dashed var(--gray-300);
     border-radius: 12px;
     padding: 60px 20px;
     text-align: center;
@@ -2304,29 +2312,29 @@ body {
 }
 
 .image-drop-zone:hover {
-    border-color: var(--gl-orange-light);
+    border-color: var(--accent-third);
     background: rgba(252, 109, 38, 0.02);
 }
 
 .image-drop-zone.drag-over {
-    border-color: var(--gl-orange);
+    border-color: var(--accent-main);
     background: rgba(252, 109, 38, 0.05);
 }
 
 .image-drop-zone p {
     margin: 8px 0;
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
 }
 
 .image-drop-zone p:first-child {
     font-weight: 500;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
 }
 
 .image-preview-container {
     text-align: center;
     padding: 20px;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     border-radius: 8px;
     margin-top: 16px;
 }
@@ -2340,12 +2348,12 @@ body {
 
 .image-size-warning {
     margin-top: 12px;
-    color: var(--gl-orange);
+    color: var(--accent-main);
     font-size: 13px;
 }
 
 .btn-danger {
-    background: var(--gl-red);
+    background: var(--error);
     color: white;
     border: none;
 }
@@ -2369,7 +2377,7 @@ body {
     gap: 24px;
     margin-bottom: 16px;
     padding: 12px 16px;
-    background: var(--gl-gray-100);
+    background: var(--gray-100);
     border-radius: 8px;
 }
 
@@ -2381,7 +2389,7 @@ body {
 
 .code-editor-option label {
     font-size: 14px;
-    color: var(--gl-gray-700);
+    color: var(--gray-700);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -2391,7 +2399,7 @@ body {
 .code-editor-option input[type="number"] {
     width: 70px;
     padding: 6px 10px;
-    border: 1px solid var(--gl-gray-300);
+    border: 1px solid var(--gray-300);
     border-radius: 6px;
     font-size: 14px;
 }
@@ -2399,22 +2407,22 @@ body {
 .code-editor-option input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: var(--gl-orange);
+    accent-color: var(--accent-main);
 }
 
 /* Code editor wrapper with line numbers */
 .code-editor-wrapper {
     display: flex;
-    border: 1px solid var(--gl-gray-300);
+    border: 1px solid var(--gray-300);
     border-radius: 8px;
     overflow: hidden;
-    background: var(--gl-gray-900);
+    background: var(--gray-900);
 }
 
 .code-editor-line-numbers {
     padding: 16px 12px;
-    background: var(--gl-gray-800);
-    color: var(--gl-gray-500);
+    background: var(--gray-800);
+    color: var(--gray-500);
     font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
     font-size: 14px;
     line-height: 1.6;
@@ -2446,7 +2454,7 @@ body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
     font-size: 14px;
     line-height: 1.6;
-    background: var(--gl-gray-900);
+    background: var(--gray-900);
     color: #a9dc76;
     tab-size: 2;
 }
@@ -2456,7 +2464,7 @@ body {
 }
 
 .code-editor-input::placeholder {
-    color: var(--gl-gray-600);
+    color: var(--gray-600);
 }
 
 /* Code editor ellipsis lines */
@@ -2464,10 +2472,10 @@ body {
     display: none;
     padding: 0 16px;
     line-height: 1.6;
-    color: var(--gl-gray-500);
+    color: var(--gray-500);
     font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
     font-size: 14px;
-    background: var(--gl-gray-900);
+    background: var(--gray-900);
     opacity: 0.5;
     flex-shrink: 0;
 }

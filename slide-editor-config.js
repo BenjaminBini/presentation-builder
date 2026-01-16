@@ -9,50 +9,56 @@ const THEMES = {
     gitlab: {
         name: 'GitLab',
         colors: {
-            'orange': '#FC6D26',
-            'orange-dark': '#E24329',
-            'orange-light': '#FCA326',
-            'dark': '#171321',
-            'gray-900': '#1F1A24',
-            'gray-800': '#2E2A35',
-            'gray-700': '#3F3A47',
-            'gray-600': '#525059',
-            'gray-500': '#737278',
-            'gray-400': '#9A99A0',
-            'gray-300': '#BFBFC3',
-            'gray-200': '#DCDCDE',
-            'gray-100': '#ECECEF',
-            'white': '#FFFFFF',
-            'purple': '#6B4FBB',
-            'blue': '#1F75CB',
-            'green': '#108548',
-            'green-light': '#2DA160',
-            'red': '#DD2B0E'
+            // Accent colors
+            'accent-main': '#FC6D26',
+            'accent-alt': '#E24329',
+            'accent-third': '#FCA326',
+            // Text colors
+            'text-main': '#FFFFFF',
+            'text-alt': '#BFBFC3',
+            'text-third': '#737278',
+            // Background colors
+            'bg-main': '#171321',
+            'bg-alt': '#1F1A24',
+            'bg-third': '#2E2A35',
+            // Semantic colors
+            'confirm': '#108548',
+            'info': '#1F75CB',
+            'warn': '#FCA326',
+            'error': '#DD2B0E'
         }
     }
 };
 
+// Static gray palette (not editable, used globally)
+const GRAY_PALETTE = {
+    'gray-900': '#1F1A24',
+    'gray-800': '#2E2A35',
+    'gray-700': '#3F3A47',
+    'gray-600': '#525059',
+    'gray-500': '#737278',
+    'gray-400': '#9A99A0',
+    'gray-300': '#BFBFC3',
+    'gray-200': '#DCDCDE',
+    'gray-100': '#ECECEF',
+    'white': '#FFFFFF'
+};
+
 // Color names for display
 const COLOR_LABELS = {
-    'orange': 'Principal',
-    'orange-dark': 'Principal foncé',
-    'orange-light': 'Principal clair',
-    'dark': 'Fond sombre',
-    'gray-900': 'Gris 900',
-    'gray-800': 'Gris 800',
-    'gray-700': 'Gris 700',
-    'gray-600': 'Gris 600',
-    'gray-500': 'Gris 500',
-    'gray-400': 'Gris 400',
-    'gray-300': 'Gris 300',
-    'gray-200': 'Gris 200',
-    'gray-100': 'Gris 100',
-    'white': 'Blanc',
-    'purple': 'Violet',
-    'blue': 'Bleu',
-    'green': 'Vert',
-    'green-light': 'Vert clair',
-    'red': 'Rouge'
+    'accent-main': 'Accent principal',
+    'accent-alt': 'Accent secondaire',
+    'accent-third': 'Accent tertiaire',
+    'text-main': 'Texte principal',
+    'text-alt': 'Texte secondaire',
+    'text-third': 'Texte tertiaire',
+    'bg-main': 'Fond principal',
+    'bg-alt': 'Fond secondaire',
+    'bg-third': 'Fond tertiaire',
+    'confirm': 'Confirmation',
+    'info': 'Information',
+    'warn': 'Avertissement',
+    'error': 'Erreur'
 };
 
 // ============================================================================

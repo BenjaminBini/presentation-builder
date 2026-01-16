@@ -20,7 +20,7 @@ function renderProjectList() {
     const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
 
     if (projects.length === 0) {
-        list.innerHTML = '<p style="color: var(--gl-gray-500); text-align: center;">Aucun projet sauvegardé</p>';
+        list.innerHTML = '<p style="color: var(--gray-500); text-align: center;">Aucun projet sauvegardé</p>';
         return;
     }
 

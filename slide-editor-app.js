@@ -413,7 +413,7 @@ function updatePreview() {
 
     if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) {
         preview.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: var(--gl-gray-100); color: var(--gl-gray-500);">
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: var(--gray-100); color: var(--gray-500);">
                 <div style="text-align: center;">
                     <div style="margin-bottom: 16px;"><svg style="width: 48px; height: 48px; stroke: currentColor; stroke-width: 1.5; fill: none; opacity: 0.5;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
                     <div>Sélectionnez une slide</div>
