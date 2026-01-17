@@ -46,13 +46,23 @@ dev-debug.log
 opencode.json
 
 # Claude Flow generated files
+.claude/settings.local.json
 .mcp.json
 claude-flow.config.json
 .swarm/
 .hive-mind/
 .claude-flow/
 memory/
+memory/claude-flow-data.json
+memory/claude-flow@alpha-data.json
+memory/sessions/*
+!memory/sessions/README.md
+memory/agents/*
+!memory/agents/README.md
 coordination/
+coordination/memory_bank/*
+coordination/subtasks/*
+coordination/orchestration/*
 *.db
 *.db-journal
 *.db-wal
