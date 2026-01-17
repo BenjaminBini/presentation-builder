@@ -111,3 +111,88 @@
   border-color: var(--accent-main);
   color: var(--accent-main);
 }
+
+/* Save Status Indicator */
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.save-status-icon {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: all 0.3s ease;
+}
+
+.save-status-text {
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.save-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* State: Saved */
+.save-status.state-saved {
+  background: rgba(74, 222, 128, 0.2);
+  color: #86efac;
+}
+
+.save-status.state-saved .save-status-icon {
+  display: block;
+}
+
+.save-status.state-saved .save-spinner {
+  display: none;
+}
+
+/* State: Modifying */
+.save-status.state-modifying {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fde047;
+}
+
+.save-status.state-modifying .save-status-icon {
+  display: none;
+}
+
+.save-status.state-modifying .save-spinner {
+  display: none;
+}
+
+/* State: Saving */
+.save-status.state-saving {
+  background: rgba(147, 197, 253, 0.2);
+  color: var(--text-main);
+}
+
+.save-status.state-saving .save-status-icon {
+  display: none;
+}
+
+.save-status.state-saving .save-spinner {
+  display: block;
+}
