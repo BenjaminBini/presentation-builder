@@ -8,7 +8,7 @@
 
 InlineEditor.openDrawioEditor = function(fieldKey, fieldIndex) {
     this.drawioEditorFieldKey = fieldKey;
-    this.drawioEditorFieldIndex = fieldIndex !== undefined ? parseInt(fieldIndex) : null;
+    this.drawioEditorFieldIndex = fieldIndex !== undefined ? parseInt(fieldIndex, 10) : null;
 
     const currentValue = this.getFieldValue(fieldKey, this.drawioEditorFieldIndex, null) || '';
     const modal = document.getElementById('drawioEditorModal');
@@ -19,6 +19,11 @@ InlineEditor.openDrawioEditor = function(fieldKey, fieldIndex) {
     // draw.io embed URL with configuration (dark=0 forces light mode)
     const drawioUrl = 'https://embed.diagrams.net/?embed=1&spin=1&proto=json&ui=kennedy&dark=0';
     iframe.src = drawioUrl;
+
+    // Remove any existing message handler to prevent duplicates
+    if (window.drawioMessageHandler) {
+        window.removeEventListener('message', window.drawioMessageHandler);
+    }
 
     // Listen for messages from draw.io
     window.drawioMessageHandler = (event) => {

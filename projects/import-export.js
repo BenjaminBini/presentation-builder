@@ -137,6 +137,9 @@ function importFromFile(file) {
             showToast('Erreur lors de la lecture du fichier', 'error');
         }
     };
+    reader.onerror = () => {
+        showToast('Erreur de lecture du fichier', 'error');
+    };
     reader.readAsText(file);
 }
 

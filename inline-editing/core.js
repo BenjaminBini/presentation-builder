@@ -94,7 +94,8 @@ const InlineEditor = {
         if (deleteBtn) {
             event.preventDefault();
             event.stopPropagation();
-            const annotationIndex = parseInt(deleteBtn.dataset.annotationIndex);
+            const annotationIndex = parseInt(deleteBtn.dataset.annotationIndex, 10);
+            if (isNaN(annotationIndex)) return;
             this.deleteAnnotation(annotationIndex);
             return;
         }
@@ -108,7 +109,8 @@ const InlineEditor = {
                 this.justFinishedDragAnnotation = false;
                 return;
             }
-            const lineNum = parseInt(addBtn.dataset.line);
+            const lineNum = parseInt(addBtn.dataset.line, 10);
+            if (isNaN(lineNum)) return;
             this.addAnnotation(lineNum, lineNum);
             return;
         }
@@ -123,7 +125,8 @@ const InlineEditor = {
                 this.endTextEdit(true);
             }
             const listKey = deleteItemBtn.dataset.listKey;
-            const itemIndex = parseInt(deleteItemBtn.dataset.itemIndex);
+            const itemIndex = parseInt(deleteItemBtn.dataset.itemIndex, 10);
+            if (isNaN(itemIndex)) return;
             this.deleteListItem(listKey, itemIndex);
             return;
         }
@@ -157,7 +160,8 @@ const InlineEditor = {
             event.preventDefault();
             event.stopPropagation();
             if (this.currentEditingElement) this.endTextEdit(true);
-            const colIndex = parseInt(deleteColBtn.dataset.colIndex);
+            const colIndex = parseInt(deleteColBtn.dataset.colIndex, 10);
+            if (isNaN(colIndex)) return;
             this.deleteTableColumn(colIndex);
             return;
         }
@@ -176,7 +180,8 @@ const InlineEditor = {
             event.preventDefault();
             event.stopPropagation();
             if (this.currentEditingElement) this.endTextEdit(true);
-            const rowIndex = parseInt(deleteRowBtn.dataset.rowIndex);
+            const rowIndex = parseInt(deleteRowBtn.dataset.rowIndex, 10);
+            if (isNaN(rowIndex)) return;
             this.deleteTableRow(rowIndex);
             return;
         }
