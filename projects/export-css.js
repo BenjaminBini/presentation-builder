@@ -27,7 +27,7 @@ function getExportCSS() {
             --gl-green-light: #2DA160;
             --gl-red: #DD2B0E;
             --gl-yellow: #F5D423;
-            --gl-gradient-primary: linear-gradient(135deg, #FC6D26 0%, #E24329 50%, #FCA326 100%);
+            --gl-gradient-primary: linear-gradient(135deg, #FC6D26 0%, #FCA326 100%);
             --gl-gradient-dark: linear-gradient(135deg, #171321 0%, #2E2A35 100%);
             --gl-gradient-purple: linear-gradient(135deg, #6B4FBB 0%, #9475DB 100%);
         }
@@ -212,7 +212,7 @@ function getExportCSS() {
 
         /* Template: Two Columns */
         .template-two-columns {
-            background: var(--gl-gray-50);
+            background: var(--gl-white);
             padding: 60px 80px;
         }
         .template-two-columns h2 {
@@ -822,10 +822,11 @@ function getExportCSS() {
             display: flex;
             align-items: center;
             gap: 24px;
-            padding: 20px 24px;
-            background: var(--gl-gray-50);
-            border-radius: 12px;
-            transition: all 0.2s ease;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--gl-gray-200);
+        }
+        .template-agenda .agenda-item:last-child {
+            border-bottom: none;
         }
         .template-agenda .agenda-number {
             width: 48px;

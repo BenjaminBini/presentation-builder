@@ -14,8 +14,12 @@ window.selectTemplate = function(template) {
         data: getDefaultData(template)
     };
 
-    window.currentProject.slides.push(newSlide);
-    window.selectedSlideIndex = window.currentProject.slides.length - 1;
+    // Insert after current slide (or at end if no slides)
+    const insertIndex = window.currentProject.slides.length === 0
+        ? 0
+        : window.selectedSlideIndex + 1;
+    window.currentProject.slides.splice(insertIndex, 0, newSlide);
+    window.selectedSlideIndex = insertIndex;
 
     closeModal('addSlideModal');
     renderSlideList();

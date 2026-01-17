@@ -112,7 +112,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
-  border-left: 1px solid var(--gray-200);
+  box-shadow: inset 1px 0 0 var(--gray-200);
 }
 
 .editor-collapse-btn:hover {
