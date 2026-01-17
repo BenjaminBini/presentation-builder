@@ -40,7 +40,7 @@ window.isResizingEditor = false;
 
 window.markAsChanged = function() {
     window.hasUnsavedChanges = true;
-    updateSaveButtonState();
+    updateSaveButtonState('modifying');
 
     // Debounced autosave
     if (window.autosaveTimeout) {
@@ -54,6 +54,8 @@ window.markAsChanged = function() {
 window.autosave = function() {
     if (!window.hasUnsavedChanges) return;
 
+    updateSaveButtonState('saving');
+
     window.currentProject.savedAt = new Date().toISOString();
 
     const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
@@ -66,18 +68,41 @@ window.autosave = function() {
     }
 
     localStorage.setItem('slideProjects', JSON.stringify(projects));
-    clearUnsavedChanges();
+    
+    // Simulate a short delay to show the saving state
+    setTimeout(() => {
+        clearUnsavedChanges();
+    }, 300);
 };
 
 window.clearUnsavedChanges = function() {
     window.hasUnsavedChanges = false;
-    updateSaveButtonState();
+    updateSaveButtonState('saved');
 };
 
-function updateSaveButtonState() {
-    const saveBtn = document.getElementById('headerSaveBtn');
-    if (saveBtn) {
-        saveBtn.disabled = !window.hasUnsavedChanges;
-        saveBtn.classList.toggle('has-changes', window.hasUnsavedChanges);
+function updateSaveButtonState(state = 'saved') {
+    const saveStatus = document.getElementById('saveStatus');
+    if (!saveStatus) return;
+
+    // Remove all state classes
+    saveStatus.classList.remove('state-saved', 'state-modifying', 'state-saving');
+    
+    // Add the current state class
+    saveStatus.classList.add(`state-${state}`);
+    
+    // Update text
+    const textElement = saveStatus.querySelector('.save-status-text');
+    if (textElement) {
+        switch(state) {
+            case 'saved':
+                textElement.textContent = 'Enregistré';
+                break;
+            case 'modifying':
+                textElement.textContent = 'Modification...';
+                break;
+            case 'saving':
+                textElement.textContent = 'Enregistrement...';
+                break;
+        }
     }
 }

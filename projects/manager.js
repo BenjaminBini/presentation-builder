@@ -25,6 +25,8 @@ function saveProject() {
 }
 
 function saveProjectFromHeader() {
+    updateSaveButtonState('saving');
+    
     const name = currentProject.name || 'Sans titre';
     currentProject.savedAt = new Date().toISOString();
 
@@ -38,8 +40,11 @@ function saveProjectFromHeader() {
     }
 
     localStorage.setItem('slideProjects', JSON.stringify(projects));
-    clearUnsavedChanges();
-    showToast('Projet sauvegardé');
+    
+    setTimeout(() => {
+        clearUnsavedChanges();
+        showToast('Projet sauvegardé');
+    }, 300);
 }
 
 function loadProject(index) {
