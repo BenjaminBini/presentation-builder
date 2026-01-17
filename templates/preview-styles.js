@@ -79,7 +79,7 @@ function getPreviewStyles() {
         .template-bullets li[data-level="3"] { margin-left: 120px; font-size: 20px; }
         .template-bullets li[data-level="3"]::before { width: 10px; height: 10px; top: 10px; border-radius: 50%; transform: none; opacity: 0.6; }
         /* Two columns */
-        .template-two-columns { background: var(--slide-bgColor, var(--gray-100)); padding: 60px 80px; height: 100%; }
+        .template-two-columns { background: var(--slide-bgColor, var(--white)); padding: 60px 80px; height: 100%; }
         .template-two-columns h2 { font-size: 42px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); }
         .template-two-columns .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; height: calc(100% - 120px); }
         .template-two-columns .column { display: flex; flex-direction: column; }
@@ -218,7 +218,7 @@ function getPreviewStyles() {
         .template-agenda .agenda-list { list-style: none; }
         .template-agenda .agenda-item { display: flex; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--gray-200); }
         .template-agenda .agenda-item:last-child { border-bottom: none; }
-        .template-agenda .agenda-number { width: 48px; height: 48px; border-radius: 50%; background: var(--slide-numberColor, var(--accent-main)); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; flex-shrink: 0; }
+        .template-agenda .agenda-number { width: 48px; height: 48px; border-radius: 50%; background: var(--slide-numberColor, var(--gradient-accent)); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; flex-shrink: 0; }
         .template-agenda .agenda-content { flex: 1; }
         .template-agenda .agenda-title { font-size: 26px; font-weight: 600; color: var(--slide-itemColor, var(--gray-800)); line-height: 1.3; }
         .template-agenda .agenda-subtitle { font-size: 16px; color: var(--gray-500); margin-top: 4px; }
