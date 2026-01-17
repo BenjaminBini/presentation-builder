@@ -9,35 +9,60 @@ const THEMES = {
     gitlab: {
         name: 'GitLab',
         colors: {
-            'orange': '#FC6D26',
-            'orange-dark': '#E24329',
-            'orange-light': '#FCA326',
-            'dark': '#171321',
-            'gray-900': '#1F1A24',
-            'gray-800': '#2E2A35',
-            'gray-700': '#3F3A47',
-            'gray-600': '#525059',
-            'gray-500': '#737278',
-            'gray-400': '#9A99A0',
-            'gray-300': '#BFBFC3',
-            'gray-200': '#DCDCDE',
-            'gray-100': '#ECECEF',
-            'white': '#FFFFFF',
-            'purple': '#6B4FBB',
-            'blue': '#1F75CB',
-            'green': '#108548',
-            'green-light': '#2DA160',
-            'red': '#DD2B0E'
+            // Accent colors
+            'accent-main': '#FC6D26',
+            'accent-alt': '#E24329',
+            'accent-third': '#FCA326',
+            // Text colors
+            'text-main': '#FFFFFF',
+            'text-alt': '#BFBFC3',
+            'text-third': '#737278',
+            // Background colors
+            'bg-main': '#171321',
+            'bg-alt': '#1F1A24',
+            'bg-third': '#2E2A35',
+            // Semantic colors
+            'confirm': '#108548',
+            'info': '#1F75CB',
+            'warn': '#FCA326',
+            'error': '#DD2B0E'
         }
     }
 };
 
+// Static gray palette (not editable, used globally)
+const GRAY_PALETTE = {
+    'gray-900': '#1F1A24',
+    'gray-800': '#2E2A35',
+    'gray-700': '#3F3A47',
+    'gray-600': '#525059',
+    'gray-500': '#737278',
+    'gray-400': '#9A99A0',
+    'gray-300': '#BFBFC3',
+    'gray-200': '#DCDCDE',
+    'gray-100': '#ECECEF',
+    'white': '#FFFFFF'
+};
+
 // Color names for display
 const COLOR_LABELS = {
-    'orange': 'Principal',
-    'orange-dark': 'Principal foncé',
-    'orange-light': 'Principal clair',
-    'dark': 'Fond sombre',
+    'accent-main': 'Accent principal',
+    'accent-alt': 'Accent secondaire',
+    'accent-third': 'Accent tertiaire',
+    'text-main': 'Texte principal',
+    'text-alt': 'Texte secondaire',
+    'text-third': 'Texte tertiaire',
+    'bg-main': 'Fond principal',
+    'bg-alt': 'Fond secondaire',
+    'bg-third': 'Fond tertiaire',
+    'confirm': 'Confirmation',
+    'info': 'Information',
+    'warn': 'Avertissement',
+    'error': 'Erreur'
+};
+
+// Gray palette labels
+const GRAY_LABELS = {
     'gray-900': 'Gris 900',
     'gray-800': 'Gris 800',
     'gray-700': 'Gris 700',
@@ -47,12 +72,97 @@ const COLOR_LABELS = {
     'gray-300': 'Gris 300',
     'gray-200': 'Gris 200',
     'gray-100': 'Gris 100',
-    'white': 'Blanc',
-    'purple': 'Violet',
-    'blue': 'Bleu',
-    'green': 'Vert',
-    'green-light': 'Vert clair',
-    'red': 'Rouge'
+    'white': 'Blanc'
+};
+
+// Color settings per template type
+const TEMPLATE_COLOR_SETTINGS = {
+    title: [
+        { key: 'bgColor', label: 'Fond', default: 'bg-main' },
+        { key: 'gradientColor', label: 'Dégradé', default: 'accent-main' },
+        { key: 'titleColor', label: 'Titre', default: 'accent-main' },
+        { key: 'subtitleColor', label: 'Sous-titre', default: 'gray-400' },
+        { key: 'authorColor', label: 'Auteur', default: 'gray-500' }
+    ],
+    section: [
+        { key: 'bgColor', label: 'Fond', default: 'accent-main' },
+        { key: 'titleColor', label: 'Titre', default: 'white' },
+        { key: 'subtitleColor', label: 'Sous-titre', default: 'white' },
+        { key: 'numberColor', label: 'Numéro', default: 'white' }
+    ],
+    bullets: [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'tagColor', label: 'Tag', default: 'accent-main' },
+        { key: 'bulletColor', label: 'Puces', default: 'accent-main' },
+        { key: 'textColor', label: 'Texte', default: 'gray-700' }
+    ],
+    'two-columns': [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre principal', default: 'gray-900' },
+        { key: 'columnTitleColor', label: 'Titres colonnes', default: 'gray-800' },
+        { key: 'bulletColor', label: 'Puces', default: 'accent-main' },
+        { key: 'textColor', label: 'Texte', default: 'gray-600' }
+    ],
+    'image-text': [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'textColor', label: 'Texte', default: 'gray-700' }
+    ],
+    quote: [
+        { key: 'bgColor', label: 'Fond', default: 'bg-main' },
+        { key: 'quoteColor', label: 'Citation', default: 'white' },
+        { key: 'quoteMarkColor', label: 'Guillemets', default: 'accent-main' },
+        { key: 'authorNameColor', label: 'Nom auteur', default: 'white' },
+        { key: 'authorTitleColor', label: 'Titre auteur', default: 'gray-400' }
+    ],
+    stats: [
+        { key: 'bgColor', label: 'Fond', default: 'bg-main' },
+        { key: 'titleColor', label: 'Titre', default: 'white' },
+        { key: 'valueColor', label: 'Valeurs', default: 'accent-main' },
+        { key: 'labelColor', label: 'Labels', default: 'gray-400' },
+        { key: 'changeColor', label: 'Évolutions', default: 'confirm' },
+        { key: 'changeBgColor', label: 'Fond évolutions', default: 'bg-third' }
+    ],
+    code: [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'windowBgColor', label: 'Fond fenêtre', default: 'gray-900' },
+        { key: 'descriptionColor', label: 'Description', default: 'gray-600' }
+    ],
+    'code-annotated': [
+        { key: 'bgColor', label: 'Fond', default: 'bg-main' },
+        { key: 'titleColor', label: 'Titre', default: 'white' },
+        { key: 'windowBgColor', label: 'Fond fenêtre', default: 'gray-900' },
+        { key: 'annotationBgColor', label: 'Fond annotations', default: 'bg-alt' },
+        { key: 'annotationTextColor', label: 'Texte annotations', default: 'gray-300' }
+    ],
+    timeline: [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'iconColor', label: 'Icônes', default: 'accent-main' },
+        { key: 'stepTitleColor', label: 'Titres étapes', default: 'gray-800' },
+        { key: 'stepDescColor', label: 'Descriptions', default: 'gray-500' }
+    ],
+    comparison: [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'headerBgColor', label: 'Fond en-tête', default: 'gray-100' },
+        { key: 'headerTextColor', label: 'Texte en-tête', default: 'gray-700' },
+        { key: 'highlightColor', label: 'Mise en avant', default: 'accent-main' }
+    ],
+    mermaid: [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'descriptionColor', label: 'Description', default: 'gray-600' }
+    ],
+    agenda: [
+        { key: 'bgColor', label: 'Fond', default: 'white' },
+        { key: 'titleColor', label: 'Titre', default: 'gray-900' },
+        { key: 'numberColor', label: 'Numéros', default: 'accent-main' },
+        { key: 'itemColor', label: 'Sujets', default: 'gray-800' },
+        { key: 'durationColor', label: 'Durées', default: 'gray-500' }
+    ]
 };
 
 // ============================================================================
@@ -94,7 +204,13 @@ const ICONS = {
     comparison: '<svg class="template-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2" fill="none"/><path d="M2 8h20" fill="none"/><path d="M2 13h20" fill="none"/><path d="M2 18h20" fill="none"/><path d="M9 3v18" fill="none"/><path d="M16 3v18" fill="none"/></svg>',
 
     // Mermaid - flowchart diagram
-    mermaid: '<svg class="template-icon" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="18" width="6" height="4" rx="1" fill="currentColor" stroke="none" opacity="0.6"/><rect x="16" y="18" width="6" height="4" rx="1" fill="currentColor" stroke="none" opacity="0.6"/><path d="M12 6v5M12 11L5 18M12 11l7 7" fill="none"/></svg>'
+    mermaid: '<svg class="template-icon" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="18" width="6" height="4" rx="1" fill="currentColor" stroke="none" opacity="0.6"/><rect x="16" y="18" width="6" height="4" rx="1" fill="currentColor" stroke="none" opacity="0.6"/><path d="M12 6v5M12 11L5 18M12 11l7 7" fill="none"/></svg>',
+
+    // Agenda - numbered list with clock
+    agenda: '<svg class="template-icon" viewBox="0 0 24 24"><circle cx="6" cy="6" r="4" fill="none"/><path d="M6 4v2.5l1.5 1" fill="none" stroke-linecap="round"/><rect x="12" y="4" width="10" height="2" rx="0.5" fill="currentColor" stroke="none"/><rect x="12" y="7" width="6" height="1.5" rx="0.5" fill="currentColor" stroke="none" opacity="0.4"/><text x="6" y="15" text-anchor="middle" font-size="5" font-weight="bold" fill="currentColor">1</text><rect x="12" y="12" width="9" height="2" rx="0.5" fill="currentColor" stroke="none"/><text x="6" y="22" text-anchor="middle" font-size="5" font-weight="bold" fill="currentColor" opacity="0.6">2</text><rect x="12" y="19" width="8" height="2" rx="0.5" fill="currentColor" stroke="none" opacity="0.6"/></svg>',
+
+    // Draw.io - interactive diagram editor
+    drawio: '<svg class="template-icon" viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="2" width="8" height="6" rx="1" fill="currentColor" stroke="none" opacity="0.6"/><rect x="8" y="16" width="8" height="6" rx="1" fill="currentColor" stroke="none" opacity="0.6"/><path d="M6 8v4h6M18 8v4h-6M12 12v4" fill="none"/></svg>'
 };
 
 // ============================================================================
@@ -216,6 +332,24 @@ const TEMPLATES = {
             { key: 'description', label: 'Description', type: 'text' },
             { key: 'diagram', label: 'Code Mermaid', type: 'textarea', required: true, hint: 'flowchart, sequenceDiagram, etc.' }
         ]
+    },
+    agenda: {
+        name: 'Agenda',
+        icon: ICONS.agenda,
+        fields: [
+            { key: 'title', label: 'Titre', type: 'text', required: true },
+            { key: 'items', label: 'Points de l\'agenda', type: 'agenda-items', hint: 'Ajoutez les sujets avec durée optionnelle' }
+        ]
+    },
+
+    drawio: {
+        name: 'Draw.io',
+        icon: ICONS.drawio,
+        fields: [
+            { key: 'title', label: 'Titre', type: 'text', required: true },
+            { key: 'description', label: 'Description', type: 'text' },
+            { key: 'diagram', label: 'Diagramme', type: 'drawio', required: true }
+        ]
     }
 };
 
@@ -253,7 +387,7 @@ const SAMPLE_PROJECT = {
                 items: [
                     '12 templates de slides professionnels',
                     'Personnalisation des couleurs du thème',
-                    'Export JSON pour generate-slides.js',
+                    'Export JSON et génération HTML',
                     'Sauvegarde locale automatique',
                     'Interface intuitive drag & drop'
                 ]
@@ -287,7 +421,9 @@ function getDefaultData(template) {
         'code-annotated': { title: 'Code annoté', filename: 'example.js', code: '// Code\nconst x = 1;', annotations: [] },
         timeline: { title: 'Timeline', steps: [{ icon: '1', title: 'Étape 1', description: '' }] },
         comparison: { title: 'Tableau', columns: ['Colonne 1', 'Colonne 2', 'Colonne 3'], rows: [['Ligne 1', 'Valeur', 'Valeur'], ['Ligne 2', 'Valeur', 'Valeur']] },
-        mermaid: { title: 'Diagramme', description: '', diagram: 'flowchart LR\n    A-->B' }
+        mermaid: { title: 'Diagramme', description: '', diagram: 'flowchart LR\n    A-->B' },
+        agenda: { title: 'Agenda', showDuration: true, items: [{ title: 'Introduction', subtitle: '', duration: '5 min' }, { title: 'Sujet principal', subtitle: '', duration: '15 min' }, { title: 'Questions', subtitle: '', duration: '10 min' }] },
+        drawio: { title: 'Diagramme Draw.io', description: '', diagram: '' }
     };
     return defaults[template] || { title: 'Nouvelle slide' };
 }

@@ -1,0 +1,44 @@
+/* Tab Navigation Styles */
+
+/* Import Tabs */
+.import-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.import-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--gray-100);
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.import-tab:hover {
+  background: var(--gray-200);
+  border-color: var(--gray-300);
+}
+
+.import-tab.active {
+  background: rgba(252, 109, 38, 0.08);
+  border-color: var(--accent-main);
+  color: var(--accent-main);
+}
+
+.import-tab-content {
+  display: none;
+}
+
+.import-tab-content.active {
+  display: block;
+}

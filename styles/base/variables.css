@@ -1,0 +1,31 @@
+/* CSS Custom Properties / Variables */
+
+:root {
+  /* Theme colors (can be overridden) */
+  --accent-main: #fc6d26;
+  --accent-alt: #e24329;
+  --accent-third: #fca326;
+  --text-main: #ffffff;
+  --text-alt: #bfbfc3;
+  --text-third: #737278;
+  --bg-main: #171321;
+  --bg-alt: #1f1a24;
+  --bg-third: #2e2a35;
+  --confirm: #108548;
+  --info: #1f75cb;
+  --warn: #fca326;
+  --error: #dd2b0e;
+  /* Static palette */
+  --gray-900: #1f1a24;
+  --gray-800: #2e2a35;
+  --gray-700: #3f3a47;
+  --gray-600: #525059;
+  --gray-500: #737278;
+  --gray-400: #9a99a0;
+  --gray-300: #bfbfc3;
+  --gray-200: #dcdcde;
+  --gray-100: #ececef;
+  --white: #ffffff;
+  --purple: #6b4fbb;
+  --confirm-light: #2da160;
+}

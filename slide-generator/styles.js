@@ -1,351 +1,6 @@
-#!/usr/bin/env node
+// styles.js
+// CSS generation for presentations
 
-/**
- * Slide Generator - GitLab Style
- *
- * Usage: node generate-slides.js [input.json] [output.html]
- *
- * If no arguments provided:
- *   - Input: presentation-data.json
- *   - Output: presentation.html
- */
-
-const fs = require('fs');
-const path = require('path');
-
-// Get command line arguments
-const inputFile = process.argv[2] || 'presentation-data.json';
-const outputFile = process.argv[3] || 'presentation.html';
-
-// Read presentation data
-let presentationData;
-try {
-    const jsonContent = fs.readFileSync(inputFile, 'utf8');
-    presentationData = JSON.parse(jsonContent);
-    console.log(`✓ Loaded: ${inputFile}`);
-} catch (error) {
-    console.error(`✗ Error reading ${inputFile}:`, error.message);
-    process.exit(1);
-}
-
-// Escape HTML helper
-function escapeHtml(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-// GitLab Logo SVG
-function getGitLabLogo(size = 80) {
-    return `
-        <svg width="${size}" height="${size}" viewBox="0 0 380 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M190 362.42L253.31 167.69H126.69L190 362.42Z" fill="#E24329"/>
-            <path d="M190 362.42L126.69 167.69H20.28L190 362.42Z" fill="#FC6D26"/>
-            <path d="M20.28 167.69L2.53 222.23C0.91 227.22 2.69 232.67 6.97 235.78L190 362.42L20.28 167.69Z" fill="#FCA326"/>
-            <path d="M20.28 167.69H126.69L80.89 26.87C78.95 21.01 70.74 21.01 68.8 26.87L20.28 167.69Z" fill="#E24329"/>
-            <path d="M190 362.42L253.31 167.69H359.72L190 362.42Z" fill="#FC6D26"/>
-            <path d="M359.72 167.69L377.47 222.23C379.09 227.22 377.31 232.67 373.03 235.78L190 362.42L359.72 167.69Z" fill="#FCA326"/>
-            <path d="M359.72 167.69H253.31L299.11 26.87C301.05 21.01 309.26 21.01 311.2 26.87L359.72 167.69Z" fill="#E24329"/>
-        </svg>
-    `;
-}
-
-// Template renderers
-const templates = {
-    title: (data) => `
-        <div class="slide template-title">
-            ${data.logo ? `<img src="${data.logo}" alt="Logo" class="logo">` : getGitLabLogo(80)}
-            <h1>${escapeHtml(data.title)}</h1>
-            ${data.subtitle ? `<div class="subtitle">${escapeHtml(data.subtitle)}</div>` : ''}
-            ${data.author ? `<div class="author">${escapeHtml(data.author)}</div>` : ''}
-            ${data.date ? `<div class="date">${escapeHtml(data.date)}</div>` : ''}
-        </div>
-    `,
-
-    section: (data) => `
-        <div class="slide template-section">
-            <span class="section-number">${escapeHtml(data.number) || ''}</span>
-            <h2>${escapeHtml(data.title)}</h2>
-            ${data.subtitle ? `<div class="section-subtitle">${escapeHtml(data.subtitle)}</div>` : ''}
-        </div>
-    `,
-
-    bullets: (data) => `
-        <div class="slide template-bullets">
-            <div class="header-bar">
-                <h2>${escapeHtml(data.title)}</h2>
-                ${data.tag ? `<span class="slide-tag">${escapeHtml(data.tag)}</span>` : ''}
-            </div>
-            <div class="content">
-                <ul>
-                    ${data.items.map(item => `<li>${escapeHtml(item)}</li>`).join('\n                    ')}
-                </ul>
-            </div>
-        </div>
-    `,
-
-    'two-columns': (data) => {
-        const renderColumn = (col) => {
-            let content = col.title ? `<h3>${escapeHtml(col.title)}</h3>` : '';
-            if (col.text) {
-                content += `<p>${escapeHtml(col.text)}</p>`;
-            }
-            if (col.items) {
-                content += '<ul>' + col.items.map(item => `<li>${escapeHtml(item)}</li>`).join('') + '</ul>';
-            }
-            return `<div class="column">${content}</div>`;
-        };
-
-        return `
-        <div class="slide template-two-columns">
-            <h2>${escapeHtml(data.title)}</h2>
-            <div class="columns">
-                ${renderColumn(data.left)}
-                ${renderColumn(data.right)}
-            </div>
-        </div>
-        `;
-    },
-
-    'image-text': (data) => {
-        const imageContent = data.image
-            ? `<img src="${escapeHtml(data.image)}" alt="${escapeHtml(data.imageAlt || '')}">`
-            : `<div class="image-placeholder">📷</div>`;
-
-        const paragraphs = Array.isArray(data.text)
-            ? data.text.map(p => `<p>${escapeHtml(p)}</p>`).join('\n                ')
-            : `<p>${escapeHtml(data.text)}</p>`;
-
-        return `
-        <div class="slide template-image-text">
-            <div class="image-container">${imageContent}</div>
-            <div class="text-container">
-                <h2>${escapeHtml(data.title)}</h2>
-                ${paragraphs}
-            </div>
-        </div>
-        `;
-    },
-
-    quote: (data) => {
-        const initials = data.authorName
-            ? data.authorName.split(' ').map(n => n[0]).join('').substring(0, 2)
-            : '??';
-
-        return `
-        <div class="slide template-quote">
-            <div class="quote-content">
-                <blockquote>${escapeHtml(data.quote)}</blockquote>
-                <div class="author">
-                    ${data.authorImage
-                        ? `<img src="${escapeHtml(data.authorImage)}" class="author-avatar">`
-                        : `<div class="author-avatar">${escapeHtml(initials)}</div>`}
-                    <div class="author-info">
-                        <div class="author-name">${escapeHtml(data.authorName) || 'Unknown'}</div>
-                        <div class="author-title">${escapeHtml(data.authorTitle) || ''}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-    },
-
-    stats: (data) => {
-        const statsHtml = data.stats.map(stat => {
-            const changeClass = stat.change?.startsWith('+') ? 'positive' :
-                               stat.change?.startsWith('-') ? 'negative' : '';
-            return `
-                <div class="stat-card">
-                    <div class="stat-value">${escapeHtml(stat.value)}</div>
-                    <div class="stat-label">${escapeHtml(stat.label)}</div>
-                    ${stat.change ? `<div class="stat-change ${changeClass}">${escapeHtml(stat.change)}</div>` : ''}
-                </div>
-            `;
-        }).join('');
-
-        return `
-        <div class="slide template-stats">
-            <h2>${escapeHtml(data.title)}</h2>
-            <div class="stats-grid">${statsHtml}</div>
-        </div>
-        `;
-    },
-
-    code: (data) => `
-        <div class="slide template-code">
-            <h2>${escapeHtml(data.title)}</h2>
-            <div class="code-container">
-                <div class="code-header">
-                    <span class="code-dot red"></span>
-                    <span class="code-dot yellow"></span>
-                    <span class="code-dot green"></span>
-                    <span class="code-filename">${escapeHtml(data.filename) || 'code.js'}</span>
-                </div>
-                <pre><code>${escapeHtml(data.code)}</code></pre>
-            </div>
-            ${data.description ? `<p class="code-description">${escapeHtml(data.description)}</p>` : ''}
-        </div>
-    `,
-
-    'code-annotated': (data) => {
-        const lines = data.code.split('\n');
-        const lineHeight = 28; // pixels per line
-        const codeStartOffset = 52; // header height + padding
-        const startLineNum = data.startLine || 1; // offset for line numbering
-        const hasCodeBefore = startLineNum > 1; // show ellipsis at start
-        const hasCodeAfter = data.notEndOfFile === true; // show ellipsis at end
-
-        // Get highlighted line numbers (support single line or range)
-        const highlightedLines = new Set();
-        (data.annotations || []).forEach(ann => {
-            const startLine = ann.line;
-            const endLine = ann.lineTo || ann.line; // lineTo is optional, defaults to line
-            for (let i = startLine; i <= endLine; i++) {
-                highlightedLines.add(i);
-            }
-        });
-
-        // Build ellipsis line for truncated code indicator
-        const ellipsisLine = `<div class="code-line ellipsis"><span class="line-number">...</span><span class="line-content"></span></div>`;
-
-        // Build line-numbered code
-        const codeLines = lines.map((line, i) => {
-            const lineNum = startLineNum + i;
-            const isHighlighted = highlightedLines.has(lineNum);
-            return `<div class="code-line${isHighlighted ? ' highlighted' : ''}"><span class="line-number">${lineNum}</span><span class="line-content">${escapeHtml(line) || ' '}</span></div>`;
-        }).join('\n');
-
-        // Combine with ellipsis indicators
-        const allCodeLines = [
-            hasCodeBefore ? ellipsisLine : '',
-            codeLines,
-            hasCodeAfter ? ellipsisLine : ''
-        ].filter(Boolean).join('\n');
-
-        // Calculate annotation offset (add 1 line if there's ellipsis at start)
-        const annotationOffset = hasCodeBefore ? lineHeight : 0;
-
-        // Build annotations with arrows
-        const annotationsHtml = (data.annotations || []).map(ann => {
-            const startLine = ann.line;
-            const endLine = ann.lineTo || ann.line;
-            const midLine = (startLine + endLine) / 2;
-            // Convert displayed line number to index (relative to startLineNum)
-            const lineIndex = midLine - startLineNum;
-            const topPosition = codeStartOffset + annotationOffset + (lineIndex * lineHeight);
-            return `
-                <div class="annotation" style="top: ${topPosition}px;">
-                    <div class="annotation-arrow"></div>
-                    <div class="annotation-content">
-                        ${ann.title ? `<div class="annotation-title">${escapeHtml(ann.title)}</div>` : ''}
-                        <div class="annotation-text">${escapeHtml(ann.text)}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        return `
-        <div class="slide template-code-annotated">
-            <h2>${escapeHtml(data.title)}</h2>
-            <div class="code-annotated-container">
-                <div class="code-panel">
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span class="code-dot red"></span>
-                            <span class="code-dot yellow"></span>
-                            <span class="code-dot green"></span>
-                            <span class="code-filename">${escapeHtml(data.filename) || 'code.js'}</span>
-                        </div>
-                        <div class="code-body">
-                            ${allCodeLines}
-                        </div>
-                    </div>
-                </div>
-                <div class="annotations-panel">
-                    ${annotationsHtml}
-                </div>
-            </div>
-        </div>
-        `;
-    },
-
-    timeline: (data) => {
-        const stepsHtml = data.steps.map((step, i) => `
-            <div class="timeline-item">
-                <div class="timeline-icon">${escapeHtml(step.icon) || (i + 1)}</div>
-                <div class="timeline-title">${escapeHtml(step.title)}</div>
-                <div class="timeline-desc">${escapeHtml(step.description) || ''}</div>
-            </div>
-        `).join('');
-
-        return `
-        <div class="slide template-timeline">
-            <h2>${escapeHtml(data.title)}</h2>
-            <div class="timeline">${stepsHtml}</div>
-        </div>
-        `;
-    },
-
-    comparison: (data) => {
-        const highlightIdx = data.highlightColumn ? parseInt(data.highlightColumn) - 1 : -1;
-        const headersHtml = data.columns.map((col, i) =>
-            `<th class="${i === highlightIdx ? 'highlight-col' : ''}">${escapeHtml(col)}</th>`
-        ).join('');
-
-        const rowsHtml = data.rows.map(row => {
-            const cells = row.map((cell, i) => {
-                let content = cell;
-                if (cell === true || cell === 'true') content = '<span class="check">✓</span>';
-                else if (cell === false || cell === 'false') content = '<span class="cross">✗</span>';
-                else content = escapeHtml(String(cell));
-                return `<td class="${i === highlightIdx ? 'highlight-col' : ''}">${content}</td>`;
-            }).join('');
-            return `<tr>${cells}</tr>`;
-        }).join('\n                    ');
-
-        return `
-        <div class="slide template-comparison">
-            <h2>${escapeHtml(data.title)}</h2>
-            <table>
-                <thead><tr>${headersHtml}</tr></thead>
-                <tbody>
-                    ${rowsHtml}
-                </tbody>
-            </table>
-        </div>
-        `;
-    },
-
-    mermaid: (data) => `
-        <div class="slide template-mermaid">
-            <h2>${escapeHtml(data.title)}</h2>
-            ${data.description ? `<p class="mermaid-description">${escapeHtml(data.description)}</p>` : ''}
-            <div class="mermaid-container">
-                <pre class="mermaid">${escapeHtml(data.diagram)}</pre>
-            </div>
-        </div>
-    `
-};
-
-// Render a single slide
-function renderSlide(slideData) {
-    const { template, data } = slideData;
-    if (templates[template]) {
-        return templates[template](data);
-    }
-    return `<div class="slide"><p>Unknown template: ${escapeHtml(template)}</p></div>`;
-}
-
-// Generate all slides HTML
-function generateSlidesHtml(slides) {
-    return slides.map(slide => `<div class="slide-wrapper">${renderSlide(slide)}</div>`).join('\n');
-}
-
-// CSS Styles
 const CSS_STYLES = `
         :root {
             --gl-orange: #FC6D26;
@@ -547,6 +202,12 @@ const CSS_STYLES = `
             border-radius: 6px;
             transform: rotate(45deg);
         }
+        .template-bullets li[data-level="1"] { margin-left: 40px; font-size: 24px; }
+        .template-bullets li[data-level="1"]::before { width: 18px; height: 18px; top: 10px; border-radius: 50%; transform: none; }
+        .template-bullets li[data-level="2"] { margin-left: 80px; font-size: 22px; }
+        .template-bullets li[data-level="2"]::before { width: 14px; height: 14px; top: 10px; border-radius: 0; opacity: 0.8; }
+        .template-bullets li[data-level="3"] { margin-left: 120px; font-size: 20px; }
+        .template-bullets li[data-level="3"]::before { width: 10px; height: 10px; top: 10px; border-radius: 50%; transform: none; opacity: 0.6; }
 
         /* Template: Two Columns */
         .template-two-columns {
@@ -612,7 +273,7 @@ const CSS_STYLES = `
         .template-image-text .image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
         .template-image-text .image-placeholder {
             width: 200px;
@@ -956,28 +617,29 @@ const CSS_STYLES = `
             margin-bottom: 60px;
             text-align: center;
         }
+        .template-timeline .timeline-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        .template-timeline .timeline-line {
+            position: absolute;
+            top: 40px;
+            height: 4px;
+            background: var(--gl-gray-200);
+            z-index: 0;
+        }
         .template-timeline .timeline {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             position: relative;
-            padding: 0 40px;
-        }
-        .template-timeline .timeline::before {
-            content: '';
-            position: absolute;
-            top: 40px;
-            left: 80px;
-            right: 80px;
-            height: 4px;
-            background: var(--gl-gray-200);
         }
         .template-timeline .timeline-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            width: 200px;
+            flex: 1;
             position: relative;
             z-index: 1;
         }
@@ -994,6 +656,8 @@ const CSS_STYLES = `
             font-weight: 700;
             margin-bottom: 24px;
             box-shadow: 0 10px 30px rgba(252, 109, 38, 0.3);
+            position: relative;
+            z-index: 2;
         }
         .template-timeline .timeline-title {
             font-size: 20px;
@@ -1055,18 +719,21 @@ const CSS_STYLES = `
             padding: 50px 60px;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         .template-mermaid h2 {
             font-size: 36px;
             font-weight: 700;
             color: var(--gl-dark);
             margin-bottom: 16px;
+            flex-shrink: 0;
         }
         .template-mermaid .mermaid-description {
             font-size: 18px;
             color: var(--gl-gray-600);
             margin-bottom: 24px;
             line-height: 1.5;
+            flex-shrink: 0;
         }
         .template-mermaid .mermaid-container {
             flex: 1;
@@ -1077,76 +744,79 @@ const CSS_STYLES = `
             border-radius: 16px;
             padding: 30px;
             overflow: hidden;
+            min-height: 0;
+            position: relative;
         }
         .template-mermaid .mermaid {
             font-family: 'Inter', sans-serif;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .template-mermaid .mermaid svg {
             max-width: 100%;
             max-height: 100%;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        /* Template: Draw.io */
+        .template-drawio {
+            background: var(--gl-white);
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .template-drawio h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gl-dark);
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .template-drawio .drawio-description {
+            font-size: 18px;
+            color: var(--gl-gray-600);
+            margin-bottom: 24px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+        .template-drawio .drawio-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            overflow: hidden;
+            min-height: 0;
+        }
+        .template-drawio .drawio-placeholder {
+            color: var(--gl-gray-400);
+            text-align: center;
+        }
+        .template-drawio .drawio-placeholder svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        .template-drawio .drawio-placeholder p {
+            font-size: 16px;
+        }
+        .template-drawio img.drawio-svg {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            color-scheme: light only;
         }
 `;
 
-// Generate complete HTML
-function generateHtml(presentationData) {
-    const slidesHtml = generateSlidesHtml(presentationData.slides);
-    const title = presentationData.metadata?.title || 'Presentation';
-
-    return `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(title)}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <style>${CSS_STYLES}
-    </style>
-</head>
-<body>
-    <div class="presentation-container">
-${slidesHtml}
-    </div>
-    <script>
-        function updateSlideScales() {
-            document.querySelectorAll('.slide-wrapper').forEach(wrapper => {
-                const wrapperWidth = wrapper.offsetWidth;
-                const scale = Math.min(1, wrapperWidth / 1280);
-                const slide = wrapper.querySelector('.slide');
-                if (slide) {
-                    slide.style.transform = 'scale(' + scale + ')';
-                }
-            });
-        }
-        window.addEventListener('load', updateSlideScales);
-        window.addEventListener('resize', updateSlideScales);
-
-        // Initialize Mermaid diagrams
-        mermaid.initialize({
-            startOnLoad: true,
-            theme: 'base',
-            themeVariables: {
-                primaryColor: '#FC6D26',
-                primaryTextColor: '#171321',
-                primaryBorderColor: '#E24329',
-                lineColor: '#525059',
-                secondaryColor: '#FCA326',
-                tertiaryColor: '#F5F5F5'
-            }
-        });
-    </script>
-</body>
-</html>`;
-}
-
-// Generate and write output
-const html = generateHtml(presentationData);
-
-try {
-    fs.writeFileSync(outputFile, html, 'utf8');
-    console.log(`✓ Generated: ${outputFile}`);
-    console.log(`  ${presentationData.slides.length} slides`);
-} catch (error) {
-    console.error(`✗ Error writing ${outputFile}:`, error.message);
-    process.exit(1);
-}
+module.exports = { CSS_STYLES };

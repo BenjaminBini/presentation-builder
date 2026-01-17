@@ -1,0 +1,34 @@
+/* Typography and Icon Styles */
+
+/* SVG Icon styles */
+.icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  flex-shrink: 0;
+}
+.icon-sm {
+  width: 14px;
+  height: 14px;
+}
+.icon-lg {
+  width: 24px;
+  height: 24px;
+}
+.icon-xl {
+  width: 48px;
+  height: 48px;
+  stroke-width: 1.5;
+  opacity: 0.5;
+}
+.template-icon {
+  width: 32px;
+  height: 32px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  fill: none;
+}

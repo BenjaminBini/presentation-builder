@@ -1,0 +1,159 @@
+/* Presentation Player Styles */
+/* Presentation Player Styles */
+.presentation-player {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-main);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+}
+
+.presentation-player.active {
+  display: flex;
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.player-title {
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.player-counter {
+  color: var(--gray-400);
+  font-size: 14px;
+  background: var(--gray-800);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.player-exit {
+  color: var(--gray-300);
+}
+
+.player-exit:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.player-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 20px;
+  min-height: 0;
+}
+
+.player-nav {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.player-nav svg {
+  width: 28px;
+  height: 28px;
+  stroke: var(--gray-300);
+  stroke-width: 2;
+  fill: none;
+}
+
+.player-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.player-nav:hover svg {
+  stroke: var(--white);
+}
+
+.player-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.player-nav:disabled:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.player-slide-wrapper {
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+}
+
+.player-slide {
+  width: 1280px;
+  height: 720px;
+  background: var(--white);
+  overflow: hidden;
+  transform-origin: top left;
+}
+
+/* Disable edit-mode hover effects in presentation player */
+.player-slide .template-drawio .drawio-container {
+  cursor: default;
+}
+.player-slide .template-drawio .drawio-container:hover {
+  background: transparent;
+}
+
+.player-progress {
+  height: 4px;
+  background: var(--gray-800);
+  flex-shrink: 0;
+}
+
+.player-progress-bar {
+  height: 100%;
+  background: var(--accent-main);
+  transition: width 0.3s ease;
+}
+
+/* Hide editor controls in presentation player */
+#presentationPlayer .delete-item-btn,
+#presentationPlayer .add-item-btn,
+#presentationPlayer .add-item-row,
+#presentationPlayer .timeline-add-btn-wrapper,
+#presentationPlayer .table-add-col-btn,
+#presentationPlayer .table-delete-col-btn,
+#presentationPlayer .table-add-row-btn,
+#presentationPlayer .table-delete-row-btn,
+#presentationPlayer .table-col-controls,
+#presentationPlayer .table-row-controls,
+#presentationPlayer .add-annotation-btn {
+  display: none !important;
+}
+
+/* Remove extra padding for delete buttons in player */
+#presentationPlayer .repeatable-item {
+  padding-right: 0 !important;
+}
+

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slide Editor - GitLab Style</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="slide-editor-styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
 </head>
 <body>
     <div class="app">
@@ -30,6 +30,11 @@
                 <input type="text" id="headerProjectInput" class="header-project-input" onblur="finishEditProjectTitle()" onkeydown="handleTitleKeydown(event)">
             </div>
             <div class="header-actions">
+                <div class="save-status" id="saveStatus">
+                    <svg class="save-status-icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                    <span class="save-status-text">Enregistré</span>
+                    <div class="save-spinner"></div>
+                </div>
                 <button class="btn btn-ghost" onclick="newProject()" title="Nouveau projet">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                     Nouveau
@@ -44,7 +49,11 @@
                 </button>
                 <button class="btn btn-secondary" onclick="exportProject()">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    Exporter JSON
+                    JSON
+                </button>
+                <button class="btn btn-accent" onclick="exportToHtml()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2l1 2 2-4 1 2h2"/></svg>
+                    Exporter HTML
                 </button>
                 <button class="btn btn-primary" onclick="startPresentation()">
                     <svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -54,35 +63,53 @@
         </header>
 
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-tabs">
-                <button class="sidebar-tab active" data-tab="slides" onclick="switchSidebarTab('slides')">
-                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Slides
+        <aside class="sidebar" id="sidebar">
+            <!-- Collapsed compact view -->
+            <div class="sidebar-collapsed-view">
+                <button class="sidebar-expand-btn" onclick="toggleSidebar()" title="Ouvrir le panneau">
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <button class="sidebar-tab" data-tab="settings" onclick="switchSidebarTab('settings')">
-                    <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Paramètres
+                <div class="compact-slide-list" id="compactSlideList"></div>
+                <button class="compact-add-btn" onclick="addSlide()" title="Ajouter une slide">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
             </div>
-            <div class="sidebar-content" id="sidebarContent" data-tab="slides">
-                <!-- Slides Panel -->
-                <div class="slides-panel">
-                    <div class="sidebar-header">
-                        <h2>Slides</h2>
-                        <button class="btn btn-primary" onclick="addSlide()" style="padding: 6px 12px; font-size: 13px;">+ Ajouter</button>
-                    </div>
-                    <div class="slide-list" id="slideList"></div>
+            <!-- Expanded full view -->
+            <div class="sidebar-expanded-view">
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active" data-tab="slides" onclick="switchSidebarTab('slides')">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Slides
+                    </button>
+                    <button class="sidebar-tab" data-tab="settings" onclick="switchSidebarTab('settings')">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Paramètres
+                    </button>
+                    <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Réduire le panneau">
+                        <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
                 </div>
-                <!-- Settings Panel -->
-                <div class="settings-panel" id="settingsPanel">
-                    <div class="settings-section">
-                        <h3>Thème</h3>
-                        <div class="theme-selector" id="themeSelector"></div>
+                <div class="sidebar-content" id="sidebarContent" data-tab="slides">
+                    <!-- Slides Panel -->
+                    <div class="slides-panel">
+                        <div class="slide-list" id="slideList"></div>
+                        <div class="slide-list-footer">
+                            <button class="btn-add-slide" onclick="addSlide()">
+                                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Ajouter une slide
+                            </button>
+                        </div>
                     </div>
-                    <div class="settings-section">
-                        <h3>Personnalisation des couleurs</h3>
-                        <div class="color-list" id="colorList"></div>
+                    <!-- Settings Panel -->
+                    <div class="settings-panel" id="settingsPanel">
+                        <div class="settings-section">
+                            <h3>Thème</h3>
+                            <div class="theme-selector" id="themeSelector"></div>
+                        </div>
+                        <div class="settings-section">
+                            <h3>Personnalisation des couleurs</h3>
+                            <div class="color-list" id="colorList"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,17 +127,15 @@
             </div>
 
             <!-- Editor - Below Preview -->
-            <div class="editor-panel">
+            <div class="editor-resize-handle" id="editorResizeHandle"></div>
+            <div class="editor-panel" id="editorPanel">
                 <div class="editor-header">
                     <h2>Propriétés</h2>
+                    <button class="editor-collapse-btn" id="editorCollapseBtn" onclick="toggleEditorPanel()" title="Réduire/Agrandir">
+                        <svg class="icon collapse-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
                 </div>
-                <div class="editor-content" id="editorContent">
-                    <div class="empty-state">
-                        <div class="empty-state-icon"><svg class="icon icon-xl" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-                        <h3>Aucune slide sélectionnée</h3>
-                        <p>Sélectionnez une slide ou ajoutez-en une nouvelle</p>
-                    </div>
-                </div>
+                <div class="editor-content" id="editorContent"></div>
             </div>
         </main>
     </div>
@@ -119,15 +144,11 @@
     <div class="modal-overlay" id="addSlideModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>Ajouter une slide</h3>
-                <button class="modal-close" onclick="closeModal('addSlideModal')">×</button>
+                <h3>Choisir un template</h3>
+                <button class="modal-close" onclick="closeModal('addSlideModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
             <div class="modal-body">
                 <div class="template-grid" id="templateGrid"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('addSlideModal')">Annuler</button>
-                <button class="btn btn-primary" onclick="confirmAddSlide()">Ajouter</button>
             </div>
         </div>
     </div>
@@ -137,7 +158,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3>Projets sauvegardés</h3>
-                <button class="modal-close" onclick="closeModal('projectsModal')">×</button>
+                <button class="modal-close" onclick="closeModal('projectsModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom: 20px;">
@@ -147,7 +168,7 @@
                         <button class="btn btn-primary" onclick="saveProject()">Sauvegarder</button>
                     </div>
                 </div>
-                <hr style="border: none; border-top: 1px solid var(--gl-gray-200); margin: 20px 0;">
+                <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 20px 0;">
                 <h4 style="font-size: 14px; margin-bottom: 12px;">Projets existants</h4>
                 <div class="project-list" id="projectList"></div>
             </div>
@@ -159,7 +180,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3>Importer une présentation</h3>
-                <button class="modal-close" onclick="closeModal('importModal')">×</button>
+                <button class="modal-close" onclick="closeModal('importModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
             <div class="modal-body">
                 <!-- Import Tabs -->
@@ -217,9 +238,114 @@
         </div>
     </div>
 
+    <!-- Code Editor Modal -->
+    <div class="modal-overlay" id="codeEditorModal">
+        <div class="modal modal-xl">
+            <div class="modal-header">
+                <h3>Éditer le code</h3>
+                <button class="modal-close" onclick="closeCodeEditor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <!-- Code editor options -->
+                <div class="code-editor-options" id="codeEditorOptions">
+                    <div class="code-editor-option">
+                        <label>
+                            <input type="checkbox" id="codeShowLineNumbers" onchange="updateCodeEditorLineNumbers()">
+                            Afficher les numéros de ligne
+                        </label>
+                    </div>
+                    <div class="code-editor-option">
+                        <label for="codeStartLine">Ligne de départ</label>
+                        <input type="number" id="codeStartLine" min="1" value="1" onchange="updateCodeEditorLineNumbers()">
+                    </div>
+                    <div class="code-editor-option">
+                        <label>
+                            <input type="checkbox" id="codeShowEllipsisBefore" onchange="updateCodeEditorEllipsis()">
+                            "..." au début
+                        </label>
+                    </div>
+                    <div class="code-editor-option">
+                        <label>
+                            <input type="checkbox" id="codeShowEllipsisAfter" onchange="updateCodeEditorEllipsis()">
+                            "..." à la fin
+                        </label>
+                    </div>
+                </div>
+                <!-- Code editor with line numbers and ellipsis -->
+                <div class="code-editor-wrapper">
+                    <div class="code-editor-line-numbers" id="codeEditorLineNumbers"></div>
+                    <div class="code-editor-content">
+                        <div class="code-editor-ellipsis-line" id="codeEllipsisBefore">...</div>
+                        <textarea id="codeEditorInput" class="code-editor-input" spellcheck="false" placeholder="// Votre code ici" oninput="updateCodeEditorLineNumbers()" onscroll="syncLineNumbersScroll()"></textarea>
+                        <div class="code-editor-ellipsis-line" id="codeEllipsisAfter">...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCodeEditor()">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmCodeEdit()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draw.io Editor Modal -->
+    <div class="modal-overlay" id="drawioEditorModal">
+        <div class="modal modal-fullscreen">
+            <div class="modal-header">
+                <h3>Éditer le diagramme</h3>
+                <span class="drawio-save-status" id="drawioSaveStatus"></span>
+                <button class="modal-close" onclick="closeDrawioEditor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body drawio-modal-body">
+                <iframe id="drawioEditorFrame" class="drawio-frame"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Picker Modal -->
+    <div class="modal-overlay" id="imagePickerModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3>Choisir une image</h3>
+                <button class="modal-close" onclick="closeImagePicker()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <div class="image-picker-tabs">
+                    <button class="image-picker-tab active" data-tab="url" onclick="switchImagePickerTab('url')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        URL
+                    </button>
+                    <button class="image-picker-tab" data-tab="upload" onclick="switchImagePickerTab('upload')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Télécharger
+                    </button>
+                </div>
+                <div class="image-picker-content" id="imagePickerUrl">
+                    <input type="text" id="imageUrlInput" placeholder="https://example.com/image.jpg" oninput="handleImageUrlInput(this.value)">
+                </div>
+                <div class="image-picker-content" id="imagePickerUpload" style="display:none">
+                    <div class="image-drop-zone" id="imageDropZone">
+                        <p>Glissez-déposez une image ici</p>
+                        <p>ou cliquez pour sélectionner</p>
+                    </div>
+                </div>
+                <div class="image-preview-container" id="imagePreviewContainer" style="display:none">
+                    <img id="imagePreview" src="" alt="Preview">
+                    <p class="image-size-warning" id="imageSizeWarning" style="display:none"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="clearImage()">Supprimer l'image</button>
+                <button class="btn btn-secondary" onclick="closeImagePicker()">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmImageSelection()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden file input for import -->
     <input type="file" id="importFileInput" class="hidden-input" accept=".json" onchange="handleFileSelect(event)">
     <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="handleImport(event)">
+    <input type="file" id="imageFileInput" class="hidden-input" accept="image/*" onchange="handleImageFileSelect(event)">
 
     <!-- Toast -->
     <div class="toast" id="toast"></div>
@@ -252,11 +378,60 @@
         </div>
     </div>
 
-    <!-- Load scripts in order: config first, then templates, editor, projects, and finally app -->
+    <!-- Load scripts in order: utils first, then config, templates, editor modules, projects modules, inline modules, and finally app -->
+    <script src="utils/html-utils.js"></script>
+    <script src="utils/svg-utils.js"></script>
     <script src="slide-editor-config.js"></script>
-    <script src="slide-editor-templates.js"></script>
-    <script src="slide-editor-editor.js"></script>
-    <script src="slide-editor-projects.js"></script>
-    <script src="slide-editor-app.js"></script>
+    <!-- Template modules - loaded in dependency order -->
+    <script src="templates/theme.js"></script>
+    <script src="templates/preview-styles.js"></script>
+    <script src="templates/utilities.js"></script>
+    <script src="templates/components/basic.js"></script>
+    <script src="templates/components/layout.js"></script>
+    <script src="templates/components/code.js"></script>
+    <script src="templates/components/comparison.js"></script>
+    <script src="templates/components/data.js"></script>
+    <script src="templates/renderer.js"></script>
+    <!-- Editor modules - loaded in dependency order -->
+    <script src="editor/color-selector.js"></script>
+    <script src="editor/template-settings.js"></script>
+    <script src="editor/fields/base.js"></script>
+    <script src="editor/fields/text.js"></script>
+    <script src="editor/fields/array.js"></script>
+    <script src="editor/fields/table.js"></script>
+    <script src="editor/fields/complex.js"></script>
+    <script src="editor/handlers.js"></script>
+    <script src="editor/panel.js"></script>
+    <!-- Projects modules - loaded in dependency order -->
+    <script src="projects/notifications.js"></script>
+    <script src="projects/modal.js"></script>
+    <script src="projects/manager.js"></script>
+    <script src="projects/import-export.js"></script>
+    <script src="projects/export-templates.js"></script>
+    <script src="projects/export-css.js"></script>
+    <script src="projects/export-html.js"></script>
+    <!-- Inline editing modules - loaded in dependency order -->
+    <script src="inline-editing/core.js"></script>
+    <script src="inline-editing/data-updates.js"></script>
+    <script src="inline-editing/text-editor.js"></script>
+    <script src="inline-editing/navigation.js"></script>
+    <script src="inline-editing/image-picker.js"></script>
+    <script src="inline-editing/code-editor.js"></script>
+    <script src="inline-editing/drawio-editor.js"></script>
+    <script src="inline-editing/annotations.js"></script>
+    <script src="inline-editing/list-table-manager.js"></script>
+    <script src="inline-editing/html-adapters.js"></script>
+    <!-- App modules - loaded in dependency order -->
+    <script src="app/state.js"></script>
+    <script src="app/project.js"></script>
+    <script src="app/theme.js"></script>
+    <script src="app/sidebar.js"></script>
+    <script src="app/slides/list.js"></script>
+    <script src="app/slides/preview.js"></script>
+    <script src="app/slides/management.js"></script>
+    <script src="app/presentation.js"></script>
+    <script src="app/panels.js"></script>
+    <!-- Main initialization - must load last -->
+    <script src="app/index.js"></script>
 </body>
 </html>
