@@ -186,7 +186,7 @@
 /* State: Saving */
 .save-status.state-saving {
   background: rgba(147, 197, 253, 0.2);
-  color: #bfdbfe;
+  color: var(--text-main);
 }
 
 .save-status.state-saving .save-status-icon {

@@ -18,6 +18,9 @@ function initializeApp() {
     window.updateHeaderTitle();
     window.initMermaid();
     window.initPanelStates();
+    
+    // Initialize save status
+    window.updateSaveButtonState('saved');
 
     // Close color picker dropdowns when clicking outside
     document.addEventListener('click', (e) => {
