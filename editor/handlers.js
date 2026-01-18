@@ -9,6 +9,7 @@ window.updateField = function(key, value) {
     if (selectedSlideIndex >= 0) {
         currentProject.slides[selectedSlideIndex].data[key] = value;
         updatePreview();
+        markAsChanged();
         if (key === 'title' || key === 'quote') {
             renderSlideList();
         }
@@ -26,6 +27,7 @@ window.changeTemplate = function(newTemplate) {
         renderSlideList();
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -37,6 +39,7 @@ window.updateArrayItem = function(key, index, value) {
     if (selectedSlideIndex >= 0) {
         currentProject.slides[selectedSlideIndex].data[key][index] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -48,6 +51,7 @@ window.addArrayItem = function(key) {
         currentProject.slides[selectedSlideIndex].data[key].push('Nouvel élément');
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -56,6 +60,7 @@ window.removeArrayItem = function(key, index) {
         currentProject.slides[selectedSlideIndex].data[key].splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -70,6 +75,7 @@ window.updateColumnField = function(key, field, value) {
         }
         currentProject.slides[selectedSlideIndex].data[key][field] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -77,6 +83,7 @@ window.updateColumnItem = function(key, index, value) {
     if (selectedSlideIndex >= 0) {
         currentProject.slides[selectedSlideIndex].data[key].items[index] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -88,6 +95,7 @@ window.addColumnItem = function(key) {
         currentProject.slides[selectedSlideIndex].data[key].items.push('Nouvel item');
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -96,6 +104,7 @@ window.removeColumnItem = function(key, index) {
         currentProject.slides[selectedSlideIndex].data[key].items.splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -107,6 +116,7 @@ window.updateStatItem = function(index, field, value) {
     if (selectedSlideIndex >= 0) {
         currentProject.slides[selectedSlideIndex].data.stats[index][field] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -118,6 +128,7 @@ window.addStatItem = function() {
         currentProject.slides[selectedSlideIndex].data.stats.push({ value: '0', label: 'Label', change: '' });
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -126,6 +137,7 @@ window.removeStatItem = function(index) {
         currentProject.slides[selectedSlideIndex].data.stats.splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -137,6 +149,7 @@ window.updateAnnotationItem = function(index, field, value) {
     if (selectedSlideIndex >= 0) {
         currentProject.slides[selectedSlideIndex].data.annotations[index][field] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -148,6 +161,7 @@ window.addAnnotationItem = function() {
         currentProject.slides[selectedSlideIndex].data.annotations.push({ line: 1, text: 'Annotation' });
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -156,6 +170,7 @@ window.removeAnnotationItem = function(index) {
         currentProject.slides[selectedSlideIndex].data.annotations.splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -167,6 +182,7 @@ window.updateStepItem = function(index, field, value) {
     if (selectedSlideIndex >= 0) {
         currentProject.slides[selectedSlideIndex].data.steps[index][field] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -179,6 +195,7 @@ window.addStepItem = function() {
         currentProject.slides[selectedSlideIndex].data.steps.push({ icon: String(num), title: `Étape ${num}`, description: '' });
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -187,6 +204,7 @@ window.removeStepItem = function(index) {
         currentProject.slides[selectedSlideIndex].data.steps.splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -200,6 +218,7 @@ window.updateRowCell = function(rowIndex, colIndex, value) {
         else if (value === 'false') value = false;
         currentProject.slides[selectedSlideIndex].data.rows[rowIndex][colIndex] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -213,6 +232,7 @@ window.addRowItem = function() {
         currentProject.slides[selectedSlideIndex].data.rows.push(newRow);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -221,6 +241,7 @@ window.removeRowItem = function(index) {
         currentProject.slides[selectedSlideIndex].data.rows.splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -233,6 +254,7 @@ window.updateTableCell = function(rowIndex, colIndex, value) {
         // Keep as string for tables (no boolean conversion)
         currentProject.slides[selectedSlideIndex].data.rows[rowIndex][colIndex] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -246,6 +268,7 @@ window.addTableRow = function() {
         currentProject.slides[selectedSlideIndex].data.rows.push(newRow);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -254,6 +277,7 @@ window.removeTableRow = function(index) {
         currentProject.slides[selectedSlideIndex].data.rows.splice(index, 1);
         renderEditor();
         updatePreview();
+        markAsChanged();
     }
 };
 
@@ -271,6 +295,7 @@ window.updateAgendaItem = function(index, field, value) {
         }
         currentProject.slides[selectedSlideIndex].data.items[index][field] = value;
         updatePreview();
+        markAsChanged();
     }
 };
 

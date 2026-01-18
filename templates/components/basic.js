@@ -38,8 +38,16 @@ function renderTitleTemplate(data, colorStyles) {
  * Render section template
  */
 function renderSectionTemplate(data, colorStyles) {
+  const logoScale = (data.logoSize || 100) / 100;
   return `
                 <div class="slide-content template-section" ${colorStyles}>
+                    <div class="logo-container" data-editable="image" data-field-key="logo" style="position:relative; transform: scale(${logoScale}); transform-origin: center center;">
+                        ${
+                          data.logo
+                            ? `<img src="${data.logo}" class="logo">`
+                            : getGitLabLogo()
+                        }
+                    </div>
                     <span class="section-number" data-editable="text" data-field-key="number" data-placeholder="01">${escapeHtml(
                       data.number || ""
                     )}</span>

@@ -5,15 +5,20 @@
 window.renderTemplateSettings = function(slide) {
     const settings = [];
 
-    if (slide.template === 'title') {
+    if (slide.template === 'title' || slide.template === 'section') {
         const logoSize = slide.data.logoSize || 100;
         settings.push(`
-            <div class="editor-toolbar-section">
-                <span class="editor-toolbar-label">Logo</span>
-                <div class="slider-control">
-                    <input type="range" min="50" max="200" value="${logoSize}"
-                           oninput="updateField('logoSize', parseInt(this.value)); this.nextElementSibling.textContent = this.value + '%'">
-                    <span class="slider-value">${logoSize}%</span>
+            <div class="editor-toolbar-section editor-toolbar-section-block">
+                <span class="editor-toolbar-label">Affichage</span>
+                <div class="color-settings-list">
+                    <div class="inline-slider-control">
+                        <span class="inline-color-label">Taille du logo</span>
+                        <div class="slider-control">
+                            <input type="range" min="50" max="200" value="${logoSize}"
+                                   oninput="updateField('logoSize', parseInt(this.value)); this.nextElementSibling.textContent = this.value + '%'">
+                            <span class="slider-value">${logoSize}%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         `);
@@ -22,12 +27,15 @@ window.renderTemplateSettings = function(slide) {
     if (slide.template === 'bullets') {
         const showTag = slide.data.showTag !== false;
         settings.push(`
-            <div class="editor-toolbar-section">
-                <label class="toolbar-toggle">
-                    <input type="checkbox" ${showTag ? 'checked' : ''}
-                           onchange="updateField('showTag', this.checked); updatePreview();">
-                    <span class="toolbar-toggle-label">Tag</span>
-                </label>
+            <div class="editor-toolbar-section editor-toolbar-section-block">
+                <span class="editor-toolbar-label">Affichage</span>
+                <div class="settings-list">
+                    <label class="toolbar-toggle">
+                        <span class="toolbar-toggle-label">Tag</span>
+                        <input type="checkbox" ${showTag ? 'checked' : ''}
+                               onchange="updateField('showTag', this.checked); updatePreview();">
+                    </label>
+                </div>
             </div>
         `);
     }
@@ -37,11 +45,13 @@ window.renderTemplateSettings = function(slide) {
         settings.push(`
             <div class="editor-toolbar-section editor-toolbar-section-block">
                 <span class="editor-toolbar-label">Affichage</span>
-                <label class="toolbar-toggle">
-                    <input type="checkbox" ${showDuration ? 'checked' : ''}
-                           onchange="updateField('showDuration', this.checked); updatePreview();">
-                    <span class="toolbar-toggle-label">Durées</span>
-                </label>
+                <div class="settings-list">
+                    <label class="toolbar-toggle">
+                        <span class="toolbar-toggle-label">Durées</span>
+                        <input type="checkbox" ${showDuration ? 'checked' : ''}
+                               onchange="updateField('showDuration', this.checked); renderEditor(); updatePreview();">
+                    </label>
+                </div>
             </div>
         `);
     }

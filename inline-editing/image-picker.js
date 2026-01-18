@@ -20,12 +20,26 @@ InlineEditor.openImagePicker = function(fieldKey, fieldIndex) {
         const urlInput = document.getElementById('imageUrlInput');
         const previewContainer = document.getElementById('imagePreviewContainer');
         const sizeWarning = document.getElementById('imageSizeWarning');
+        const altContainer = document.getElementById('imageAltContainer');
+        const altInput = document.getElementById('imageAltInput');
 
         if (urlInput) {
             urlInput.value = currentValue || '';
         }
         if (sizeWarning) {
             sizeWarning.style.display = 'none';
+        }
+
+        // Show alt field only for 'image' field (image-text template)
+        if (altContainer && altInput) {
+            if (fieldKey === 'image') {
+                altContainer.style.display = 'block';
+                const currentAlt = this.getFieldValue('imageAlt', null, null);
+                altInput.value = currentAlt || '';
+            } else {
+                altContainer.style.display = 'none';
+                altInput.value = '';
+            }
         }
 
         // Show preview if there's a current value
@@ -80,11 +94,19 @@ InlineEditor.showImagePreview = function(src) {
 
 InlineEditor.confirmImageSelection = function() {
     const urlInput = document.getElementById('imageUrlInput');
+    const altInput = document.getElementById('imageAltInput');
     const imageData = this.selectedImageData || (urlInput ? urlInput.value : null);
 
     if (imageData && this.imagePickerFieldKey) {
         this.updateSlideData(this.imagePickerFieldKey, imageData, this.imagePickerFieldIndex, null);
+
+        // Also save imageAlt if this is the 'image' field
+        if (this.imagePickerFieldKey === 'image' && altInput) {
+            this.updateSlideData('imageAlt', altInput.value, null, null);
+        }
+
         updatePreview();
+        markAsChanged();
         showToast('Image mise à jour');
     }
 
@@ -94,7 +116,14 @@ InlineEditor.confirmImageSelection = function() {
 InlineEditor.clearImage = function() {
     if (this.imagePickerFieldKey) {
         this.updateSlideData(this.imagePickerFieldKey, '', this.imagePickerFieldIndex, null);
+
+        // Also clear imageAlt if this is the 'image' field
+        if (this.imagePickerFieldKey === 'image') {
+            this.updateSlideData('imageAlt', '', null, null);
+        }
+
         updatePreview();
+        markAsChanged();
         showToast('Image supprimée');
     }
     this.closeImagePicker();

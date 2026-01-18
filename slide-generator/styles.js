@@ -151,6 +151,23 @@ const CSS_STYLES = `
             margin-top: 20px;
             max-width: 600px;
         }
+        .template-section .logo-container {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        .template-section .logo {
+            max-width: 300px;
+            max-height: 60px;
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+        .template-section .logo-container svg {
+            height: 60px;
+            width: auto;
+        }
 
         /* Template: Bullets */
         .template-bullets {

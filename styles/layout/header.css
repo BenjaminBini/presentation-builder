@@ -2,68 +2,133 @@
 
 .header {
   grid-column: 1 / -1;
-  background: var(--bg-main);
+  background: var(--ui-bg-main);
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   padding: 0 20px;
-  gap: 20px;
   border-bottom: 1px solid var(--gray-800);
 }
 
+/* Left part: logo, title, save status */
+.header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
+  gap: 12px;
+  min-width: 0;
+  position: relative;
+}
+
+/* Right part: action buttons */
+.header-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
 .header h1 {
-  color: var(--white);
+  color: var(--ui-text-main);
   font-size: 18px;
   font-weight: 600;
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .header h1 svg {
   width: 28px;
   height: 28px;
+  flex-shrink: 0;
 }
 
 .header-project-name {
-  flex: 1;
   display: flex;
+  flex-direction: row;
   align-items: center;
-  min-width: 0;
   cursor: pointer;
   gap: 8px;
+  min-width: 0;
 }
 
 .header-project-name:hover span {
   background: var(--gray-700);
 }
 
-.header-project-name:hover .edit-icon {
-  opacity: 1;
-}
-
 .header-project-name span {
-  color: var(--white);
+  color: var(--ui-text-main);
   font-size: 14px;
   font-weight: 500;
   padding: 6px 12px;
-  background: var(--gray-800);
+  background: var(--ui-bg-third);
   border-radius: 6px;
-  max-width: 300px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: background 0.2s;
 }
 
+.header-project-name.placeholder span {
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* Edit icon hidden by default */
 .header-project-name .edit-icon {
-  width: 16px;
-  height: 16px;
-  stroke: var(--gray-500);
-  stroke-width: 2;
-  fill: none;
+  display: none;
+}
+
+/* Edit overlay tooltip */
+.header-project-name::after {
+  content: 'Cliquer pour modifier';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: var(--gray-900);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 4px;
   opacity: 0;
-  transition: opacity 0.2s;
-  flex-shrink: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0.15s;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.header-project-name::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  margin-top: 1px;
+  border: 5px solid transparent;
+  border-bottom-color: var(--gray-900);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0.15s;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.header-project-name:hover::after,
+.header-project-name:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.header-project-name.editing::after,
+.header-project-name.editing::before {
+  display: none;
 }
 
 .header-project-name.editing span,
@@ -73,10 +138,10 @@
 
 .header-project-input {
   display: none;
-  background: var(--gray-800);
-  border: 2px solid var(--accent-main);
+  background: var(--ui-bg-third);
+  border: 2px solid var(--ui-accent-main);
   border-radius: 6px;
-  color: var(--white);
+  color: var(--ui-text-main);
   font-size: 14px;
   font-weight: 500;
   padding: 4px 10px;
@@ -88,17 +153,15 @@
   display: block;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
+.save-status {
+  flex-shrink: 0;
 }
 
 /* Editor Toolbar (Compact inline settings) */
 .editor-toolbar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 16px;
   padding: 12px 16px;
 }
 
@@ -106,6 +169,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.editor-toolbar-section:not(:last-child) {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
 }
 
 .editor-toolbar-section-block {
@@ -121,10 +189,204 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  margin-bottom: 8px;
 }
 
 .color-toolbar {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
+}
+
+/* Slider Control */
+.slider-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-control input[type="range"] {
+  width: 100px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--gray-200);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.slider-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--ui-accent-main);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.slider-control input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.slider-control input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--ui-accent-main);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-600);
+  min-width: 40px;
+}
+
+/* Settings List (like colors) */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Toggle Control - Clean Switch */
+.toolbar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.toolbar-toggle-label {
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-600);
+  white-space: nowrap;
+}
+
+.toolbar-toggle input[type="checkbox"] {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  min-width: 36px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.toolbar-toggle input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  background: var(--gray-400);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toolbar-toggle input[type="checkbox"]:checked {
+  background: var(--ui-accent-main);
+  border-color: var(--ui-accent-main);
+}
+
+.toolbar-toggle input[type="checkbox"]:checked::before {
+  transform: translateX(16px);
+  background: white;
+}
+
+/* ============================================================================
+   RESPONSIVE HEADER
+   ============================================================================ */
+
+/* Medium screens - reduce gaps and padding */
+@media (max-width: 1100px) {
+  .header {
+    padding: 0 12px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .header-right .btn {
+    padding: 8px 12px;
+  }
+}
+
+/* Smaller screens - hide button text, show icons only */
+@media (max-width: 1000px) {
+  .header-title {
+    display: none;
+  }
+
+  /* Square icon-only buttons */
+  .header-right .btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* Hide button text labels */
+  .btn-label {
+    display: none;
+  }
+
+  /* Hide save status text, icon only */
+  .save-status-text {
+    display: none;
+  }
+
+  .save-status {
+    padding: 0 !important;
+    background: transparent !important;
+    gap: 0;
+  }
+}
+
+/* Small screens - minimal header */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 8px;
+  }
+
+  .header-left {
+    gap: 8px;
+  }
+
+  .header-right {
+    gap: 4px;
+  }
+
+  /* Smaller square buttons */
+  .header-right .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0 !important;
+  }
+
+  .header-project-name span {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+
+  .header-project-input {
+    width: 150px;
+  }
 }

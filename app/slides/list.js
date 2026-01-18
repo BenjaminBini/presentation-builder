@@ -25,6 +25,7 @@ window.renderSlideList = function() {
                  draggable="true"
                  ondragstart="handleDragStart(event, ${index})"
                  ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)"
                  ondrop="handleDrop(event, ${index})"
                  ondragend="handleDragEnd(event)"
                  onclick="selectSlide(${index})">

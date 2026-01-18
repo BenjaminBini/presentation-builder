@@ -165,6 +165,7 @@ function processImportData(data, defaultName) {
             slides: data.slides
         };
         selectedSlideIndex = currentProject.slides.length > 0 ? 0 : -1;
+        updateAppThemeColors(); // Apply imported theme colors
         renderSlideList();
         renderSettingsPanel();
         renderEditor();

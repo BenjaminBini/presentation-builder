@@ -130,7 +130,7 @@ window.renderStepsField = function(field, steps) {
     `;
 };
 
-window.renderAgendaItemsField = function(field, items) {
+window.renderAgendaItemsField = function(field, items, showDuration = true) {
     return `
         <div class="form-group full-width">
             <label>${field.label}</label>
@@ -149,10 +149,12 @@ window.renderAgendaItemsField = function(field, items) {
                                        placeholder="Sous-titre (optionnel)"
                                        onchange="updateAgendaItem(${i}, 'subtitle', this.value)"
                                        oninput="updateAgendaItem(${i}, 'subtitle', this.value)">
+                                ${showDuration ? `
                                 <input type="text" class="agenda-item-duration" value="${escapeHtml(item.duration || '')}"
                                        placeholder="Durée"
                                        onchange="updateAgendaItem(${i}, 'duration', this.value)"
                                        oninput="updateAgendaItem(${i}, 'duration', this.value)">
+                                ` : ''}
                             </div>
                         </div>
                         <button class="agenda-item-delete" onclick="removeAgendaItem(${i})" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>

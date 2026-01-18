@@ -105,7 +105,7 @@
 .code-editor-option input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: var(--accent-main);
+  accent-color: var(--ui-accent-main);
 }
 
 /* Code editor wrapper with line numbers */
@@ -211,12 +211,12 @@
 }
 
 .file-drop-zone:hover {
-  border-color: var(--accent-main);
+  border-color: var(--ui-accent-main);
   background: rgba(252, 109, 38, 0.02);
 }
 
 .file-drop-zone.drag-over {
-  border-color: var(--accent-main);
+  border-color: var(--ui-accent-main);
   background: rgba(252, 109, 38, 0.08);
   border-style: solid;
 }
@@ -235,7 +235,7 @@
 
 .file-drop-zone:hover .file-drop-icon svg,
 .file-drop-zone.drag-over .file-drop-icon svg {
-  stroke: var(--accent-main);
+  stroke: var(--ui-accent-main);
 }
 
 .file-drop-text {
@@ -272,7 +272,7 @@
 }
 
 .file-selected .icon {
-  color: var(--accent-main);
+  color: var(--ui-accent-main);
   flex-shrink: 0;
 }
 

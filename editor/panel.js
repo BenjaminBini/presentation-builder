@@ -71,21 +71,26 @@ window.renderEditor = function() {
 
     const colorItemsHtml = colorSettings.map(setting => {
         const currentValue = slideColors[setting.key] || setting.default;
-        return renderInlineColorSelector(setting.key, setting.label, currentValue);
+        const isCustom = setting.key in slideColors;
+        return renderInlineColorSelector(setting.key, setting.label, currentValue, setting.default, isCustom);
     }).join('');
 
     // Render template-specific settings
     const templateSettingsHtml = renderTemplateSettings(slide);
 
+    const colorsSection = colorSettings.length > 0 ? `
+        <div class="editor-toolbar-section editor-toolbar-section-block">
+            <span class="editor-toolbar-label">Couleurs</span>
+            <div class="color-settings-list">
+                ${colorItemsHtml}
+            </div>
+        </div>
+    ` : '';
+
     container.innerHTML = `
         <div class="editor-toolbar">
-            <div class="editor-toolbar-section">
-                <span class="editor-toolbar-label">Couleurs</span>
-                <div class="color-toolbar">
-                    ${colorItemsHtml}
-                </div>
-            </div>
             ${templateSettingsHtml}
+            ${colorsSection}
         </div>
     `;
 };

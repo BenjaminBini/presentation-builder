@@ -22,8 +22,14 @@ function renderTitle(data) {
  * Render section slide template
  */
 function renderSection(data) {
+    const logoStyle = data.logoSize && data.logoSize !== 100
+        ? ` style="transform: scale(${data.logoSize / 100}); transform-origin: left center;"`
+        : '';
     return `
         <div class="slide template-section">
+            <div class="logo-container"${logoStyle}>
+                ${data.logo ? `<img src="${data.logo}" alt="Logo" class="logo">` : getGitLabLogo(60)}
+            </div>
             <span class="section-number">${escapeHtml(data.number) || ''}</span>
             <h2>${escapeHtml(data.title)}</h2>
             ${data.subtitle ? `<div class="section-subtitle">${escapeHtml(data.subtitle)}</div>` : ''}

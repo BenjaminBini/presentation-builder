@@ -115,9 +115,9 @@ function renderAgendaTemplate(data, colorStyles) {
                                     }
                                 </div>
                                 ${
-                                  showDuration && item.duration
-                                    ? `<div class="agenda-duration">${escapeHtml(
-                                        item.duration
+                                  showDuration
+                                    ? `<div class="agenda-duration" data-editable="text" data-field-key="items" data-field-index="${i}" data-field-subkey="duration" data-placeholder="Durée">${escapeHtml(
+                                        item.duration || ""
                                       )}</div>`
                                     : ""
                                 }
