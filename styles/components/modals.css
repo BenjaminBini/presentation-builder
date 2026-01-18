@@ -329,6 +329,95 @@
   font-size: 13px;
 }
 
+/* Prompt Modal */
+.modal-prompt {
+  width: 300px;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: promptSlideIn 0.2s ease-out;
+}
+
+@keyframes promptSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-prompt h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 12px;
+}
+
+.prompt-input-group {
+  margin-bottom: 14px;
+}
+
+.prompt-input-group label {
+  display: none;
+}
+
+/* Focus glow animation */
+@keyframes focusGlow {
+  0% {
+    border-color: transparent;
+    box-shadow: 0 0 0 0 rgba(252,109,38,0);
+  }
+  40% {
+    border-color: var(--ui-accent-main);
+    box-shadow: 0 0 0 4px rgba(252,109,38,0.2);
+  }
+  100% {
+    border-color: var(--ui-accent-main);
+    box-shadow: 0 0 0 0 rgba(252,109,38,0);
+  }
+}
+
+/* Prompt input */
+.prompt-input-group input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--gray-100);
+}
+
+.prompt-input-group input:focus {
+  outline: none;
+  border-color: var(--ui-accent-main);
+  animation: focusGlow 0.3s ease-out;
+}
+
+.prompt-input-group input::placeholder {
+  color: var(--gray-400);
+}
+
+.prompt-error {
+  display: block;
+  font-size: 11px;
+  color: var(--error);
+  margin-top: 6px;
+  min-height: 14px;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.prompt-actions .btn {
+  flex: 1;
+  font-size: 13px;
+}
+
 /* Toast Notification */
 .toast {
   position: fixed;

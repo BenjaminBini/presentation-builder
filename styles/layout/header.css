@@ -183,13 +183,13 @@
 }
 
 .editor-toolbar-label {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
-  color: var(--gray-500);
+  color: var(--gray-400);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .color-toolbar {
