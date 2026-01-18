@@ -9,6 +9,9 @@ function initializeApp() {
     // Load project from localStorage or use sample
     window.loadInitialProject();
 
+    // Update app CSS variables to match theme colors
+    window.updateAppThemeColors();
+
     // Initialize UI components
     window.initTemplateGrid();
     window.renderSlideList();
@@ -19,8 +22,12 @@ function initializeApp() {
     window.initMermaid();
     window.initPanelStates();
     
-    // Initialize save status
-    window.updateSaveButtonState('saved');
+    // Initialize save status based on project state
+    if (window.isProjectSaved()) {
+        window.updateSaveButtonState('saved');
+    } else {
+        window.updateSaveButtonState('unsaved');
+    }
 
     // Close color picker dropdowns when clicking outside
     document.addEventListener('click', (e) => {

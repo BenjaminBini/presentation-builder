@@ -16,6 +16,9 @@ const exportTemplates = {
 
     section: (data) => `
         <div class="slide template-section">
+            <div class="logo-container"${data.logoSize && data.logoSize !== 100 ? ` style="transform: scale(${data.logoSize / 100}); transform-origin: left center;"` : ''}>
+                ${data.logo ? `<img src="${data.logo}" alt="Logo" class="logo">` : getGitLabLogoSvg(60)}
+            </div>
             <span class="section-number">${escapeHtml(data.number) || ''}</span>
             <h2>${escapeHtml(data.title)}</h2>
             ${data.subtitle ? `<div class="section-subtitle">${escapeHtml(data.subtitle)}</div>` : ''}

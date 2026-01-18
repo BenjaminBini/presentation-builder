@@ -5,8 +5,9 @@ window.loadInitialProject = function() {
     const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
 
     if (projects.length === 0) {
-        // No projects exist - load sample data
+        // No projects exist - load sample data as unsaved
         window.currentProject = JSON.parse(JSON.stringify(SAMPLE_PROJECT));
+        window.currentProject.name = null; // Start as unsaved
         window.selectedSlideIndex = window.currentProject.slides.length > 0 ? 0 : -1;
         showToast('Projet de démonstration chargé');
     } else if (projects.length === 1) {
@@ -45,8 +46,15 @@ function ensureTheme() {
 
 window.updateHeaderTitle = function() {
     const titleElement = document.getElementById('headerProjectName');
+    const container = document.querySelector('.header-project-name');
     if (titleElement) {
-        titleElement.textContent = window.currentProject.name || 'Sans titre';
+        if (window.currentProject.name) {
+            titleElement.textContent = window.currentProject.name;
+            container?.classList.remove('placeholder');
+        } else {
+            titleElement.textContent = 'Sans titre';
+            container?.classList.add('placeholder');
+        }
     }
 };
 
@@ -64,12 +72,45 @@ window.finishEditProjectTitle = function() {
     const container = document.querySelector('.header-project-name');
     const input = document.getElementById('headerProjectInput');
     const newName = input.value.trim();
+    const wasUnsaved = !window.isProjectSaved();
 
-    if (newName && newName !== window.currentProject.name) {
+    if (!newName) {
+        container.classList.remove('editing');
+        return;
+    }
+
+    if (newName !== window.currentProject.name) {
+        // Check if name already exists
+        const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
+        const existingNames = new Set(projects.map(p => p.name));
+
+        if (existingNames.has(newName)) {
+            showToast('Un projet avec ce nom existe déjà');
+            input.focus();
+            return;
+        }
+
+        const oldName = window.currentProject.name;
         window.currentProject.name = newName;
         updateHeaderTitle();
-        window.markAsChanged();
-        showToast('Nom du projet mis à jour');
+
+        if (wasUnsaved) {
+            // First save of a new project
+            window.currentProject.savedAt = new Date().toISOString();
+            projects.push(window.currentProject);
+            localStorage.setItem('slideProjects', JSON.stringify(projects));
+            clearUnsavedChanges();
+            showToast('Projet enregistré');
+        } else {
+            // Rename existing project
+            const existingIndex = projects.findIndex(p => p.name === oldName);
+            if (existingIndex >= 0) {
+                projects[existingIndex] = window.currentProject;
+                localStorage.setItem('slideProjects', JSON.stringify(projects));
+            }
+            window.markAsChanged();
+            showToast('Nom du projet mis à jour');
+        }
     }
 
     container.classList.remove('editing');

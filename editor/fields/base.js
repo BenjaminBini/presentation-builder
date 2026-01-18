@@ -60,7 +60,7 @@ window.renderField = function(field, data) {
             return window.renderTableRowsField(field, value || []);
 
         case 'agenda-items':
-            return window.renderAgendaItemsField(field, value || []);
+            return window.renderAgendaItemsField(field, value || [], data.showDuration !== false);
 
         default:
             return '';

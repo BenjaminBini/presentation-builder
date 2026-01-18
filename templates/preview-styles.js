@@ -61,6 +61,9 @@ function getPreviewStyles() {
         .template-section .section-number { font-size: 120px; font-weight: 800; color: var(--slide-numberColor, rgba(255,255,255,0.2)); position: absolute; top: 40px; right: 60px; }
         .template-section h2 { font-size: 64px; font-weight: 800; color: var(--slide-titleColor, white); max-width: 800px; line-height: 1.1; position: relative; z-index: 1; }
         .template-section .section-subtitle { font-size: 24px; color: var(--slide-subtitleColor, rgba(255,255,255,0.8)); margin-top: 20px; max-width: 600px; position: relative; z-index: 1; }
+        .template-section .logo-container { margin-bottom: 30px; position: relative; z-index: 1; }
+        .template-section .logo { max-width: 300px; max-height: 60px; height: 60px; width: auto; object-fit: contain; display: block; }
+        .template-section .logo-container svg { height: 60px; width: auto; }
         /* Bullets */
         .template-bullets { background: var(--slide-bgColor, var(--white)); padding: 60px 80px; height: 100%; display: flex; flex-direction: column; }
         .template-bullets .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); }
@@ -214,7 +217,7 @@ function getPreviewStyles() {
         .template-mermaid .mermaid svg { max-width: 100%; max-height: 100%; width: auto !important; height: auto !important; }
         /* Agenda */
         .template-agenda { background: var(--slide-bgColor, var(--white)); padding: 60px 100px; height: 100%; }
-        .template-agenda h2 { font-size: 48px; font-weight: 700; color: var(--slide-titleColor, var(--gray-900)); margin-bottom: 50px; }
+        .template-agenda h2 { font-size: 48px; font-weight: 700; color: var(--slide-titleColor, var(--gray-900)); margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); }
         .template-agenda .agenda-list { list-style: none; }
         .template-agenda .agenda-item { display: flex; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--gray-200); }
         .template-agenda .agenda-item:last-child { border-bottom: none; }

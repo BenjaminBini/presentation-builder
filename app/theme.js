@@ -1,6 +1,28 @@
 // app/theme.js
 // Theme selection and color management
 
+// Theme color keys that can be overridden
+const THEME_COLOR_KEYS = [
+    'accent-main', 'accent-alt', 'accent-third',
+    'text-main', 'text-alt', 'text-third',
+    'bg-main', 'bg-alt', 'bg-third',
+    'confirm', 'info', 'warn', 'error'
+];
+
+/**
+ * Update CSS variables to reflect current theme colors
+ * This updates slide colors - UI uses separate --ui-* variables
+ */
+window.updateAppThemeColors = function() {
+    const baseTheme = THEMES[window.currentProject?.theme?.base || 'gitlab'];
+    const overrides = window.currentProject?.theme?.overrides || {};
+
+    THEME_COLOR_KEYS.forEach(key => {
+        const value = overrides[key] || baseTheme.colors[key];
+        document.documentElement.style.setProperty(`--${key}`, value);
+    });
+};
+
 window.renderThemeSelector = function() {
     const selector = document.getElementById('themeSelector');
     const currentTheme = window.currentProject.theme?.base || 'gitlab';
@@ -18,7 +40,9 @@ window.selectTheme = function(themeKey) {
     }
     window.currentProject.theme.base = themeKey;
     window.currentProject.theme.overrides = {}; // Reset overrides when changing theme
+    updateAppThemeColors();
     renderSettingsPanel();
+    renderEditor();
     updatePreview();
     window.initMermaid(); // Re-init mermaid with new colors
     window.markAsChanged();
@@ -59,7 +83,9 @@ window.setColorOverride = function(colorKey, value) {
         window.currentProject.theme.overrides = {};
     }
     window.currentProject.theme.overrides[colorKey] = value;
+    updateAppThemeColors();
     renderColorList();
+    renderEditor();
     updatePreview();
     window.markAsChanged();
 };
@@ -67,7 +93,9 @@ window.setColorOverride = function(colorKey, value) {
 window.resetColorOverride = function(colorKey) {
     if (window.currentProject.theme?.overrides) {
         delete window.currentProject.theme.overrides[colorKey];
+        updateAppThemeColors();
         renderColorList();
+        renderEditor();
         updatePreview();
         window.markAsChanged();
         showToast('Couleur réinitialisée');

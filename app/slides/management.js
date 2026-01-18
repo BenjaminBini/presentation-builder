@@ -20,6 +20,7 @@ window.selectTemplate = function(template) {
         : window.selectedSlideIndex + 1;
     window.currentProject.slides.splice(insertIndex, 0, newSlide);
     window.selectedSlideIndex = insertIndex;
+    sessionStorage.setItem('selectedSlideIndex', insertIndex);
 
     closeModal('addSlideModal');
     renderSlideList();
@@ -76,7 +77,18 @@ window.handleDragOver = function(event) {
     event.preventDefault();
     const item = event.target.closest('.slide-item');
     if (item) {
+        // Remove from all others first
+        document.querySelectorAll('.slide-item.drag-over').forEach(el => {
+            if (el !== item) el.classList.remove('drag-over');
+        });
         item.classList.add('drag-over');
+    }
+};
+
+window.handleDragLeave = function(event) {
+    const item = event.target.closest('.slide-item');
+    if (item && !item.contains(event.relatedTarget)) {
+        item.classList.remove('drag-over');
     }
 };
 

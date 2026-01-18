@@ -14,7 +14,7 @@
 }
 
 .form-group label .required-mark {
-  color: var(--accent-main);
+  color: var(--ui-accent-main);
   font-weight: 600;
 }
 
@@ -24,6 +24,10 @@
   color: var(--gray-500);
   margin-top: 4px;
   line-height: 1.4;
+}
+
+.field-hint.field-error {
+  color: var(--error);
 }
 
 .form-group input,
@@ -42,7 +46,7 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--accent-main);
+  border-color: var(--ui-accent-main);
 }
 
 .form-group textarea {
@@ -78,7 +82,7 @@
 .checkbox-label input[type="checkbox"] {
   width: 18px !important;
   height: 18px;
-  accent-color: var(--accent-main);
+  accent-color: var(--ui-accent-main);
   cursor: pointer;
 }
 
@@ -142,41 +146,14 @@
 }
 
 .toggle-input:checked + .toggle-switch {
-  background: var(--accent-main);
+  background: var(--ui-accent-main);
 }
 
 .toggle-input:checked + .toggle-switch::after {
   transform: translateX(18px);
 }
 
-/* Toolbar Toggle */
-.toolbar-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 6px 12px;
-  background: var(--gray-100);
-  border-radius: 6px;
-  transition: background 0.15s ease;
-}
-
-.toolbar-toggle:hover {
-  background: var(--gray-200);
-}
-
-.toolbar-toggle input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent-main);
-  cursor: pointer;
-}
-
-.toolbar-toggle-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--gray-700);
-}
+/* Toolbar Toggle - styles moved to header.css */
 
 /* Slider Control */
 .slider-control {
@@ -198,7 +175,7 @@
   appearance: none;
   width: 14px;
   height: 14px;
-  background: var(--accent-main);
+  background: var(--ui-accent-main);
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.15s;
@@ -211,7 +188,7 @@
 .slider-control input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
-  background: var(--accent-main);
+  background: var(--ui-accent-main);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -236,7 +213,7 @@
 }
 
 .code-textarea:focus {
-  border-color: var(--accent-main) !important;
+  border-color: var(--ui-accent-main) !important;
 }
 
 .code-textarea::placeholder {

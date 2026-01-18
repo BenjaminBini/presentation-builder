@@ -31,8 +31,8 @@
 
 .import-tab.active {
   background: rgba(252, 109, 38, 0.08);
-  border-color: var(--accent-main);
-  color: var(--accent-main);
+  border-color: var(--ui-accent-main);
+  color: var(--ui-accent-main);
 }
 
 .import-tab-content {

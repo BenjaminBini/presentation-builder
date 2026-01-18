@@ -1,7 +1,7 @@
 /* CSS Custom Properties / Variables */
 
 :root {
-  /* Theme colors (can be overridden) */
+  /* Theme colors (can be overridden for slides) */
   --accent-main: #fc6d26;
   --accent-alt: #e24329;
   --accent-third: #fca326;
@@ -15,6 +15,16 @@
   --info: #1f75cb;
   --warn: #fca326;
   --error: #dd2b0e;
+
+  /* UI colors (fixed, not affected by theme changes) */
+  --ui-accent-main: #fc6d26;
+  --ui-accent-alt: #e24329;
+  --ui-text-main: #ffffff;
+  --ui-text-alt: #bfbfc3;
+  --ui-bg-main: #171321;
+  --ui-bg-alt: #1f1a24;
+  --ui-bg-third: #2e2a35;
+
   /* Static palette */
   --gray-900: #1f1a24;
   --gray-800: #2e2a35;

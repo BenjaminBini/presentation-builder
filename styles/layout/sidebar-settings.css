@@ -15,7 +15,7 @@
 }
 
 .slide-item.drag-over {
-  border-color: var(--accent-main);
+  border-color: var(--ui-accent-main);
   border-style: dashed;
 }
 
@@ -34,28 +34,32 @@
 
 .theme-selector {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .theme-option {
-  padding: 10px 16px;
-  border: 2px solid var(--gray-200);
-  border-radius: 8px;
+  background: var(--white);
+  border-radius: 6px;
+  padding: 8px 10px;
   cursor: pointer;
+  border: 1px solid var(--gray-200);
+  transition: all 0.15s;
   font-size: 13px;
   font-weight: 500;
-  background: var(--white);
-  transition: all 0.2s;
+  color: var(--gray-700);
+  text-align: left;
 }
 
 .theme-option:hover {
   border-color: var(--gray-300);
+  background: var(--gray-50);
 }
 
 .theme-option.active {
-  border-color: var(--accent-main);
-  background: rgba(252, 109, 38, 0.05);
+  border-color: var(--ui-accent-main);
+  background: rgba(252, 109, 38, 0.06);
+  box-shadow: inset 3px 0 0 var(--ui-accent-main);
 }
 
 /* Color Overrides */
@@ -72,11 +76,12 @@
   padding: 8px;
   border-radius: 6px;
   background: var(--gray-100);
+  border: 1px solid transparent;
 }
 
 .color-item.overridden {
   background: rgba(252, 109, 38, 0.08);
-  border: 1px solid rgba(252, 109, 38, 0.2);
+  border-color: rgba(252, 109, 38, 0.2);
 }
 
 .color-swatch {

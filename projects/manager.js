@@ -53,6 +53,7 @@ function loadProject(index) {
         currentProject = JSON.parse(JSON.stringify(projects[index]));
         ensureTheme();
         selectedSlideIndex = currentProject.slides.length > 0 ? 0 : -1;
+        updateAppThemeColors(); // Apply loaded theme colors
         renderSlideList();
         renderSettingsPanel();
         renderEditor();
@@ -78,8 +79,9 @@ function deleteProject(index) {
 function newProject() {
     if (confirm('Créer un nouveau projet ? Les modifications non sauvegardées seront perdues.')) {
         currentProject = JSON.parse(JSON.stringify(SAMPLE_PROJECT));
-        currentProject.name = 'Nouvelle présentation';
+        currentProject.name = null; // Unsaved project has no name
         selectedSlideIndex = currentProject.slides.length > 0 ? 0 : -1;
+        updateAppThemeColors(); // Reset to default theme colors
         renderSlideList();
         renderSettingsPanel();
         renderEditor();
@@ -87,8 +89,100 @@ function newProject() {
         updateHeaderTitle();
         initMermaid();
         clearUnsavedChanges();
+        resetUnsavedAlert(); // Allow alert to show again for new project
         showToast('Nouveau projet créé');
     }
+}
+
+function onSaveStatusClick() {
+    // Only handle click for unsaved projects
+    if (!window.isProjectSaved()) {
+        openSaveProjectModal();
+    }
+}
+
+function openSaveProjectModal() {
+    const input = document.getElementById('saveProjectName');
+    const error = document.getElementById('saveProjectError');
+    const btn = document.getElementById('saveProjectBtn');
+
+    input.value = '';
+    error.textContent = '';
+    btn.disabled = true;
+
+    openModal('saveProjectModal');
+    setTimeout(() => input.focus(), 100);
+}
+
+function validateSaveProjectName() {
+    const input = document.getElementById('saveProjectName');
+    const error = document.getElementById('saveProjectError');
+    const btn = document.getElementById('saveProjectBtn');
+    const name = input.value.trim();
+
+    const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
+    const existingNames = new Set(projects.map(p => p.name));
+
+    if (!name) {
+        error.textContent = '';
+        btn.disabled = true;
+        return false;
+    }
+
+    if (existingNames.has(name)) {
+        error.textContent = 'Un projet avec ce nom existe déjà';
+        btn.disabled = true;
+        return false;
+    }
+
+    error.textContent = '';
+    btn.disabled = false;
+    return true;
+}
+
+function confirmSaveProject() {
+    const input = document.getElementById('saveProjectName');
+    const name = input.value.trim();
+
+    if (!validateSaveProjectName()) return;
+
+    // Save the project with the chosen name
+    currentProject.name = name;
+    currentProject.savedAt = new Date().toISOString();
+
+    const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
+    projects.push(currentProject);
+    localStorage.setItem('slideProjects', JSON.stringify(projects));
+
+    closeModal('saveProjectModal');
+    dismissUnsavedAlert();
+    updateHeaderTitle();
+    clearUnsavedChanges();
+    showToast('Projet enregistré');
+}
+
+// Unsaved alert management
+let unsavedAlertShown = false;
+
+function showUnsavedAlert() {
+    if (unsavedAlertShown) return;
+
+    const alert = document.getElementById('unsavedAlert');
+    if (alert) {
+        alert.classList.add('visible');
+        unsavedAlertShown = true;
+    }
+}
+
+function dismissUnsavedAlert() {
+    const alert = document.getElementById('unsavedAlert');
+    if (alert) {
+        alert.classList.remove('visible');
+    }
+}
+
+function resetUnsavedAlert() {
+    unsavedAlertShown = false;
 }
 
 function exportProject() {
@@ -118,3 +212,10 @@ window.loadProject = loadProject;
 window.deleteProject = deleteProject;
 window.newProject = newProject;
 window.exportProject = exportProject;
+window.onSaveStatusClick = onSaveStatusClick;
+window.openSaveProjectModal = openSaveProjectModal;
+window.validateSaveProjectName = validateSaveProjectName;
+window.confirmSaveProject = confirmSaveProject;
+window.showUnsavedAlert = showUnsavedAlert;
+window.dismissUnsavedAlert = dismissUnsavedAlert;
+window.resetUnsavedAlert = resetUnsavedAlert;

@@ -16,53 +16,69 @@
     <div class="app">
         <!-- Header -->
         <header class="header">
-            <h1>
-                <svg viewBox="0 0 380 380" fill="none">
-                    <path d="M190 362.42L253.31 167.69H126.69L190 362.42Z" fill="#E24329"/>
-                    <path d="M190 362.42L126.69 167.69H20.28L190 362.42Z" fill="#FC6D26"/>
-                    <path d="M20.28 167.69L2.53 222.23C0.91 227.22 2.69 232.67 6.97 235.78L190 362.42L20.28 167.69Z" fill="#FCA326"/>
-                    <path d="M20.28 167.69H126.69L80.89 26.87C78.95 21.01 70.74 21.01 68.8 26.87L20.28 167.69Z" fill="#E24329"/>
-                    <path d="M190 362.42L253.31 167.69H359.72L190 362.42Z" fill="#FC6D26"/>
-                    <path d="M359.72 167.69L377.47 222.23C379.09 227.22 377.31 232.67 373.03 235.78L190 362.42L359.72 167.69Z" fill="#FCA326"/>
-                    <path d="M359.72 167.69H253.31L299.11 26.87C301.05 21.01 309.26 21.01 311.2 26.87L359.72 167.69Z" fill="#E24329"/>
-                </svg>
-                Slide Editor
-            </h1>
-            <div class="header-project-name" onclick="editProjectTitle()">
-                <span id="headerProjectName">Sans titre</span>
-                <svg class="edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                <input type="text" id="headerProjectInput" class="header-project-input" onblur="finishEditProjectTitle()" onkeydown="handleTitleKeydown(event)">
-            </div>
-            <div class="header-actions">
-                <div class="save-status" id="saveStatus">
-                    <svg class="save-status-icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-                    <span class="save-status-text">Enregistré</span>
-                    <div class="save-spinner"></div>
+            <div class="header-left">
+                <h1>
+                    <svg viewBox="0 0 380 380" fill="none">
+                        <path d="M190 362.42L253.31 167.69H126.69L190 362.42Z" fill="#E24329"/>
+                        <path d="M190 362.42L126.69 167.69H20.28L190 362.42Z" fill="#FC6D26"/>
+                        <path d="M20.28 167.69L2.53 222.23C0.91 227.22 2.69 232.67 6.97 235.78L190 362.42L20.28 167.69Z" fill="#FCA326"/>
+                        <path d="M20.28 167.69H126.69L80.89 26.87C78.95 21.01 70.74 21.01 68.8 26.87L20.28 167.69Z" fill="#E24329"/>
+                        <path d="M190 362.42L253.31 167.69H359.72L190 362.42Z" fill="#FC6D26"/>
+                        <path d="M359.72 167.69L377.47 222.23C379.09 227.22 377.31 232.67 373.03 235.78L190 362.42L359.72 167.69Z" fill="#FCA326"/>
+                        <path d="M359.72 167.69H253.31L299.11 26.87C301.05 21.01 309.26 21.01 311.2 26.87L359.72 167.69Z" fill="#E24329"/>
+                    </svg>
+                    <span class="header-title">Slide Editor</span>
+                </h1>
+                <div class="header-project-name" onclick="editProjectTitle()">
+                    <span id="headerProjectName">Sans titre</span>
+                    <svg class="edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <input type="text" id="headerProjectInput" class="header-project-input" onblur="finishEditProjectTitle()" onkeydown="handleTitleKeydown(event)">
                 </div>
+                <div class="save-status" id="saveStatus" onclick="onSaveStatusClick()">
+                    <svg class="save-status-icon icon-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                    <svg class="save-status-icon icon-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <div class="save-modifying-indicator">
+                        <span class="modifying-dots"><span></span><span></span><span></span></span>
+                    </div>
+                    <span class="save-status-text">Enregistrer</span>
+                    <div class="save-spinner"></div>
+                    <span class="save-status-tooltip" id="saveStatusTooltip">Toutes les modifications sont enregistrées</span>
+                    <!-- Unsaved project alert tooltip -->
+                    <div class="unsaved-alert" id="unsavedAlert">
+                        <div class="unsaved-alert-arrow"></div>
+                        <div class="unsaved-alert-content">
+                            <p><strong>Projet non enregistré</strong></p>
+                            <p>Enregistrez pour activer la sauvegarde automatique.</p>
+                            <button class="unsaved-alert-dismiss" onclick="event.stopPropagation(); dismissUnsavedAlert()">Compris</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
                 <div id="driveSyncStatus"></div>
                 <button class="btn btn-ghost" onclick="newProject()" title="Nouveau projet">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                    Nouveau
+                    <span class="btn-label">Nouveau</span>
                 </button>
-                <button class="btn btn-ghost" onclick="openProjectsModal()">
+                <button class="btn btn-ghost" onclick="openProjectsModal()" title="Projets">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                    Projets
+                    <span class="btn-label">Projets</span>
                 </button>
-                <button class="btn btn-secondary" onclick="importProject()">
+                <button class="btn btn-secondary" onclick="importProject()" title="Importer">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Importer
+                    <span class="btn-label">Importer</span>
                 </button>
-                <button class="btn btn-secondary" onclick="exportProject()">
+                <button class="btn btn-secondary" onclick="exportProject()" title="Exporter JSON">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    JSON
+                    <span class="btn-label">JSON</span>
                 </button>
-                <button class="btn btn-accent" onclick="exportToHtml()">
+                <button class="btn btn-accent" onclick="exportToHtml()" title="Exporter HTML">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2l1 2 2-4 1 2h2"/></svg>
-                    Exporter HTML
+                    <span class="btn-label">HTML</span>
                 </button>
-                <button class="btn btn-primary" onclick="startPresentation()">
+                <button class="btn btn-primary" onclick="startPresentation()" title="Présenter">
                     <svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    Présenter
+                    <span class="btn-label">Présenter</span>
                 </button>
             </div>
         </header>
@@ -143,6 +159,27 @@
                 <div class="editor-content" id="editorContent"></div>
             </div>
         </main>
+    </div>
+
+    <!-- Save Project Modal -->
+    <div class="modal-overlay" id="saveProjectModal">
+        <div class="modal" style="width: 400px;">
+            <div class="modal-header">
+                <h3>Enregistrer le projet</h3>
+                <button class="modal-close" onclick="closeModal('saveProjectModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="saveProjectName">Nom du projet <span class="required-mark">*</span></label>
+                    <input type="text" id="saveProjectName" placeholder="Ma présentation" oninput="validateSaveProjectName()" onkeydown="if(event.key==='Enter' && !document.getElementById('saveProjectBtn').disabled) confirmSaveProject()">
+                    <span class="field-hint field-error" id="saveProjectError"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('saveProjectModal')">Annuler</button>
+                <button class="btn btn-primary" id="saveProjectBtn" onclick="confirmSaveProject()" disabled>Enregistrer</button>
+            </div>
+        </div>
     </div>
 
     <!-- Add Slide Modal -->
@@ -348,6 +385,10 @@
                 <div class="image-preview-container" id="imagePreviewContainer" style="display:none">
                     <img id="imagePreview" src="" alt="Preview">
                     <p class="image-size-warning" id="imageSizeWarning" style="display:none"></p>
+                </div>
+                <div class="image-alt-container" id="imageAltContainer" style="display:none; margin-top: 16px;">
+                    <label for="imageAltInput" style="display: block; font-size: 13px; font-weight: 500; color: var(--gray-600); margin-bottom: 6px;">Description de l'image (alt)</label>
+                    <input type="text" id="imageAltInput" placeholder="Description pour l'accessibilité" style="width: 100%; padding: 10px 12px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 14px;">
                 </div>
             </div>
             <div class="modal-footer">
