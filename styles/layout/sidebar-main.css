@@ -271,10 +271,11 @@
 
 .btn-add-slide {
   width: 100%;
-  padding: 8px 12px;
-  border: none;
+  padding: 9px 12px;
   background: var(--ui-accent-main);
-  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(252, 109, 38, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   color: white;
@@ -283,11 +284,17 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.15s;
+  transition: all 0.12s ease;
 }
 
 .btn-add-slide:hover {
-  background: var(--ui-accent-alt);
+  background: #ff7a3a;
+  box-shadow: 0 3px 6px rgba(252, 109, 38, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-add-slide:active {
+  background: #e85a1b;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-add-slide .icon {

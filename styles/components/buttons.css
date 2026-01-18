@@ -2,36 +2,50 @@
 
 /* Base Button */
 .btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  border: none;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  transition: all 0.12s ease;
 }
 
 .btn-primary {
   background: var(--ui-accent-main);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 3px rgba(252, 109, 38, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   color: white;
 }
 
 .btn-primary:hover {
-  background: var(--ui-accent-alt);
+  background: #ff7a3a;
+  box-shadow:
+    0 3px 6px rgba(252, 109, 38, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:active {
+  background: #e85a1b;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:disabled {
-  background: var(--gray-600);
-  color: var(--gray-400);
+  background: var(--gray-400);
+  color: var(--gray-200);
   cursor: not-allowed;
   opacity: 0.6;
+  box-shadow: none;
 }
 
 .btn-primary:disabled:hover {
-  background: var(--gray-600);
+  background: var(--gray-400);
+  box-shadow: none;
 }
 
 .btn-primary.has-changes {
@@ -41,25 +55,46 @@
 @keyframes pulse-save {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(252, 109, 38, 0.4);
+    box-shadow:
+      0 1px 3px rgba(252, 109, 38, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(252, 109, 38, 0);
+    box-shadow:
+      0 1px 3px rgba(252, 109, 38, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 0 0 4px rgba(252, 109, 38, 0.2);
   }
 }
 
 .btn-secondary {
-  background: var(--gray-700);
-  color: var(--gray-200);
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--gray-600);
 }
 
 .btn-secondary:hover {
-  background: var(--gray-600);
+  background: var(--gray-200);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.btn-secondary:active {
+  background: var(--gray-200);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--gray-300);
+  border: none;
+  box-shadow: none;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .btn-ghost:hover {
@@ -78,6 +113,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  box-shadow: none;
 }
 
 .btn-icon:hover {
@@ -87,12 +123,23 @@
 
 .btn-danger {
   background: var(--error);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 3px rgba(220, 38, 38, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   color: white;
-  border: none;
 }
 
 .btn-danger:hover {
   background: #c42508;
+  box-shadow:
+    0 3px 6px rgba(220, 38, 38, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-danger:active {
+  background: #a61f06;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Array Add Button */
@@ -159,7 +206,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* State: Saved */
@@ -232,7 +281,9 @@
 }
 
 @keyframes dotPulse {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -290,13 +341,15 @@
   border-radius: 4px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.15s, visibility 0.15s;
+  transition:
+    opacity 0.15s,
+    visibility 0.15s;
   pointer-events: none;
   z-index: 1000;
 }
 
 .save-status-tooltip::before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 100%;
   left: 50%;

@@ -2,6 +2,10 @@
 // Modal UI operations
 // Requires: utils/html-utils.js (escapeHtml)
 
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');
 }
@@ -42,6 +46,7 @@ function renderProjectList() {
 }
 
 // Expose to global scope
+window.openModal = openModal;
 window.closeModal = closeModal;
 window.openProjectsModal = openProjectsModal;
 window.renderProjectList = renderProjectList;

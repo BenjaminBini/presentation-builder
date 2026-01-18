@@ -97,8 +97,60 @@ function newProject() {
 function onSaveStatusClick() {
     // Only handle click for unsaved projects
     if (!window.isProjectSaved()) {
-        openSaveProjectModal();
+        showPromptModal('Enregistrer le projet', 'Nom du projet', '', (name) => {
+            if (name && name.trim()) {
+                const trimmedName = name.trim();
+                const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
+                const existingNames = new Set(projects.map(p => p.name));
+
+                if (existingNames.has(trimmedName)) {
+                    document.getElementById('promptModalError').textContent = 'Un projet avec ce nom existe déjà';
+                    return false; // Keep modal open
+                }
+
+                currentProject.name = trimmedName;
+                currentProject.savedAt = new Date().toISOString();
+                projects.push(currentProject);
+                localStorage.setItem('slideProjects', JSON.stringify(projects));
+
+                dismissUnsavedAlert();
+                updateHeaderTitle();
+                clearUnsavedChanges();
+                showToast('Projet enregistré');
+                return true; // Close modal
+            }
+            return false;
+        });
     }
+}
+
+// Prompt modal
+let promptModalCallback = null;
+
+function showPromptModal(title, label, defaultValue, callback) {
+    document.getElementById('promptModalTitle').textContent = title;
+    document.getElementById('promptModalLabel').textContent = label;
+    document.getElementById('promptModalInput').value = defaultValue || '';
+    document.getElementById('promptModalError').textContent = '';
+    promptModalCallback = callback;
+    openModal('promptModal');
+    setTimeout(() => document.getElementById('promptModalInput').focus(), 100);
+}
+
+function confirmPromptModal() {
+    const value = document.getElementById('promptModalInput').value;
+    if (promptModalCallback) {
+        const shouldClose = promptModalCallback(value);
+        if (shouldClose !== false) {
+            closeModal('promptModal');
+            promptModalCallback = null;
+        }
+    }
+}
+
+function cancelPromptModal() {
+    closeModal('promptModal');
+    promptModalCallback = null;
 }
 
 function openSaveProjectModal() {
@@ -219,3 +271,6 @@ window.confirmSaveProject = confirmSaveProject;
 window.showUnsavedAlert = showUnsavedAlert;
 window.dismissUnsavedAlert = dismissUnsavedAlert;
 window.resetUnsavedAlert = resetUnsavedAlert;
+window.showPromptModal = showPromptModal;
+window.confirmPromptModal = confirmPromptModal;
+window.cancelPromptModal = cancelPromptModal;
