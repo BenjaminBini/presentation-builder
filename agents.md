@@ -12,6 +12,18 @@ This document describes the specialized agents available for developing and main
 - JSON/HTML export
 - localStorage persistence
 
+### Quick Start
+
+```bash
+# No external dependencies - just serve the root folder
+npx live-server .
+
+# Or any static server
+python -m http.server 8080
+```
+
+Open `slide-editor.html` in browser.
+
 ---
 
 ## Available Agents
