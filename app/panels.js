@@ -33,6 +33,16 @@ window.initPanelStates = function() {
 
     // Initialize resize handle
     initEditorResize();
+    
+    // Initialize tab underlines
+    setTimeout(() => {
+        if (typeof window.updateSidebarTabUnderline === 'function') {
+            window.updateSidebarTabUnderline();
+        }
+        if (typeof window.updateEditorTabUnderline === 'function') {
+            window.updateEditorTabUnderline();
+        }
+    }, 100);
 };
 
 window.toggleSidebar = function() {

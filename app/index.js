@@ -31,10 +31,10 @@ function initializeApp() {
 
     // Close color picker dropdowns when clicking outside
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.color-selector-group') && !e.target.closest('.inline-color-selector')) {
+        if (!e.target.closest('.color-selector-group') && !e.target.closest('.inline-color-selector') && !e.target.closest('.color-item')) {
             document.querySelectorAll('.color-swatches-dropdown.open, .inline-color-dropdown.open').forEach(el => {
                 el.classList.remove('open');
-                const parent = el.closest('.color-selector-group') || el.closest('.inline-color-selector');
+                const parent = el.closest('.color-selector-group') || el.closest('.inline-color-selector') || el.closest('.color-item');
                 if (parent) parent.classList.remove('picker-open');
             });
         }

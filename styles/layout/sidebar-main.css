@@ -210,6 +210,21 @@
   height: 36px;
   border-bottom: 1px solid var(--gray-200);
   flex-shrink: 0;
+  position: relative;
+  --underline-left: 0px;
+  --underline-width: 0px;
+}
+
+.sidebar-tabs::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--underline-left);
+  width: var(--underline-width);
+  height: 2px;
+  background: var(--ui-accent-main);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 
 .sidebar-tab {
@@ -226,6 +241,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .sidebar-tab:hover {
@@ -235,7 +251,6 @@
 
 .sidebar-tab.active {
   color: var(--ui-accent-main);
-  border-bottom-color: var(--ui-accent-main);
 }
 
 .sidebar-content {
@@ -256,6 +271,38 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+}
+
+.slides-panel.slide-left,
+.settings-panel.slide-left {
+  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slides-panel.slide-right,
+.settings-panel.slide-right {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Slide List */

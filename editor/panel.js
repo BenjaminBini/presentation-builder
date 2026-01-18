@@ -1,6 +1,9 @@
 // editor/panel.js
 // Main editor panel rendering
 
+// Current active tab
+let currentEditorTab = 'properties';
+
 // Template descriptions for better UX
 const TEMPLATE_DESCRIPTIONS = {
     title: 'Slide de couverture avec titre principal, sous-titre et informations de présentation.',
@@ -43,8 +46,96 @@ const FIELD_GROUPS = {
     ]
 };
 
-window.renderEditor = function() {
+// Helper to render color sections for dropdown
+function renderColorSections(key, currentValue) {
+    const COLOR_SECTIONS = {
+        accent: { label: 'Accent', colors: ['accent-main', 'accent-alt', 'accent-third'] },
+        text: { label: 'Texte', colors: ['text-main', 'text-alt', 'text-third'] },
+        bg: { label: 'Fond', colors: ['bg-main', 'bg-alt', 'bg-third'] },
+        gray: { label: 'Niveaux de gris', colors: ['white', 'gray-100', 'gray-200', 'gray-300', 'gray-400', 'gray-500', 'gray-600', 'gray-700', 'gray-800', 'gray-900'] },
+        semantic: { label: 'Sémantique', colors: ['confirm', 'info', 'warn', 'error'] }
+    };
+
+    const renderSection = (sectionKey, section) => {
+        return `
+            <div class="color-section" data-section="${sectionKey}">
+                <div class="color-section-header">
+                    <span class="color-section-label">${section.label}</span>
+                    <span class="color-section-name"></span>
+                </div>
+                <div class="color-swatches-row">
+                    ${section.colors.map(color => {
+                        const colorLabel = COLOR_LABELS[color] || GRAY_LABELS[color] || color;
+                        return `
+                            <button type="button"
+                                class="color-swatch-btn ${currentValue === color ? 'selected' : ''}"
+                                style="background-color: var(--${color});"
+                                data-color-name="${colorLabel}"
+                                onclick="event.stopPropagation(); selectSlideColor('${key}', '${color}')"
+                                onmouseenter="showColorName(this)"
+                                onmouseleave="hideColorName(this)">
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    };
+
+    return Object.entries(COLOR_SECTIONS).map(([sectionKey, section]) => 
+        renderSection(sectionKey, section)
+    ).join('');
+}
+
+// Switch editor tab
+window.switchEditorTab = function(tab) {
+    const previousTab = currentEditorTab;
+    currentEditorTab = tab;
+    
+    // Determine animation direction
+    const tabOrder = ['properties', 'colors'];
+    const prevIndex = tabOrder.indexOf(previousTab);
+    const newIndex = tabOrder.indexOf(tab);
+    const direction = newIndex > prevIndex ? 'slide-left' : 'slide-right';
+    
+    // Update tab active state
+    document.querySelectorAll('.editor-tab').forEach(tabEl => {
+        if (tabEl.dataset.tab === tab) {
+            tabEl.classList.add('active');
+        } else {
+            tabEl.classList.remove('active');
+        }
+    });
+    
+    // Animate underline
+    updateEditorTabUnderline();
+    
+    // Re-render editor content with animation
+    renderEditor(direction);
+};
+
+// Update tab underline position
+window.updateEditorTabUnderline = function() {
+    const activeTab = document.querySelector('.editor-tab.active');
+    const tabsContainer = document.querySelector('.editor-tabs');
+    
+    if (!activeTab || !tabsContainer) return;
+    
+    const tabRect = activeTab.getBoundingClientRect();
+    const containerRect = tabsContainer.getBoundingClientRect();
+    
+    const left = tabRect.left - containerRect.left;
+    const width = tabRect.width;
+    
+    tabsContainer.style.setProperty('--underline-left', `${left}px`);
+    tabsContainer.style.setProperty('--underline-width', `${width}px`);
+};
+
+window.renderEditor = function(animationDirection = null) {
     const container = document.getElementById('editorContent');
+
+    // Remove previous animation classes
+    container.classList.remove('slide-left', 'slide-right');
 
     if (selectedSlideIndex < 0 || !currentProject.slides[selectedSlideIndex]) {
         container.innerHTML = `
@@ -65,32 +156,68 @@ window.renderEditor = function() {
         return;
     }
 
-    // Render color settings as inline toolbar
-    const colorSettings = TEMPLATE_COLOR_SETTINGS[slide.template] || [];
-    const slideColors = slide.data.colors || {};
+    if (currentEditorTab === 'colors') {
+        // Render colors tab
+        const colorSettings = TEMPLATE_COLOR_SETTINGS[slide.template] || [];
+        const slideColors = slide.data.colors || {};
 
-    const colorItemsHtml = colorSettings.map(setting => {
-        const currentValue = slideColors[setting.key] || setting.default;
-        const isCustom = setting.key in slideColors;
-        return renderInlineColorSelector(setting.key, setting.label, currentValue, setting.default, isCustom);
-    }).join('');
+        const colorItemsHtml = colorSettings.map(setting => {
+            const currentValue = slideColors[setting.key] || setting.default;
+            const isCustom = setting.key in slideColors;
+            const colorName = COLOR_LABELS[currentValue] || GRAY_LABELS[currentValue] || currentValue;
 
-    // Render template-specific settings
-    const templateSettingsHtml = renderTemplateSettings(slide);
+            return `
+                <div class="color-item ${isCustom ? 'overridden' : ''}" data-color="${setting.key}" onclick="toggleColorPicker('${setting.key}')">
+                    <div class="color-swatch" style="background-color: var(--${currentValue});"></div>
+                    <div class="color-info">
+                        <div class="color-name">${setting.label}</div>
+                        <div class="color-value">${colorName}</div>
+                    </div>
+                    ${isCustom ? `
+                        <button class="color-reset" onclick="event.stopPropagation(); resetSlideColor('${setting.key}')" title="Réinitialiser">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+                        </button>
+                    ` : ''}
+                    <div class="inline-color-dropdown" id="colorDropdown-${setting.key}">
+                        ${renderColorSections(setting.key, currentValue)}
+                    </div>
+                </div>
+            `;
+        }).join('');
 
-    const colorsSection = colorSettings.length > 0 ? `
-        <div class="editor-toolbar-section editor-toolbar-section-block">
-            <span class="editor-toolbar-label">Couleurs</span>
-            <div class="color-settings-list">
-                ${colorItemsHtml}
+        if (colorSettings.length > 0) {
+            container.innerHTML = `
+                <div class="editor-toolbar">
+                    <div class="editor-toolbar-section editor-toolbar-section-block">
+                        <div class="color-list">
+                            ${colorItemsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎨</div>
+                    <h3>Pas de couleurs personnalisables</h3>
+                    <p>Ce template n'a pas de paramètres de couleur</p>
+                </div>
+            `;
+        }
+    } else {
+        // Render properties tab
+        const templateSettingsHtml = renderTemplateSettings(slide);
+
+        container.innerHTML = `
+            <div class="editor-toolbar">
+                ${templateSettingsHtml}
             </div>
-        </div>
-    ` : '';
-
-    container.innerHTML = `
-        <div class="editor-toolbar">
-            ${templateSettingsHtml}
-            ${colorsSection}
-        </div>
-    `;
+        `;
+    }
+    
+    // Apply animation if direction is specified
+    if (animationDirection) {
+        void container.offsetWidth; // Trigger reflow
+        container.classList.add(animationDirection);
+    }
 };

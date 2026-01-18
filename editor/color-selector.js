@@ -57,20 +57,22 @@ window.renderInlineColorSelector = function(key, label, currentValue, defaultVal
 
     const resetBtn = isCustom ? `
         <button class="inline-color-reset" onclick="event.stopPropagation(); resetSlideColor('${key}')" title="Réinitialiser">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
         </button>
     ` : '';
 
     return `
         <div class="inline-color-selector ${isCustom ? 'is-custom' : ''}" data-color-key="${key}">
             <span class="inline-color-label">${label}</span>
-            <span class="inline-color-btn-wrapper">
-                <button class="inline-color-btn" onclick="toggleColorPicker('${key}')" title="${label}">
-                    <span class="inline-color-swatch" style="background-color: var(--${currentValue});"></span>
-                </button>
-                ${resetBtn}
-            </span>
-            <span class="inline-color-name">${colorName}</span>
+            <div class="inline-color-controls">
+                <span class="inline-color-btn-wrapper">
+                    <button class="inline-color-btn" onclick="toggleColorPicker('${key}')" title="${label}">
+                        <span class="inline-color-swatch" style="background-color: var(--${currentValue});"></span>
+                    </button>
+                    ${resetBtn}
+                </span>
+                <span class="inline-color-name">${colorName}</span>
+            </div>
             <div class="inline-color-dropdown" id="colorDropdown-${key}">
                 ${renderSection('accent', COLOR_SECTIONS.accent)}
                 ${renderSection('text', COLOR_SECTIONS.text)}
@@ -103,9 +105,14 @@ window.renderColorSelector = function(key, label, currentValue) {
 
 // Toggle color picker dropdown
 window.toggleColorPicker = function(key) {
+    // Close theme color picker from sidebar if open
+    if (typeof closeAllThemeColorPickers === 'function') {
+        closeAllThemeColorPickers();
+    }
+
     const dropdown = document.getElementById(`colorDropdown-${key}`);
-    const selector = dropdown.closest('.inline-color-selector') || dropdown.closest('.color-selector-group');
-    const trigger = selector.querySelector('.inline-color-btn');
+    const selector = dropdown.closest('.inline-color-selector') || dropdown.closest('.color-selector-group') || dropdown.closest('.color-item');
+    const trigger = selector.querySelector('.inline-color-btn') || selector.querySelector('.color-swatch');
     const isOpen = dropdown.classList.contains('open');
 
     // Close all other dropdowns
@@ -113,7 +120,7 @@ window.toggleColorPicker = function(key) {
         el.classList.remove('open');
         el.style.bottom = '';
         el.style.left = '';
-        const parent = el.closest('.inline-color-selector') || el.closest('.color-selector-group');
+        const parent = el.closest('.inline-color-selector') || el.closest('.color-selector-group') || el.closest('.color-item');
         if (parent) parent.classList.remove('picker-open');
     });
 
