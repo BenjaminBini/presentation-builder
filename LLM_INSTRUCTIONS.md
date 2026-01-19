@@ -186,7 +186,7 @@ Code with side annotations pointing to specific lines.
     "title": "Code Walkthrough",
     "filename": "app.js",
     "startLine": 1,
-    "notEndOfFile": false,
+    "showEllipsisAfter": false,
     "code": "const config = {\n  api: 'https://api.example.com',\n  timeout: 5000\n};\n\nfunction fetchData() {\n  return fetch(config.api);\n}",
     "annotations": [
       {
@@ -207,7 +207,7 @@ Code with side annotations pointing to specific lines.
 
 **Fields:**
 - `startLine`: Line number offset (default: 1). Useful when showing a code snippet from middle of a file.
-- `notEndOfFile`: If `true`, shows "..." at the end to indicate more code exists.
+- `showEllipsisAfter`: If `true`, shows "..." at the end to indicate more code exists.
 - `annotations[].line`: The line number to annotate (required)
 - `annotations[].lineTo`: End line for range highlight (optional, defaults to same as `line`)
 - `annotations[].title`: Bold title for annotation (optional)

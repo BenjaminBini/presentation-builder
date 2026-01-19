@@ -140,7 +140,7 @@
         "title": "Code avec annotations",
         "filename": "api.ts",
         "startLine": 1,
-        "notEndOfFile": true,
+        "showEllipsisAfter": true,
         "code": "interface Slide {\n  template: string;\n  data: Record<string, any>;\n}\n\nasync function fetchSlides(): Promise<Slide[]> {\n  const response = await fetch('/api/slides');\n  const data = await response.json();\n  return data.slides;\n}",
         "annotations": [
           { "line": 1, "lineTo": 4, "title": "Interface TypeScript", "text": "Définit la structure d'une slide avec son template et ses données" },

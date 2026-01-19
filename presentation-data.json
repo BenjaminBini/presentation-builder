@@ -118,8 +118,8 @@
         "title": "Template: code-annotated",
         "filename": "exemple.json",
         "startLine": 42,
-        "notEndOfFile": true,
-        "code": "{\n  \"template\": \"code-annotated\",\n  \"data\": {\n    \"startLine\": 42,\n    \"notEndOfFile\": true,\n    \"code\": \"Le code source\",\n    \"annotations\": [\n      {\n        \"line\": 45,\n        \"lineTo\": 48,\n        \"text\": \"Range de lignes\"\n      }\n    ]\n  }\n}",
+        "showEllipsisAfter": true,
+        "code": "{\n  \"template\": \"code-annotated\",\n  \"data\": {\n    \"startLine\": 42,\n    \"showEllipsisAfter\": true,\n    \"code\": \"Le code source\",\n    \"annotations\": [\n      {\n        \"line\": 45,\n        \"lineTo\": 48,\n        \"text\": \"Range de lignes\"\n      }\n    ]\n  }\n}",
         "annotations": [
           {
             "line": 42,

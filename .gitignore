@@ -45,3 +45,6 @@ dev-debug.log
 .zed/
 opencode.json
 
+
+# Auto Claude data directory
+.auto-claude/
