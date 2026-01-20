@@ -123,9 +123,9 @@ import {
 import { renderSlideList, selectSlide, initSlideListSubscriptions } from './presentation/app/slides/list.js';
 import {
     addSlide, selectTemplate,
-    deleteSlide, duplicateSlide, moveSlide,
-    handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd
+    deleteSlide, duplicateSlide, moveSlide
 } from './presentation/app/slides/management.js';
+// Note: Drag handlers (handleDragStart, etc.) are now set on window directly in list.js
 import { updatePreview, scalePreviewSlide, initPreviewSubscriptions } from './presentation/app/slides/preview.js';
 
 // Presentation mode - use existing module
@@ -429,8 +429,7 @@ Object.assign(window, {
     // Slide management - needed for HTML onclick handlers
     addSlide, selectTemplate, deleteSlide, duplicateSlide, moveSlide, duplicateSlideAt, deleteSlideAt,
 
-    // Drag and drop - needed for ondragstart/ondragover/etc attributes
-    handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd,
+    // Drag and drop - handlers are set on window directly in list.js
 
     // Presentation - needed for HTML onclick handlers
     startPresentation, exitPresentation, prevSlidePlayer, nextSlidePlayer, scalePlayerSlide,

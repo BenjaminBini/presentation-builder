@@ -10,10 +10,77 @@
   cursor: grabbing;
 }
 
+/* Dragging state for slide items - hide the original, only show ghost */
 .slide-item.dragging {
-  opacity: 0.5;
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: hidden;
+  pointer-events: none;
 }
 
+/* Body class during drag for cursor */
+body.is-dragging-slide {
+  cursor: grabbing !important;
+}
+
+body.is-dragging-slide * {
+  cursor: grabbing !important;
+}
+
+/* Drop indicator - ghost of the slide showing where it will land */
+.slide-drop-indicator {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, height 0.25s cubic-bezier(0.2, 0, 0, 1), margin 0.25s cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+}
+
+.slide-drop-indicator.visible {
+  opacity: 1;
+  height: auto;
+  margin-bottom: 4px;
+}
+
+/* The ghost slide content */
+.slide-drop-indicator .slide-ghost-content {
+  opacity: 0.6;
+  border: 2px dashed var(--ui-accent-main);
+  background: rgba(252, 109, 38, 0.08);
+  box-shadow: 0 2px 8px rgba(252, 109, 38, 0.2);
+  transform: scale(0.98);
+  pointer-events: none;
+}
+
+.slide-drop-indicator .slide-ghost-content .slide-item-actions {
+  display: none !important;
+}
+
+/* Smooth transitions for all slide items during drag */
+.slide-item {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+              opacity 0.15s ease,
+              border-color 0.15s ease,
+              background 0.15s ease,
+              box-shadow 0.15s ease;
+}
+
+/* Items shifting to make room */
+.slide-item.shift-down {
+  transform: translateY(4px);
+}
+
+.slide-item.shift-up {
+  transform: translateY(-4px);
+}
+
+/* Legacy drag-over style (kept for fallback) */
 .slide-item.drag-over {
   border-color: var(--ui-accent-main);
   border-style: dashed;

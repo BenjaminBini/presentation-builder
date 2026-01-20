@@ -27,8 +27,10 @@ commits=$(git log main --reverse --format="%h|%ad|%s" --date=short)
         html_a=0; html_d=0
         css_a=0; css_d=0
         json_a=0; json_d=0
+        yaml_a=0; yaml_d=0
         md_a=0; md_d=0
         sh_a=0; sh_d=0
+        dot_a=0; dot_d=0
 
         # Parse stats
         while IFS=$'\t' read -r added deleted file; do
@@ -44,10 +46,14 @@ commits=$(git log main --reverse --format="%h|%ad|%s" --date=short)
                     css_a=$((css_a + added)); css_d=$((css_d + deleted)) ;;
                 *.json)
                     json_a=$((json_a + added)); json_d=$((json_d + deleted)) ;;
+                *.yml|*.yaml)
+                    yaml_a=$((yaml_a + added)); yaml_d=$((yaml_d + deleted)) ;;
                 *.md|*.markdown)
                     md_a=$((md_a + added)); md_d=$((md_d + deleted)) ;;
                 *.sh|*.bash)
                     sh_a=$((sh_a + added)); sh_d=$((sh_d + deleted)) ;;
+                .gitignore|.editorconfig|.npmrc|.nvmrc|.prettierrc|.eslintrc|.dockerignore)
+                    dot_a=$((dot_a + added)); dot_d=$((dot_d + deleted)) ;;
             esac
         done <<< "$stats"
 
@@ -59,8 +65,8 @@ commits=$(git log main --reverse --format="%h|%ad|%s" --date=short)
         fi
 
         # Print entry (no trailing newline)
-        printf '            { hash: "%s", date: "%s", js: {a:%d,d:%d}, html: {a:%d,d:%d}, css: {a:%d,d:%d}, json: {a:%d,d:%d}, md: {a:%d,d:%d}, sh: {a:%d,d:%d}, msg: "%s" }' \
-            "$hash" "$date" "$js_a" "$js_d" "$html_a" "$html_d" "$css_a" "$css_d" "$json_a" "$json_d" "$md_a" "$md_d" "$sh_a" "$sh_d" "$msg"
+        printf '            { hash: "%s", date: "%s", js: {a:%d,d:%d}, html: {a:%d,d:%d}, css: {a:%d,d:%d}, json: {a:%d,d:%d}, yaml: {a:%d,d:%d}, md: {a:%d,d:%d}, sh: {a:%d,d:%d}, dot: {a:%d,d:%d}, msg: "%s" }' \
+            "$hash" "$date" "$js_a" "$js_d" "$html_a" "$html_d" "$css_a" "$css_d" "$json_a" "$json_d" "$yaml_a" "$yaml_d" "$md_a" "$md_d" "$sh_a" "$sh_d" "$dot_a" "$dot_d" "$msg"
 
     done <<< "$commits"
 
