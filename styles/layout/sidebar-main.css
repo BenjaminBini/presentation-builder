@@ -406,6 +406,25 @@
   margin-top: 1px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.slide-item-template-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.slide-item-template-icon .template-icon {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  stroke-width: 1.5;
 }
 
 .slide-item-actions {

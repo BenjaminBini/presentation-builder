@@ -192,7 +192,7 @@ function renderCodeAnnotated(data) {
     const codeStartOffset = 52; // header height + padding
     const startLineNum = data.startLine || 1; // offset for line numbering
     const hasCodeBefore = startLineNum > 1; // show ellipsis at start
-    const hasCodeAfter = data.notEndOfFile === true; // show ellipsis at end
+    const hasCodeAfter = data.showEllipsisAfter || false;
 
     // Get highlighted line numbers (support single line or range)
     const highlightedLines = new Set();

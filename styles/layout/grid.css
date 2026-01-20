@@ -26,9 +26,9 @@
   overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 0;
   align-content: start;
-  background: var(--gray-50);
+  background: var(--white);
 }
 
 .editor-content.slide-left {
@@ -75,10 +75,10 @@
 
 /* Editor Section Grid */
 .editor-section-content {
-  padding: 20px;
+  padding: 10px 12px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  gap: 8px;
 }
 
 .editor-section-content .form-group {

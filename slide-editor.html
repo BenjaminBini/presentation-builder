@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Slide Editor - GitLab Style</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='5' width='26' height='19' rx='3' fill='%23fc6d26'/%3E%3Crect x='6' y='8' width='20' height='13' rx='1' fill='white'/%3E%3Ccircle cx='10' cy='18' r='1.5' fill='%23e24329'/%3E%3Ccircle cx='16' cy='18' r='1.5' fill='%23e24329' opacity='0.5'/%3E%3Ccircle cx='22' cy='18' r='1.5' fill='%23e24329' opacity='0.5'/%3E%3Crect x='9' y='11' width='8' height='2' rx='1' fill='%23e24329'/%3E%3Crect x='9' y='14' width='14' height='1' rx='0.5' fill='%23e24329' opacity='0.3'/%3E%3C/svg%3E" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
@@ -11,6 +12,24 @@
     <link rel="stylesheet" href="styles/main.css" />
     <link rel="stylesheet" href="styles/components/drive.css" />
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
+    <!-- Google API callback stubs (defined before Google scripts load) -->
+    <script>
+      // These will be called by Google scripts and forward to driveAuth when ready
+      window._gapiReady = false;
+      window._gisReady = false;
+      window.gapiLoaded = function() {
+        window._gapiReady = true;
+        if (window.driveAuth && window.driveAuth.gapiLoaded) {
+          window.driveAuth.gapiLoaded();
+        }
+      };
+      window.gisLoaded = function() {
+        window._gisReady = true;
+        if (window.driveAuth && window.driveAuth.gisLoaded) {
+          window.driveAuth.gisLoaded();
+        }
+      };
+    </script>
     <!-- Google API Scripts for Drive Integration -->
     <script
       async
@@ -81,31 +100,34 @@
               onkeydown="handleTitleKeydown(event)"
             />
           </div>
-          <div
-            class="save-status"
-            id="saveStatus"
-            onclick="onSaveStatusClick()"
-          >
-            <svg class="save-status-icon icon-check" viewBox="0 0 24 24">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            <svg class="save-status-icon icon-save" viewBox="0 0 24 24">
-              <path
-                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
-              />
-              <polyline points="17 21 17 13 7 13 7 21" />
-              <polyline points="7 3 7 8 15 8" />
-            </svg>
-            <div class="save-modifying-indicator">
-              <span class="modifying-dots"
-                ><span></span><span></span><span></span
-              ></span>
-            </div>
-            <div class="save-spinner"></div>
-            <span class="save-status-text">Enregistrer</span>
-            <span class="save-status-tooltip" id="saveStatusTooltip"
-              >Toutes les modifications sont enregistrées</span
+          <div class="save-status-wrapper">
+            <button
+              class="btn btn-ghost save-status"
+              id="saveStatus"
+              onclick="onSaveStatusClick()"
             >
+              <!-- Save icon (for unsaved projects) -->
+              <svg class="icon icon-save" viewBox="0 0 24 24">
+                <path
+                  d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              <!-- Check icon (for saved state) -->
+              <svg class="icon icon-check" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <!-- Modifying dots (for modifying state) -->
+              <span class="modifying-dots"><span></span><span></span><span></span></span>
+              <!-- Spinner (for saving state) -->
+              <span class="save-spinner"></span>
+              <span class="btn-label" id="saveStatusLabel">Enregistrer</span>
+            </button>
+            <!-- Tooltip for saved projects -->
+            <div class="save-status-tooltip" id="saveStatusTooltip">
+              Enregistrement automatique des modifications
+            </div>
             <!-- Unsaved project alert tooltip -->
             <div class="unsaved-alert" id="unsavedAlert">
               <div class="unsaved-alert-arrow"></div>
@@ -339,7 +361,7 @@
                   <line x1="10" y1="8" x2="14" y2="8"></line>
                   <line x1="18" y1="16" x2="22" y2="16"></line>
                 </svg>
-                Propriétés
+                Proprietes
               </button>
               <button class="editor-tab" data-tab="colors" onclick="switchEditorTab('colors')">
                 <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px">
@@ -366,6 +388,72 @@
           <div class="editor-content" id="editorContent"></div>
         </div>
       </main>
+    </div>
+
+    <!-- New Project Modal -->
+    <div class="modal-overlay" id="newProjectModal">
+      <div class="modal" style="width: 440px">
+        <div class="modal-header">
+          <h3>Nouveau projet</h3>
+          <button class="modal-close" onclick="closeModal('newProjectModal')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-description">Choisissez comment démarrer votre nouveau projet :</p>
+          <div class="new-project-options">
+            <button class="new-project-option" onclick="createEmptyProject()">
+              <div class="new-project-option-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+              </div>
+              <div class="new-project-option-text">
+                <span class="new-project-option-title">Projet vide</span>
+                <span class="new-project-option-desc">Commencez avec une slide de titre</span>
+              </div>
+            </button>
+            <button class="new-project-option" onclick="createDemoProject()">
+              <div class="new-project-option-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div class="new-project-option-text">
+                <span class="new-project-option-title">Galerie des templates</span>
+                <span class="new-project-option-desc">Découvrez tous les templates disponibles</span>
+              </div>
+            </button>
+          </div>
+          <div class="new-project-warning" id="newProjectWarning" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Vous avez des modifications non sauvegardées qui seront perdues.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('newProjectModal')">
+            Annuler
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Save Project Modal -->
@@ -454,7 +542,7 @@
     <div class="modal-overlay" id="projectsModal">
       <div class="modal">
         <div class="modal-header">
-          <h3>Projets sauvegardés</h3>
+          <h3>Mes projets</h3>
           <button class="modal-close" onclick="closeModal('projectsModal')">
             <svg
               viewBox="0 0 24 24"
@@ -469,27 +557,6 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="form-group" style="margin-bottom: 20px">
-            <label>Nom du projet actuel</label>
-            <div style="display: flex; gap: 8px">
-              <input
-                type="text"
-                id="projectName"
-                placeholder="Ma présentation"
-              />
-              <button class="btn btn-primary" onclick="saveProject()">
-                Sauvegarder
-              </button>
-            </div>
-          </div>
-          <hr
-            style="
-              border: none;
-              border-top: 1px solid var(--gray-200);
-              margin: 20px 0;
-            "
-          />
-          <h4 style="font-size: 14px; margin-bottom: 12px">Projets locaux</h4>
           <div class="project-list" id="projectList"></div>
 
           <!-- Drive Projects Section -->
@@ -935,9 +1002,6 @@
       onchange="handleImageFileSelect(event)"
     />
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
-
     <!-- Drive Settings Modal -->
     <div class="modal-overlay" id="driveSettingsModal">
       <div class="modal">
@@ -1116,67 +1180,7 @@
       </div>
     </div>
 
-    <!-- Load scripts in order: utils first, then config, templates, editor modules, projects modules, inline modules, and finally app -->
-    <script src="utils/html-utils.js"></script>
-    <script src="utils/svg-utils.js"></script>
-    <script src="slide-editor-config.js"></script>
-    <!-- Template modules - loaded in dependency order -->
-    <script src="templates/theme.js"></script>
-    <script src="templates/preview-styles.js"></script>
-    <script src="templates/utilities.js"></script>
-    <script src="templates/components/basic.js"></script>
-    <script src="templates/components/layout.js"></script>
-    <script src="templates/components/code.js"></script>
-    <script src="templates/components/comparison.js"></script>
-    <script src="templates/components/data.js"></script>
-    <script src="templates/renderer.js"></script>
-    <!-- Editor modules - loaded in dependency order -->
-    <script src="editor/color-selector.js"></script>
-    <script src="editor/template-settings.js"></script>
-    <script src="editor/fields/base.js"></script>
-    <script src="editor/fields/text.js"></script>
-    <script src="editor/fields/array.js"></script>
-    <script src="editor/fields/table.js"></script>
-    <script src="editor/fields/complex.js"></script>
-    <script src="editor/handlers.js"></script>
-    <script src="editor/panel.js"></script>
-    <!-- Projects modules - loaded in dependency order -->
-    <script src="projects/notifications.js"></script>
-    <script src="projects/modal.js"></script>
-    <script src="projects/manager.js"></script>
-    <script src="projects/import-export.js"></script>
-    <script src="projects/export-templates.js"></script>
-    <script src="projects/export-css.js"></script>
-    <script src="projects/export-html.js"></script>
-    <!-- Inline editing modules - loaded in dependency order -->
-    <script src="inline-editing/core.js"></script>
-    <script src="inline-editing/data-updates.js"></script>
-    <script src="inline-editing/text-editor.js"></script>
-    <script src="inline-editing/navigation.js"></script>
-    <script src="inline-editing/image-picker.js"></script>
-    <script src="inline-editing/code-editor.js"></script>
-    <script src="inline-editing/drawio-editor.js"></script>
-    <script src="inline-editing/annotations.js"></script>
-    <script src="inline-editing/list-table-manager.js"></script>
-    <script src="inline-editing/html-adapters.js"></script>
-    <!-- App modules - loaded in dependency order -->
-    <script src="app/state.js"></script>
-    <script src="app/project.js"></script>
-    <script src="app/theme.js"></script>
-    <script src="app/sidebar.js"></script>
-    <script src="app/slides/list.js"></script>
-    <script src="app/slides/preview.js"></script>
-    <script src="app/slides/management.js"></script>
-    <script src="app/presentation.js"></script>
-    <script src="app/panels.js"></script>
-    <!-- Main app initialization -->
-    <script src="app/index.js"></script>
-    <!-- Drive integration - must load after app to wrap autosave -->
-    <script src="drive/config.js"></script>
-    <script src="drive/auth.js"></script>
-    <script src="drive/api.js"></script>
-    <script src="drive/sync.js"></script>
-    <script src="drive/ui.js"></script>
-    <script src="drive/index.js"></script>
+    <!-- ES6 Modules - Single entry point replaces all legacy scripts -->
+    <script type="module" src="src/main.js"></script>
   </body>
 </html>

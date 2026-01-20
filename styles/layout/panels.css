@@ -68,6 +68,10 @@
   transition: height 0.2s ease;
 }
 
+.editor-panel.resizing {
+  transition: none;
+}
+
 .editor-panel.collapsed {
   height: 36px !important;
   min-height: 36px !important;
@@ -390,3 +394,4 @@
   margin-bottom: 24px;
   color: var(--gray-600);
 }
+

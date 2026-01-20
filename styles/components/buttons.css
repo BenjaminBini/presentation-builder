@@ -160,164 +160,85 @@
 }
 
 /* Save Status Indicator */
-.save-status {
+.save-status-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  position: relative;
 }
 
-.save-status-icon {
-  width: 16px;
-  height: 16px;
+.save-status .icon {
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
-  stroke-width: 2.5;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
-  transition: all 0.3s ease;
+}
+
+/* Default: show save icon, hide everything else */
+.save-status .icon-save {
+  display: block;
+}
+
+.save-status .icon-check,
+.save-status .modifying-dots,
+.save-status .save-spinner {
   display: none;
 }
 
-.save-status-icon.icon-save {
-  width: 18px;
-  height: 18px;
-  stroke-width: 2;
+/* Modifying dots animation */
+.save-status .modifying-dots {
+  align-items: center;
+  gap: 3px;
 }
 
-.save-status-text {
-  font-size: 14px;
-  transition: all 0.3s ease;
+.save-status .modifying-dots span {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 50%;
+  animation: dotPulse 1.2s ease-in-out infinite;
 }
 
-.save-spinner {
+.save-status .modifying-dots span:nth-child(1) { animation-delay: 0s; }
+.save-status .modifying-dots span:nth-child(2) { animation-delay: 0.2s; }
+.save-status .modifying-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+  0%, 60%, 100% { opacity: 0.3; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Spinner animation */
+.save-status .save-spinner {
   width: 14px;
   height: 14px;
   border: 2px solid currentColor;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  display: none;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* State: Saved */
-.save-status.state-saved {
-  background: transparent;
-  color: #86efac;
-}
-
-.save-status.state-saved .icon-check {
-  display: block;
-}
-
-.save-status.state-saved .save-spinner {
-  display: none;
-}
-
-/* State: Unsaved */
-.save-status.state-unsaved {
-  background: transparent;
-  color: var(--gray-300);
-  cursor: pointer;
-  padding: 8px 16px;
-  border-radius: 6px;
-}
-
-.save-status.state-unsaved:hover {
-  background: var(--gray-800);
-}
-
-.save-status.state-unsaved .icon-save {
-  display: block;
-}
-
-.save-status.state-unsaved .save-spinner {
-  display: none;
-}
-
-/* Modifying indicator - pulsing dots */
-.save-modifying-indicator {
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.modifying-dots {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.modifying-dots span {
-  width: 6px;
-  height: 6px;
-  background: currentColor;
-  border-radius: 50%;
-  animation: dotPulse 1.4s ease-in-out infinite;
-  opacity: 0.3;
-}
-
-.modifying-dots span:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.modifying-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.modifying-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes dotPulse {
-  0%,
-  60%,
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  30% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-}
-
-/* State: Modifying */
-.save-status.state-modifying {
-  background: transparent;
-  color: var(--ui-accent-main);
-}
-
-.save-status.state-modifying .save-status-icon {
-  display: none;
-}
-
-.save-status.state-modifying .save-modifying-indicator {
-  display: flex;
-}
-
+/* State: Modifying - show dots, hide icons */
+.save-status.state-modifying .icon-save,
+.save-status.state-modifying .icon-check,
 .save-status.state-modifying .save-spinner {
   display: none;
 }
 
-/* State: Saving */
-.save-status.state-saving {
-  background: transparent;
-  color: var(--ui-accent-main);
+.save-status.state-modifying .modifying-dots {
+  display: flex;
 }
 
-.save-status.state-saving .save-status-icon {
+/* State: Saving - show spinner, hide icons */
+.save-status.state-saving .icon-save,
+.save-status.state-saving .icon-check,
+.save-status.state-saving .modifying-dots {
   display: none;
 }
 
@@ -325,25 +246,48 @@
   display: block;
 }
 
-/* Custom tooltip for save status */
+/* State: Saved - show check icon, hide others */
+.save-status.state-saved .icon-save,
+.save-status.state-saved .modifying-dots,
+.save-status.state-saved .save-spinner {
+  display: none;
+}
+
+.save-status.state-saved .icon-check {
+  display: block;
+}
+
+/* All states except unsaved should look like labels, not buttons */
+.save-status.state-modifying,
+.save-status.state-saving,
+.save-status.state-saved {
+  cursor: default;
+  pointer-events: none;
+}
+
+.save-status.state-modifying:hover,
+.save-status.state-saving:hover,
+.save-status.state-saved:hover {
+  background: transparent;
+}
+
+/* Tooltip for saved state */
 .save-status-tooltip {
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
   margin-top: 8px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   background: var(--gray-900);
   color: var(--white);
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
-  border-radius: 4px;
+  border-radius: 6px;
   opacity: 0;
   visibility: hidden;
-  transition:
-    opacity 0.15s,
-    visibility 0.15s;
+  transition: opacity 0.15s, visibility 0.15s;
   pointer-events: none;
   z-index: 1000;
 }
@@ -354,18 +298,14 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 5px solid transparent;
+  border: 6px solid transparent;
   border-bottom-color: var(--gray-900);
 }
 
-.save-status:hover .save-status-tooltip {
+/* Only show tooltip on hover for saved projects */
+.save-status-wrapper:has(.save-status.state-saved):hover .save-status-tooltip {
   opacity: 1;
   visibility: visible;
-}
-
-/* Unsaved project alert tooltip */
-.save-status {
-  position: relative;
 }
 
 .unsaved-alert {
