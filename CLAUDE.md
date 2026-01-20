@@ -76,6 +76,7 @@ import { selectSlide, addSlide, updateSlideField } from './services/slide-servic
 ## Rules
 
 See `.claude/rules/` for detailed patterns:
+- `testing.md` - Browser testing with Claude in Chrome MCP
 - `templates.md` - Slide template creation checklist
 - `events.md` - Event system usage patterns
 - `layers.md` - Layer boundaries and imports
