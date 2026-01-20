@@ -4,7 +4,6 @@
 import {
   getProject,
   getSlides,
-  getSelectedSlide,
   getSelectedSlideIndex,
   setSelectedSlideIndex,
   addSlide as addSlideToState,
@@ -14,8 +13,8 @@ import {
   updateSlideData as updateSlideDataInState,
   setHasUnsavedChanges,
   batch
-} from '../core/state/index.js';
-import { emit, EventTypes } from '../core/events/index.js';
+} from '../domain/state/index.js';
+import { emit, EventTypes } from '../domain/events/index.js';
 
 /**
  * Select a slide by index
@@ -216,36 +215,8 @@ export function changeSlideTemplate(template, defaultData = {}) {
   emit(EventTypes.SLIDE_DATA_CHANGED, { index });
 }
 
-/**
- * Get slide by index
- * @param {number} index - Slide index
- * @returns {Object|null} Slide object or null
- */
-export function getSlide(index) {
-  const slides = getSlides();
-  return slides[index] || null;
-}
-
-/**
- * Get current selected slide
- * @returns {Object|null} Selected slide or null
- */
-export function getCurrentSlide() {
-  return getSelectedSlide();
-}
-
-/**
- * Get current slide index
- * @returns {number} Selected slide index (-1 if none)
- */
-export function getCurrentSlideIndex() {
-  return getSelectedSlideIndex();
-}
-
-/**
- * Get total slide count
- * @returns {number} Number of slides
- */
-export function getSlideCount() {
-  return getSlides()?.length || 0;
-}
+// Note: Simple getters removed - use domain/state/selectors.js directly:
+// - getSelectedSlide() for current slide
+// - getSelectedSlideIndex() for current index
+// - getSlideCount() for total slides
+// - getSlides()[index] for slide by index

@@ -7,8 +7,8 @@ import {
   setSelectedSlideIndex,
   setHasUnsavedChanges,
   batch
-} from '../core/state/index.js';
-import { emit, EventTypes } from '../core/events/index.js';
+} from '../domain/state/index.js';
+import { emit, EventTypes } from '../domain/events/index.js';
 
 /**
  * Create initial project state
@@ -119,37 +119,10 @@ export function updateProjectMetadata(metadata) {
   emit(EventTypes.STATE_CHANGED, { key: 'metadata', value: metadata });
 }
 
-/**
- * Mark project as having changes
- */
-export function markProjectChanged() {
-  setHasUnsavedChanges(true);
-  emit(EventTypes.CHANGES_MARKED);
-}
-
-/**
- * Clear unsaved changes flag
- */
-export function clearProjectChanges() {
-  setHasUnsavedChanges(false);
-  emit(EventTypes.CHANGES_CLEARED);
-}
-
-/**
- * Get project for export (without internal fields)
- * @returns {Object} Export-ready project data
- */
-export function getProjectForExport() {
-  const project = getProject();
-  return {
-    metadata: {
-      title: project.name,
-      ...project.metadata
-    },
-    theme: project.theme,
-    slides: project.slides
-  };
-}
+// Note: Removed simple wrappers - use domain/state directly:
+// - setHasUnsavedChanges(true) for marking changes
+// - setHasUnsavedChanges(false) for clearing changes
+// - getProject() and extract needed fields for export
 
 /**
  * Import project from external data

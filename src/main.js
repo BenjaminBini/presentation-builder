@@ -12,33 +12,43 @@ import {
 } from './config/index.js';
 
 // Utils
-import { escapeHtml } from './utils/html.js';
-import { getGitLabLogoSvg, getGitLabLogo } from './utils/svg.js';
+import { escapeHtml } from './infrastructure/utils/html.js';
+import { getGitLabLogoSvg, getGitLabLogo } from './infrastructure/utils/svg.js';
 
-// Core state (re-exports from state/ subdirectory + DOM helpers)
+// Core state (re-exports from state/ subdirectory)
 import {
     store, getState, setState, get, set, subscribe, batch, reset,
     getProject, setProject,
     getSelectedSlideIndex, setSelectedSlideIndex,
     hasUnsavedChanges as getHasUnsavedChanges, setHasUnsavedChanges,
-    markAsChanged, clearUnsavedChanges, isProjectSaved,
-    updateSaveButtonState, showUnsavedAlert, hideUnsavedAlert, dismissUnsavedAlert
+    isProjectSaved
 } from './core/state.js';
+
+// UI state helpers (DOM manipulation)
+import {
+    updateSaveButtonState, showUnsavedAlert, hideUnsavedAlert, dismissUnsavedAlert
+} from './presentation/app/state-ui.js';
+
+// Project service
+import { createEmptyProject as createEmptyProjectFromService } from './services/project-service.js';
 
 // Events (re-exports from events/ subdirectory)
 import { emit, on, off, once, EventTypes } from './core/events.js';
 
+// UI refresh utilities
+import { refreshSlideList, refreshEditor, refreshPreview } from './presentation/app/ui-refresh.js';
+
 // Error handler
-import { initErrorHandler } from './core/error-handler.js';
+import { initErrorHandler } from './domain/error-handler.js';
 
 // Event delegation
-import { initEventDelegation } from './core/event-delegation.js';
+import { initEventDelegation } from './presentation/event-delegation.js';
 
 // Templates
-import { renderTemplate } from './templates/renderer.js';
-import { getPreviewStyles } from './templates/preview-styles.js';
-import { getThemeColor, getThemeColors, resolveThemeColor } from './templates/theme.js';
-import { renderCodeLines } from './templates/utilities.js';
+import { renderTemplate } from './presentation/templates/renderer.js';
+import { getPreviewStyles } from './presentation/templates/preview-styles.js';
+import { getThemeColor, getThemeColors, resolveThemeColor } from './presentation/templates/theme.js';
+import { renderCodeLines } from './presentation/templates/utilities.js';
 
 // Projects
 import { showConfirm, hideConfirm, handleConfirmResponse } from './projects/notifications.js';
@@ -53,10 +63,10 @@ import { exportToJSON, importFromJSON, triggerFileInput } from './projects/impor
 import {
     editProjectTitle, finishEditProjectTitle, handleTitleKeydown,
     updateHeaderTitle, loadInitialProject
-} from './app/project.js';
+} from './presentation/app/project.js';
 
 // Drive
-import { driveAuth, driveAPI, driveSync } from './drive/index.js';
+import { driveAuth, driveAPI, driveSync } from './infrastructure/drive/index.js';
 
 // Theme (color customization)
 import {
@@ -65,14 +75,14 @@ import {
     selectTheme,
     toggleThemeColorPicker, closeAllThemeColorPickers,
     resetColorOverride, resetAllColorOverrides
-} from './app/theme.js';
+} from './presentation/app/theme.js';
 
 // Editor - use existing modules
 import {
     updateEditorTabUnderline,
     switchEditorTab as switchEditorTabAnimated,
     renderEditor
-} from './editor/panel.js';
+} from './presentation/editor/panel.js';
 
 // Editor handlers - import from existing module
 import {
@@ -86,13 +96,13 @@ import {
     updateRowCell, addRowItem, removeRowItem,
     updateTableCell, addTableRow, removeTableRow,
     updateAgendaItem, addAgendaItem, removeAgendaItem
-} from './editor/handlers.js';
+} from './presentation/editor/handlers.js';
 
 // Editor color selector
 import {
     toggleColorPicker, selectSlideColor, updateSlideColor, resetSlideColor,
     showColorName, hideColorName
-} from './editor/color-selector.js';
+} from './presentation/editor/color-selector.js';
 
 // Sidebar
 import {
@@ -100,44 +110,44 @@ import {
     switchSidebarTab as switchSidebarTabAnimated,
     initTemplateGrid,
     renderSettingsPanel
-} from './app/sidebar.js';
+} from './presentation/app/sidebar.js';
 
 // Panels
 import {
     initPanelStates,
     toggleSidebar as toggleSidebarFromPanels,
     toggleEditorPanel as toggleEditorPanelFromPanels
-} from './app/panels.js';
+} from './presentation/app/panels.js';
 
 // Slides - use existing modules
-import { renderSlideList, selectSlide, initSlideListSubscriptions } from './app/slides/list.js';
+import { renderSlideList, selectSlide, initSlideListSubscriptions } from './presentation/app/slides/list.js';
 import {
     addSlide, selectTemplate,
     deleteSlide, duplicateSlide,
     handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd
-} from './app/slides/management.js';
-import { updatePreview, scalePreviewSlide, initPreviewSubscriptions } from './app/slides/preview.js';
+} from './presentation/app/slides/management.js';
+import { updatePreview, scalePreviewSlide, initPreviewSubscriptions } from './presentation/app/slides/preview.js';
 
 // Presentation mode - use existing module
 import {
     startPresentation, exitPresentation,
     prevSlidePlayer, nextSlidePlayer, scalePlayerSlide
-} from './app/presentation.js';
+} from './presentation/app/presentation.js';
 
 // Modals
 import {
     closeModal, initModalBehaviors, openProjectsModal,
     cancelPromptModal, confirmPromptModal, resolveConflict
-} from './app/modals.js';
+} from './presentation/app/modals.js';
 
 // Import modal
 import {
     openImportModal, switchImportTab, handleFileSelect, handleImport,
     clearSelectedFile, confirmImport, formatJsonInput, initFileDropZone
-} from './app/import-modal.js';
+} from './presentation/app/import-modal.js';
 
 // Inline editing (auto-initializes on DOM ready)
-import './inline-editing/index.js';
+import './presentation/inline-editing/index.js';
 
 // ============================================================================
 // THIN WRAPPER FUNCTIONS
@@ -177,30 +187,20 @@ function newProject() {
 
 // Create an empty project with just a title slide
 function createEmptyProject() {
-    const project = {
-        name: null,
-        metadata: {
-            title: 'Sans titre',
-            author: '',
-            date: new Date().toLocaleDateString('fr-FR'),
-            version: '1.0'
-        },
-        theme: {
-            base: 'gitlab',
-            overrides: {}
-        },
-        slides: [
-            {
-                template: 'title',
-                data: {
-                    title: 'Nouvelle présentation',
-                    subtitle: '',
-                    author: '',
-                    date: new Date().toLocaleDateString('fr-FR')
-                }
+    const project = createEmptyProjectFromService();
+    // Add a title slide for the UI version
+    project.metadata.title = 'Sans titre';
+    project.slides = [
+        {
+            template: 'title',
+            data: {
+                title: 'Nouvelle présentation',
+                subtitle: '',
+                author: '',
+                date: new Date().toLocaleDateString('fr-FR')
             }
-        ]
-    };
+        }
+    ];
     applyNewProject(project);
 }
 
@@ -274,6 +274,22 @@ function initializeApp() {
     initPreviewSubscriptions();
     initSlideListSubscriptions();
 
+    // Subscribe to UI refresh events (for modules using refreshSlideList, refreshEditor, refreshPreview)
+    on(EventTypes.SLIDE_LIST_CHANGED, () => {
+        renderSlideList();
+    });
+    on(EventTypes.EDITOR_REFRESH_REQUESTED, () => {
+        renderEditor();
+    });
+    on(EventTypes.PREVIEW_REFRESH_REQUESTED, () => {
+        updatePreview();
+    });
+    on(EventTypes.UI_REFRESH_REQUESTED, () => {
+        renderSlideList();
+        renderEditor();
+        updatePreview();
+    });
+
     // Autosave timer for debouncing
     let autosaveTimer = null;
 
@@ -300,6 +316,39 @@ function initializeApp() {
     // Subscribe to slide selection - update editor panel
     on(EventTypes.SLIDE_SELECTED, () => {
         renderEditor();
+    });
+
+    // Subscribe to project events - update UI when projects are saved/loaded
+    on(EventTypes.PROJECT_SAVED, () => {
+        hideUnsavedAlert();
+        updateSaveButtonState('saved');
+    });
+
+    on(EventTypes.PROJECT_LOADED, () => {
+        hideUnsavedAlert();
+        updateSaveButtonState('saved');
+        renderSlideList();
+        renderEditor();
+        updatePreview();
+        updateHeaderTitle();
+        renderSettingsPanel();
+    });
+
+    // Subscribe to drive sync events - refresh UI after sync
+    on(EventTypes.DRIVE_SYNC_COMPLETED, () => {
+        renderSlideList();
+        renderEditor();
+        updatePreview();
+        updateHeaderTitle();
+        renderSettingsPanel();
+    });
+
+    // Subscribe to modal events - close modals via event
+    on(EventTypes.MODAL_CLOSED, ({ modalId }) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('active');
+        }
     });
 
     loadInitialProject();
@@ -363,46 +412,29 @@ function initializeApp() {
 // EXPOSE TO WINDOW
 // ============================================================================
 
+// Note: window.* exports are kept for HTML onclick handlers and legacy compatibility
+// New code should import directly from modules instead of using window globals
 Object.assign(window, {
-    // Config
-    THEMES, TEMPLATES, ICONS, GRAY_PALETTE, COLOR_LABELS, GRAY_LABELS,
-    TEMPLATE_COLOR_SETTINGS, SAMPLE_PROJECT, getDefaultData,
+    // Templates - needed for presentation.js which uses window.renderTemplate and window.getPreviewStyles
+    renderTemplate, getPreviewStyles,
 
-    // Utils
-    escapeHtml, getGitLabLogoSvg, getGitLabLogo,
-
-    // Templates
-    renderTemplate, getPreviewStyles, getThemeColor, getThemeColors, resolveThemeColor, renderCodeLines,
-
-    // State (window.* access via getters/setters)
-    get currentProject() { return getProject(); },
-    set currentProject(v) { setProject(v); },
-    get selectedSlideIndex() { return getSelectedSlideIndex(); },
-    set selectedSlideIndex(v) { setSelectedSlideIndex(v); },
-    get hasUnsavedChanges() { return getHasUnsavedChanges(); },
-    set hasUnsavedChanges(v) { setHasUnsavedChanges(v); },
-
-    // State functions
-    markAsChanged, clearUnsavedChanges, updateSaveButtonState, isProjectSaved,
-    dismissUnsavedAlert, showUnsavedAlert, hideUnsavedAlert,
-
-    // UI functions
+    // UI functions - needed for HTML onclick handlers
     renderSlideList, selectSlide, renderEditor, updatePreview, scalePreviewSlide,
     updateHeaderTitle, editProjectTitle, finishEditProjectTitle, handleTitleKeydown,
     switchSidebarTab, toggleSidebar, toggleEditorPanel, switchEditorTab,
     renderSettingsPanel, initTemplateGrid, updateAppThemeColors, renderThemeSelector, selectTheme,
     updateSidebarTabUnderline, updateEditorTabUnderline,
 
-    // Slide management
+    // Slide management - needed for HTML onclick handlers
     addSlide, selectTemplate, deleteSlide, duplicateSlide, duplicateSlideAt, deleteSlideAt,
 
-    // Drag and drop
+    // Drag and drop - needed for ondragstart/ondragover/etc attributes
     handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd,
 
-    // Presentation
+    // Presentation - needed for HTML onclick handlers
     startPresentation, exitPresentation, prevSlidePlayer, nextSlidePlayer, scalePlayerSlide,
 
-    // Field updates
+    // Field updates - needed for HTML onchange/onclick handlers in editor
     updateField, changeTemplate,
     updateArrayItem, removeArrayItem, addArrayItem,
     updateColumnField, updateColumnItem, removeColumnItem, addColumnItem,
@@ -413,33 +445,39 @@ Object.assign(window, {
     updateTableCell, removeTableRow, addTableRow,
     updateAnnotationItem, removeAnnotationItem, addAnnotationItem,
 
-    // Projects
+    // Projects - needed for HTML onclick handlers
     showConfirm, hideConfirm, handleConfirmResponse,
     openProjectModal, closeProjectModal, saveCurrentProject, loadProject, deleteProject, createNewProject, renameProject,
     openSaveProjectModal, closeSaveProjectModal, saveProjectWithName, validateSaveProjectName,
     exportToJSON, importFromJSON, triggerFileInput,
 
-    // Modal & UI functions
+    // Modal & UI functions - needed for HTML onclick handlers
     closeModal, openProjectsModal, newProject, createEmptyProject, createDemoProject,
     saveProject, exportProject, importProject,
     exportToHtml, confirmImport, confirmSaveProject, onSaveStatusClick,
     clearSelectedFile, switchImportTab, formatJsonInput, cancelPromptModal, confirmPromptModal,
     resolveConflict, handleFileSelect, handleImport,
 
-    // Theme color picker functions
+    // Theme color picker functions - needed for HTML onclick handlers
     toggleThemeColorPicker, closeAllThemeColorPickers,
     resetColorOverride, resetAllColorOverrides,
 
-    // Editor color selector functions
+    // Editor color selector functions - needed for HTML onclick handlers
     toggleColorPicker, selectSlideColor, updateSlideColor, resetSlideColor,
     showColorName, hideColorName,
 
-    // Core state exports
-    store, getState, setState, get, set, subscribe, batch, reset,
-    emit, on, off, once, EventTypes,
+    // State functions - needed for sidebar.js window.renderSettingsPanel check
+    dismissUnsavedAlert,
 
-    // Drive
+    // Drive - needed for external access
     driveAuth, driveAPI, driveSync,
+
+    // Mermaid initialization - kept for window.initMermaid call in theme.js
+    initMermaid: () => {
+        if (window.mermaid) {
+            window.mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+        }
+    },
 
     // Initialize
     initializeApp, loadInitialProject

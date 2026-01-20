@@ -1,8 +1,8 @@
 // src/core/index.js
-// Core module public API
+// Core module public API - re-exports from domain/ for backward compatibility
 
 // State management
-export * from './state/index.js';
+export * from '../domain/state/index.js';
 
 // Event system
-export * from './events/index.js';
+export * from '../domain/events/index.js';

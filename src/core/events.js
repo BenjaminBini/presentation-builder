@@ -1,4 +1,4 @@
 // src/core/events.js
-// Re-exports event system from events/ subdirectory
+// Re-exports event system from domain/events/ for backward compatibility
 
-export * from './events/index.js';
+export * from '../domain/events/index.js';

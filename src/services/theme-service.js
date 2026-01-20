@@ -2,9 +2,7 @@
 // Theme operations with event emission - no DOM manipulation
 
 import {
-  getTheme,
   getThemeBase,
-  getThemeOverrides,
   setThemeBase,
   setThemeOverrides,
   setThemeColor,
@@ -12,8 +10,8 @@ import {
   resetThemeColors,
   setHasUnsavedChanges,
   batch
-} from '../core/state/index.js';
-import { emit, EventTypes } from '../core/events/index.js';
+} from '../domain/state/index.js';
+import { emit, EventTypes } from '../domain/events/index.js';
 
 // Theme color keys that can be overridden
 export const THEME_COLOR_KEYS = [
@@ -81,81 +79,7 @@ export function resetAllColors() {
   });
 }
 
-/**
- * Get the current effective color value for a key
- * @param {string} colorKey - Color key
- * @param {Object} themes - Available themes object
- * @returns {string|null} Color value or null
- */
-export function getEffectiveColor(colorKey, themes) {
-  const theme = getTheme();
-  const baseTheme = themes?.[theme?.base];
-  const overrides = theme?.overrides || {};
-
-  return overrides[colorKey] || baseTheme?.colors?.[colorKey] || null;
-}
-
-/**
- * Get all current color values (merged base + overrides)
- * @param {Object} themes - Available themes object
- * @returns {Object} Color key-value pairs
- */
-export function getAllColors(themes) {
-  const theme = getTheme();
-  const baseTheme = themes?.[theme?.base];
-  const overrides = theme?.overrides || {};
-
-  if (!baseTheme) {
-    return {};
-  }
-
-  const colors = {};
-  THEME_COLOR_KEYS.forEach(key => {
-    colors[key] = overrides[key] || baseTheme.colors[key];
-  });
-
-  return colors;
-}
-
-/**
- * Check if a color is overridden
- * @param {string} colorKey - Color key
- * @returns {boolean} True if overridden
- */
-export function isColorOverridden(colorKey) {
-  const overrides = getThemeOverrides() || {};
-  return colorKey in overrides;
-}
-
-/**
- * Check if any colors are overridden
- * @returns {boolean} True if any overrides exist
- */
-export function hasColorOverrides() {
-  const overrides = getThemeOverrides() || {};
-  return Object.keys(overrides).length > 0;
-}
-
-/**
- * Get current theme configuration
- * @returns {Object} Theme configuration
- */
-export function getCurrentTheme() {
-  return getTheme();
-}
-
-/**
- * Get current base theme key
- * @returns {string} Theme key
- */
-export function getCurrentThemeBase() {
-  return getThemeBase() || 'gitlab';
-}
-
-/**
- * Get all color overrides
- * @returns {Object} Color overrides
- */
-export function getColorOverrides() {
-  return getThemeOverrides() || {};
-}
+// Note: Simple getters removed - use domain/state/selectors.js directly:
+// - getTheme() for current theme configuration
+// - getThemeBase() for base theme key
+// - getThemeOverrides() for color overrides

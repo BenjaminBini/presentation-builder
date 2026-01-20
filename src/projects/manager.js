@@ -1,35 +1,24 @@
 // src/projects/manager.js
 // Project CRUD operations with state integration
 
-import { getState, setState, setProject, batch, getProject, setSelectedSlideIndex, markAsChanged, clearUnsavedChanges as clearChanges, hideUnsavedAlert, updateSaveButtonState } from '../core/state.js';
+import { getState, setState, setProject, batch, getProject, setSelectedSlideIndex, setHasUnsavedChanges } from '../core/state.js';
+import { createNewProject as createProjectFromService } from '../services/project-service.js';
 import { emit, EventTypes } from '../core/events.js';
-import { storage, projectExists } from './storage.js';
-import { escapeHtml } from '../utils/html.js';
-import { registerActions } from '../core/event-delegation.js';
+import { storage, projectExists } from '../infrastructure/storage/local.js';
+import { openSaveProjectModal as openSaveModal } from './modals.js';
 
-// ============================================================================
-// ACTION HANDLERS (for event delegation)
-// ============================================================================
-
-/**
- * Handle project loading via event delegation
- */
-function handleLoadProject(_event, _element, params) {
-  loadProject(params.index);
-}
-
-/**
- * Handle project deletion via event delegation
- */
-function handleDeleteProject(_event, _element, params) {
-  deleteProject(params.index);
-}
-
-// Register project manager actions
-registerActions({
-  'load-project': handleLoadProject,
-  'delete-project': handleDeleteProject
-});
+// Re-export modal functions for backwards compatibility
+export {
+  openProjectModal,
+  closeProjectModal,
+  openSaveProjectModal,
+  closeSaveProjectModal,
+  saveProjectWithName,
+  validateSaveProjectName,
+  renderProjectList,
+  loadProject,
+  deleteProject
+} from './modals.js';
 
 /**
  * Save current project to localStorage
@@ -47,7 +36,7 @@ export function saveCurrentProject(name) {
 
   if (!project.name) {
     // Show save modal to get project name
-    openSaveProjectModal();
+    openSaveModal();
     return false;
   }
 
@@ -61,9 +50,8 @@ export function saveCurrentProject(name) {
       setState({ hasUnsavedChanges: false });
     });
 
+    // Emit event - UI updates are handled by main.js subscriptions
     emit(EventTypes.PROJECT_SAVED, { project });
-    hideUnsavedAlert();
-    updateSaveButtonState('saved');
     return true;
   } else {
     return false;
@@ -92,9 +80,8 @@ export function loadProjectByIndex(index) {
     setState({ hasUnsavedChanges: false });
   });
 
+  // Emit event - UI updates are handled by main.js subscriptions
   emit(EventTypes.PROJECT_LOADED, { project: loadedProject });
-  hideUnsavedAlert();
-  updateSaveButtonState('saved');
   return true;
 }
 
@@ -145,35 +132,8 @@ export function createNewProject(template, confirm = true) {
     }
   }
 
-  const newProject = template
-    ? JSON.parse(JSON.stringify(template))
-    : {
-        name: null,
-        metadata: {
-          title: 'Ma Présentation',
-          author: '',
-          date: new Date().toLocaleDateString('fr-FR'),
-          version: '1.0'
-        },
-        theme: {
-          base: 'gitlab',
-          overrides: {}
-        },
-        slides: []
-      };
-
-  // New projects are always unnamed until explicitly saved
-  newProject.name = null;
-
-  const newSlideIndex = newProject.slides.length > 0 ? 0 : -1;
-
-  batch(() => {
-    setProject(newProject);
-    setSelectedSlideIndex(newSlideIndex);
-    setState({ hasUnsavedChanges: false });
-  });
-
-  emit(EventTypes.PROJECT_LOADED, { project: newProject });
+  // Delegate to project-service.js for core project creation logic
+  createProjectFromService(template);
   return true;
 }
 
@@ -325,16 +285,14 @@ export function renameCurrentProject(newName) {
  * Mark current project as having unsaved changes
  */
 export function markUnsavedChanges() {
-  markAsChanged();
-  emit(EventTypes.CHANGES_MARKED);
+  setHasUnsavedChanges(true);
 }
 
 /**
- * Clear unsaved changes flag (re-export with event emission)
+ * Clear unsaved changes flag
  */
 export function clearUnsavedChangesWithEvent() {
-  clearChanges();
-  emit(EventTypes.CHANGES_CLEARED);
+  setHasUnsavedChanges(false);
 }
 
 /**
@@ -372,222 +330,6 @@ export function getAllProjectStats() {
     hasDriveId: !!project.driveId,
     theme: project.theme.base
   }));
-}
-
-// ============================================================================
-// MODAL FUNCTIONS (for UI compatibility)
-// ============================================================================
-
-/**
- * Open project modal
- */
-export function openProjectModal() {
-  const modal = document.getElementById('projectsModal');
-  if (modal) {
-    modal.classList.add('active');
-    renderProjectList();
-  }
-}
-
-/**
- * Close project modal
- */
-export function closeProjectModal() {
-  const modal = document.getElementById('projectsModal');
-  if (modal) {
-    modal.classList.remove('active');
-  }
-}
-
-/**
- * Open save project modal (for naming new projects)
- */
-export function openSaveProjectModal() {
-  const modal = document.getElementById('saveProjectModal');
-  const input = document.getElementById('saveProjectName');
-  const btn = document.getElementById('saveProjectBtn');
-  const error = document.getElementById('saveProjectError');
-
-  if (modal) {
-    modal.classList.add('active');
-    if (input) {
-      input.value = '';
-      input.focus();
-    }
-    if (btn) btn.disabled = true;
-    if (error) error.textContent = '';
-  }
-}
-
-/**
- * Close save project modal
- */
-export function closeSaveProjectModal() {
-  const modal = document.getElementById('saveProjectModal');
-  if (modal) {
-    modal.classList.remove('active');
-  }
-}
-
-/**
- * Save project with name from modal input
- * @returns {boolean} Success status
- */
-export function saveProjectWithName() {
-  const input = document.getElementById('saveProjectName');
-  const name = input?.value?.trim();
-
-  if (!name) {
-    return false;
-  }
-
-  // Check if name already exists
-  if (projectExists(name)) {
-    const error = document.getElementById('saveProjectError');
-    if (error) error.textContent = 'Un projet avec ce nom existe déjà';
-    return false;
-  }
-
-  // Get current project and save with new name
-  const project = getProject();
-  project.name = name;
-  project.savedAt = new Date().toISOString();
-
-  const success = storage.save(project);
-
-  if (success) {
-    batch(() => {
-      setProject(project);
-      setState({ hasUnsavedChanges: false });
-    });
-
-    emit(EventTypes.PROJECT_SAVED, { project });
-    closeSaveProjectModal();
-    hideUnsavedAlert();
-    updateSaveButtonState('saved');
-
-    // Update header title
-    if (window.updateHeaderTitle) window.updateHeaderTitle();
-
-    return true;
-  } else {
-    return false;
-  }
-}
-
-/**
- * Validate save project name input (called on input change)
- */
-export function validateSaveProjectName() {
-  const input = document.getElementById('saveProjectName');
-  const btn = document.getElementById('saveProjectBtn');
-  const error = document.getElementById('saveProjectError');
-
-  const name = input?.value?.trim();
-
-  if (!name) {
-    if (btn) btn.disabled = true;
-    if (error) error.textContent = '';
-    return;
-  }
-
-  if (projectExists(name)) {
-    if (btn) btn.disabled = true;
-    if (error) error.textContent = 'Un projet avec ce nom existe déjà';
-    return;
-  }
-
-  if (btn) btn.disabled = false;
-  if (error) error.textContent = '';
-}
-
-/**
- * Render project list in modal
- */
-function renderProjectList() {
-  const list = document.getElementById('projectList');
-  if (!list) return;
-
-  const projects = storage.getAll();
-  const currentProject = getProject();
-
-  if (projects.length === 0) {
-    list.innerHTML = '<p class="no-projects">Aucun projet sauvegardé</p>';
-    return;
-  }
-
-  list.innerHTML = projects.map((project, index) => {
-    const isCurrentProject = currentProject?.name && project.name === currentProject.name;
-    const slideCount = project.slides?.length || 0;
-    const safeName = escapeHtml(project.name || 'Sans nom');
-    return `
-    <div class="project-item ${isCurrentProject ? 'current' : ''}" data-index="${index}">
-      <div class="project-info">
-        <span class="project-name">${safeName}${isCurrentProject ? '<span class="project-current-badge">Ouvert</span>' : ''}</span>
-        <span class="project-meta">
-          <svg class="project-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
-          </svg>
-          ${slideCount} slide${slideCount !== 1 ? 's' : ''}
-        </span>
-      </div>
-      <div class="project-actions">
-        <button class="project-btn project-btn-open" data-action="load-project" data-index="${index}" ${isCurrentProject ? 'disabled' : ''} title="Ouvrir">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
-          </svg>
-        </button>
-        <button class="project-btn project-btn-delete" data-action="delete-project" data-index="${index}" ${isCurrentProject ? 'disabled' : ''} title="Supprimer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-  `;
-  }).join('');
-}
-
-/**
- * Load project by index (alias for UI)
- */
-export function loadProject(index) {
-  const success = loadProjectByIndex(index);
-  if (success) {
-    closeProjectModal();
-    // Update UI
-    if (window.renderSlideList) window.renderSlideList();
-    if (window.renderEditor) window.renderEditor();
-    if (window.updatePreview) window.updatePreview();
-    if (window.updateHeaderTitle) window.updateHeaderTitle();
-    if (window.updateAppThemeColors) window.updateAppThemeColors();
-    // Set save status to saved since project was loaded from storage
-    if (window.updateSaveButtonState) window.updateSaveButtonState('saved');
-  }
-  return success;
-}
-
-/**
- * Delete project by index (alias for UI)
- */
-export function deleteProject(index) {
-  // Prevent deleting the currently opened project
-  const currentProject = getProject();
-  const projects = storage.getAll();
-  const projectToDelete = projects[index];
-
-  if (projectToDelete && currentProject?.name && projectToDelete.name === currentProject.name) {
-    return false;
-  }
-
-  if (confirm('Supprimer ce projet ?')) {
-    const success = deleteProjectByIndex(index, false);
-    if (success) {
-      renderProjectList();
-    }
-    return success;
-  }
-  return false;
 }
 
 /**
