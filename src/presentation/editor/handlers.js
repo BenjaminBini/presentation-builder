@@ -9,8 +9,8 @@ import {
   updateSlideData,
   batch,
   setHasUnsavedChanges
-} from '../../core/state/index.js';
-import { emit, EventTypes } from '../../core/events/index.js';
+} from '../../core/state.js';
+import { emit, EventTypes } from '../../core/events.js';
 import { refreshEditor } from '../app/ui-refresh.js';
 
 // ============================================================================

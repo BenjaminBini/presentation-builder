@@ -4,7 +4,7 @@
 import { TEMPLATES, TEMPLATE_COLOR_SETTINGS, COLOR_LABELS, GRAY_LABELS } from '../../config/index.js';
 import { renderTemplateSettings } from './template-settings.js';
 import { getProject, getSelectedSlideIndex } from '../../core/state.js';
-import { registerActions } from '../../core/event-delegation.js';
+import { registerActions } from '../event-delegation.js';
 
 // ============================================================================
 // ACTION HANDLERS (for event delegation)

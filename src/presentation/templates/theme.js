@@ -3,7 +3,7 @@
 // This file should receive data as parameters to stay pure (no core state imports)
 
 import { THEMES, GRAY_PALETTE, TEMPLATE_COLOR_SETTINGS } from '../../config/themes.js';
-import { getProject } from '../../core/state/index.js';
+import { getProject } from '../../core/state.js';
 
 // Use imported config
 const getThemes = () => THEMES;

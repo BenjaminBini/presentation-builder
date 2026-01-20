@@ -3,7 +3,7 @@
 
 import { COLOR_LABELS, GRAY_LABELS } from '../../config/index.js';
 import { getProject, getSelectedSlideIndex, setHasUnsavedChanges } from '../../core/state.js';
-import { registerActions } from '../../core/event-delegation.js';
+import { registerActions } from '../event-delegation.js';
 import { refreshEditor, refreshPreview } from '../app/ui-refresh.js';
 
 // ============================================================================

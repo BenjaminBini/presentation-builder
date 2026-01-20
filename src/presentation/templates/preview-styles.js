@@ -65,7 +65,7 @@ export function getPreviewStyles() {
         .template-bullets { background: var(--slide-bgColor, var(--white)); padding: 60px 80px; height: 100%; display: flex; flex-direction: column; }
         .template-bullets .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); }
         .template-bullets h2 { font-size: 42px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); }
-        .template-bullets .slide-tag { background: var(--slide-tagColor, var(--gradient-accent)); color: white; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        .template-bullets .slide-tag { background: var(--slide-tagColor, var(--gradient-accent)); color: white; padding: 10px 24px; border-radius: 20px; font-size: 16px; font-weight: 600; }
         .template-bullets .content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .template-bullets ul { list-style: none; }
         .template-bullets li { font-size: 26px; color: var(--slide-textColor, var(--gray-800)); margin-bottom: 28px; padding-left: 50px; position: relative; line-height: 1.4; display: flex; align-items: flex-start; }
@@ -83,7 +83,7 @@ export function getPreviewStyles() {
         .template-two-columns h2 { font-size: 42px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); }
         .template-two-columns .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; height: calc(100% - 120px); }
         .template-two-columns .column { display: flex; flex-direction: column; }
-        .template-two-columns .column h3 { font-size: 28px; font-weight: 600; color: var(--slide-columnTitleColor, var(--purple)); margin-bottom: 24px; }
+        .template-two-columns .column h3 { font-size: 28px; font-weight: 600; color: var(--slide-columnTitleColor, var(--gray-800)); margin-bottom: 24px; }
         .template-two-columns .column ul { list-style: none; }
         .template-two-columns .column li { font-size: 20px; color: var(--slide-textColor, var(--gray-700)); margin-bottom: 16px; padding-left: 30px; position: relative; display: flex; align-items: flex-start; }
         .template-two-columns .column li::before { content: '→'; position: absolute; left: 0; color: var(--slide-bulletColor, var(--accent-main)); font-weight: bold; }
