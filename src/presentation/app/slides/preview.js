@@ -1,8 +1,8 @@
 // src/app/slides/preview.js
 // Preview scaling and rendering - event-driven version
 
-import { getProject, getSelectedSlideIndex } from '../../../core/state/index.js';
-import { on, EventTypes } from '../../../core/events/index.js';
+import { getProject, getSelectedSlideIndex } from '../../../core/state.js';
+import { on, EventTypes } from '../../../core/events.js';
 
 export function updatePreview() {
   if (typeof window.InlineEditor !== 'undefined' && window.InlineEditor.isEditing) {

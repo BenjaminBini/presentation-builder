@@ -69,16 +69,55 @@ export function openProjectsModal() {
     }
 }
 
-// Prompt modal stubs
+// Prompt modal - stores callback for when confirmed
+let promptCallback = null;
+
+export function openPromptModal(title, label, placeholder, callback) {
+    const titleEl = document.getElementById('promptModalTitle');
+    const labelEl = document.getElementById('promptModalLabel');
+    const inputEl = document.getElementById('promptModalInput');
+    const errorEl = document.getElementById('promptModalError');
+
+    if (titleEl) titleEl.textContent = title;
+    if (labelEl) labelEl.textContent = label;
+    if (inputEl) {
+        inputEl.value = '';
+        inputEl.placeholder = placeholder || '';
+    }
+    if (errorEl) errorEl.textContent = '';
+
+    promptCallback = callback;
+    const modal = document.getElementById('promptModal');
+    if (modal) modal.classList.add('active');
+}
+
 export function cancelPromptModal() {
+    promptCallback = null;
     closeModal('promptModal');
 }
 
 export function confirmPromptModal() {
+    const inputEl = document.getElementById('promptModalInput');
+    const value = inputEl ? inputEl.value.trim() : '';
+
+    if (promptCallback) {
+        promptCallback(value);
+        promptCallback = null;
+    }
     closeModal('promptModal');
 }
 
-// Drive conflict stub
-export function resolveConflict(_choice) {
-    closeModal('conflictModal');
+// Drive conflict - stores resolve callback from sync service
+let conflictResolveCallback = null;
+
+export function setConflictResolver(resolver) {
+    conflictResolveCallback = resolver;
+}
+
+export function resolveConflict(choice) {
+    if (conflictResolveCallback) {
+        conflictResolveCallback(choice);
+        conflictResolveCallback = null;
+    }
+    closeModal('driveConflictModal');
 }

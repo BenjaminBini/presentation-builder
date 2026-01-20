@@ -2,7 +2,7 @@
 // Sidebar UI, tabs, and settings panel
 
 import { get, set } from '../../core/state.js';
-import { registerActions } from '../../core/event-delegation.js';
+import { registerActions } from '../event-delegation.js';
 import { TEMPLATES } from '../../config/templates.js';
 
 // ============================================================================

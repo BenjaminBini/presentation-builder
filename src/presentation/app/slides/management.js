@@ -56,6 +56,13 @@ export function duplicateSlide(index) {
     refreshPreview();
 }
 
+export function moveSlide(fromIndex, toIndex) {
+    // Use slide-service - handles state, selected index update, events, and unsaved changes
+    moveSlideService(fromIndex, toIndex);
+    refreshSlideList();
+    refreshPreview();
+}
+
 // ============================================================================
 // DRAG AND DROP
 // ============================================================================

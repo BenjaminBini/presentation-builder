@@ -3,18 +3,14 @@
 
 import { getProject, setProject, setSelectedSlideIndex, setHasUnsavedChanges, isProjectSaved } from '../../core/state.js';
 import { hideUnsavedAlert } from './state-ui.js';
+import { SAMPLE_PROJECT } from '../../config/index.js';
 
 export function loadInitialProject() {
     const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
     let projectToLoad;
 
     if (projects.length === 0) {
-        projectToLoad = JSON.parse(JSON.stringify(window.SAMPLE_PROJECT || {
-            name: null,
-            metadata: { title: 'Ma Présentation', author: '', date: '', version: '1.0' },
-            theme: { base: 'gitlab', overrides: {} },
-            slides: []
-        }));
+        projectToLoad = JSON.parse(JSON.stringify(SAMPLE_PROJECT));
         projectToLoad.name = null;
     } else if (projects.length === 1) {
         projectToLoad = JSON.parse(JSON.stringify(projects[0]));

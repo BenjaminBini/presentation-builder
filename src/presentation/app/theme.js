@@ -1,9 +1,9 @@
 // src/app/theme.js
 // Theme selection and color management - ES6 module version
 
-import { registerActions } from '../../core/event-delegation.js';
+import { registerActions } from '../event-delegation.js';
 import { THEMES, COLOR_LABELS } from '../../config/themes.js';
-import { getProject } from '../../core/state/index.js';
+import { getProject } from '../../core/state.js';
 import {
   THEME_COLOR_KEYS,
   changeTheme as changeThemeService,

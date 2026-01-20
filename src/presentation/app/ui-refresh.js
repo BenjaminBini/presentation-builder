@@ -2,7 +2,7 @@
 // UI refresh utilities - centralized event-based UI refresh functions
 // Replaces window.renderSlideList, window.renderEditor, window.updatePreview patterns
 
-import { emit, EventTypes } from '../../core/events/index.js';
+import { emit, EventTypes } from '../../core/events.js';
 
 /**
  * Request a full UI refresh

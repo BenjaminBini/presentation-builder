@@ -1,10 +1,10 @@
 // src/app/slides/list.js
 // Slide list rendering and selection - event-driven version with event delegation
 
-import { getProject, getSelectedSlideIndex } from '../../../core/state/index.js';
-import { on, EventTypes } from '../../../core/events/index.js';
+import { getProject, getSelectedSlideIndex } from '../../../core/state.js';
+import { on, EventTypes } from '../../../core/events.js';
 import { selectSlide as selectSlideService } from '../../../services/slide-service.js';
-import { registerActions } from '../../../core/event-delegation.js';
+import { registerActions } from '../../event-delegation.js';
 import { TEMPLATES } from '../../../config/templates.js';
 import { escapeHtml } from '../../../infrastructure/utils/html.js';
 
