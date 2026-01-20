@@ -34,7 +34,7 @@ node slide-generator/index.js examples/presentation-data.json output.html
 
 ## For LLMs / AI Integration
 
-See **[LLM_INSTRUCTIONS.md](LLM_INSTRUCTIONS.md)** for detailed instructions on generating compatible JSON presentations programmatically.
+See **[docs/LLM_INSTRUCTIONS.md](docs/LLM_INSTRUCTIONS.md)** for detailed instructions on generating compatible JSON presentations programmatically.
 
 ### Quick JSON Example
 
@@ -70,17 +70,22 @@ See **[LLM_INSTRUCTIONS.md](LLM_INSTRUCTIONS.md)** for detailed instructions on 
 
 ```
 ├── slide-editor.html      # Main editor interface
-├── slide-editor-*.js      # Editor JavaScript modules
-├── slide-editor-*.css     # Editor styles
-├── slide-generator/       # Static HTML generator (Node.js)
-│   ├── index.js          # CLI entry point
-│   ├── templates.js      # Template registry
-│   ├── renderers.js      # Template renderers
-│   ├── styles.js         # CSS styles
-│   └── utils.js          # Utility functions
-├── examples/              # Example presentations
-│   └── presentation-data.json
-├── LLM_INSTRUCTIONS.md    # AI/LLM integration guide
+├── src/                   # JavaScript source modules
+│   ├── main.js           # Entry point
+│   ├── core/             # State and events (pure logic)
+│   ├── services/         # Application services
+│   ├── app/              # UI components
+│   ├── editor/           # Editor panel
+│   ├── inline-editing/   # Live content editing
+│   ├── templates/        # Slide templates
+│   └── projects/         # Project management
+├── styles/               # Modular CSS
+├── slide-generator/      # Static HTML generator (Node.js)
+├── docs/                 # Documentation
+│   ├── LLM_INSTRUCTIONS.md  # AI/LLM integration guide
+│   ├── ARCHITECTURE.md   # System architecture
+│   └── agents.md         # Agent configuration
+├── examples/             # Example presentations
 └── README.md             # This file
 ```
 
