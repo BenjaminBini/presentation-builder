@@ -1,6 +1,6 @@
 // src/templates/components/basic.js
 // Basic slide templates: title, section, bullets, quote
-import { escapeHtml } from '../../utils/html.js';
+import { escapeHtml, sanitizeImageUrl } from '../../utils/html.js';
 import { getGitLabLogo } from '../../utils/svg.js';
 
 /**
@@ -12,8 +12,8 @@ export function renderTitleTemplate(data, colorStyles) {
                 <div class="slide-content template-title" ${colorStyles}>
                     <div class="logo-container" data-editable="image" data-field-key="logo" style="position:relative; transform: scale(${logoScale}); transform-origin: center center;">
                         ${
-                          data.logo
-                            ? `<img src="${data.logo}" class="logo">`
+                          data.logo && sanitizeImageUrl(data.logo)
+                            ? `<img src="${sanitizeImageUrl(data.logo)}" class="logo">`
                             : getGitLabLogo()
                         }
                     </div>
@@ -110,9 +110,9 @@ export function renderQuoteTemplate(data, colorStyles) {
                         <div class="author-info">
                             <div class="author-avatar-container" data-editable="image" data-field-key="authorImage" style="position:relative;">
                                 ${
-                                  data.authorImage
-                                    ? `<img src="${data.authorImage}" class="author-avatar">`
-                                    : `<div class="author-avatar">${initials}</div>`
+                                  data.authorImage && sanitizeImageUrl(data.authorImage)
+                                    ? `<img src="${sanitizeImageUrl(data.authorImage)}" class="author-avatar">`
+                                    : `<div class="author-avatar">${escapeHtml(initials)}</div>`
                                 }
                             </div>
                             <div>

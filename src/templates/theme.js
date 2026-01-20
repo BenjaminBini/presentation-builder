@@ -1,7 +1,6 @@
 // src/templates/theme.js
 // Theme utilities for template rendering - ES Module version
-
-import { getProject } from '../core/state.js';
+// This file should receive data as parameters to stay pure (no core state imports)
 
 // Re-export from legacy config when available
 // @ts-ignore - THEMES is defined in slide-editor-config.js
@@ -13,17 +12,20 @@ const getTemplateColorSettings = () => typeof window !== 'undefined' && window.T
 
 /**
  * Get the current theme colors (base theme + overrides)
+ * @param {Object} [projectTheme] - Optional project theme object { base: string, overrides: Object }
  * @returns {Object} Merged theme colors
  */
-export function getThemeColors() {
-  // Try core state first, fall back to window.currentProject
-  let project = getProject();
-  if (!project || !project.theme) {
-    project = typeof window !== 'undefined' ? window.currentProject : null;
+export function getThemeColors(projectTheme) {
+  // If theme is passed, use it directly (preferred pattern)
+  // Fall back to window.currentProject for backwards compatibility
+  let theme = projectTheme;
+  if (!theme) {
+    const project = typeof window !== 'undefined' ? window.currentProject : null;
+    theme = project?.theme;
   }
   const themes = getThemes();
-  const baseTheme = themes[project?.theme?.base || 'gitlab'];
-  const overrides = project?.theme?.overrides || {};
+  const baseTheme = themes[theme?.base || 'gitlab'];
+  const overrides = theme?.overrides || {};
   const colors = { ...(baseTheme?.colors || {}), ...overrides };
   return colors;
 }

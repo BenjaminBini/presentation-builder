@@ -135,7 +135,7 @@ export function confirmImport() {
                 // Emit PROJECT_LOADED - list.js and preview.js subscribe to this event
                 emit(EventTypes.PROJECT_LOADED, { project });
 
-                // Update editor, header, and theme (keep for now - no subscriptions exist)
+                // Update editor, header, and theme (refresh required for immediate UI update)
                 if (window.renderEditor) window.renderEditor();
                 if (window.updateHeaderTitle) window.updateHeaderTitle();
                 if (window.updateAppThemeColors) window.updateAppThemeColors();

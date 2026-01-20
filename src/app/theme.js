@@ -1,9 +1,44 @@
 // src/app/theme.js
 // Theme selection and color management - ES6 module version
 
+import { registerActions } from '../core/event-delegation.js';
+
 // Use window globals for state access (set by main.js)
 const getCurrentProject = () => window.currentProject;
 const markAsChanged = () => window.markAsChanged && window.markAsChanged();
+
+// ============================================================================
+// ACTION HANDLERS (for event delegation)
+// ============================================================================
+
+/**
+ * Handle theme selection via event delegation
+ */
+function handleSelectTheme(_event, _element, params) {
+  selectTheme(params.theme);
+}
+
+/**
+ * Handle theme color picker toggle via event delegation
+ */
+function handleToggleThemeColorPicker(_event, _element, params) {
+  toggleThemeColorPicker(params.key);
+}
+
+/**
+ * Handle color override reset via event delegation
+ */
+function handleResetColorOverride(event, _element, params) {
+  event.stopPropagation();
+  resetColorOverride(params.key);
+}
+
+// Register theme actions
+registerActions({
+  'select-theme': handleSelectTheme,
+  'toggle-theme-color-picker': handleToggleThemeColorPicker,
+  'reset-color-override': handleResetColorOverride
+});
 
 // Theme color keys that can be overridden
 const THEME_COLOR_KEYS = [
@@ -44,7 +79,7 @@ export function renderThemeSelector() {
     if (!selector) return;
 
     selector.innerHTML = Object.entries(THEMES).map(([key, theme]) => `
-        <button class="theme-option ${key === currentTheme ? 'active' : ''}" onclick="window.selectTheme('${key}')">
+        <button class="theme-option ${key === currentTheme ? 'active' : ''}" data-action="select-theme" data-theme="${key}">
             ${theme.name}
         </button>
     `).join('');
@@ -284,24 +319,30 @@ export function validateAndApplyHex(colorKey, value) {
 // Render dropdown HTML
 export function renderThemeColorDropdown(colorKey, currentValue) {
     return `
-        <div class="theme-color-dropdown" id="themeColorDropdown-${colorKey}" onclick="event.stopPropagation()">
+        <div class="theme-color-dropdown" id="themeColorDropdown-${colorKey}" data-color-key="${colorKey}">
             <div class="color-spectrum-container">
                 <canvas class="color-spectrum" width="200" height="150"></canvas>
                 <div class="color-spectrum-cursor"></div>
             </div>
             <div class="hue-slider-container">
                 <input type="range" class="hue-slider" min="0" max="360" value="0"
-                    oninput="window.updateFromHue('${colorKey}', this.value)">
+                    data-input-action="update-hue" data-key="${colorKey}">
             </div>
             <div class="hex-input-row">
-                <span class="hex-preview-swatch" style="background-color: ${currentValue}" onclick="window.closeAllThemeColorPickers()"></span>
+                <span class="hex-preview-swatch" style="background-color: ${currentValue}" data-action="close-theme-color-pickers"></span>
                 <input type="text" class="hex-input" value="${currentValue}" maxlength="7"
-                    oninput="window.validateAndApplyHex('${colorKey}', this.value)"
-                    onkeydown="if(event.key === 'Enter') { window.validateAndApplyHex('${colorKey}', this.value); window.closeAllThemeColorPickers(); }">
+                    data-input-action="validate-hex" data-key="${colorKey}">
             </div>
         </div>
     `;
 }
+
+// Register additional theme color actions
+registerActions({
+  'close-theme-color-pickers': () => closeAllThemeColorPickers(),
+  'update-hue': (_event, element, params) => updateFromHue(params.key, element.value),
+  'validate-hex': (_event, element, params) => validateAndApplyHex(params.key, element.value)
+});
 
 // Close all dropdowns
 export function closeAllThemeColorPickers() {
@@ -494,13 +535,13 @@ export function renderColorList() {
         const isOverridden = key in overrides;
 
         return `
-            <div class="color-item ${isOverridden ? 'overridden' : ''}" data-color="${key}" onclick="window.toggleThemeColorPicker('${key}')">
+            <div class="color-item ${isOverridden ? 'overridden' : ''}" data-color="${key}" data-action="toggle-theme-color-picker" data-key="${key}">
                 <div class="color-swatch" style="background-color: ${currentValue};"></div>
                 <div class="color-info">
                     <div class="color-name">${COLOR_LABELS[key] || key}</div>
                     <div class="color-value">${currentValue}</div>
                 </div>
-                <button class="color-reset" onclick="event.stopPropagation(); window.resetColorOverride('${key}')" title="Réinitialiser">
+                <button class="color-reset" data-action="reset-color-override" data-key="${key}" title="Réinitialiser">
                     <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
                 </button>
                 ${renderThemeColorDropdown(key, currentValue)}

@@ -4,6 +4,32 @@
 import { getState, setState, setProject, batch, getProject, setSelectedSlideIndex, markAsChanged, clearUnsavedChanges as clearChanges, hideUnsavedAlert, updateSaveButtonState } from '../core/state.js';
 import { emit, EventTypes } from '../core/events.js';
 import { storage, projectExists } from './storage.js';
+import { escapeHtml } from '../utils/html.js';
+import { registerActions } from '../core/event-delegation.js';
+
+// ============================================================================
+// ACTION HANDLERS (for event delegation)
+// ============================================================================
+
+/**
+ * Handle project loading via event delegation
+ */
+function handleLoadProject(_event, _element, params) {
+  loadProject(params.index);
+}
+
+/**
+ * Handle project deletion via event delegation
+ */
+function handleDeleteProject(_event, _element, params) {
+  deleteProject(params.index);
+}
+
+// Register project manager actions
+registerActions({
+  'load-project': handleLoadProject,
+  'delete-project': handleDeleteProject
+});
 
 /**
  * Save current project to localStorage
@@ -493,10 +519,11 @@ function renderProjectList() {
   list.innerHTML = projects.map((project, index) => {
     const isCurrentProject = currentProject?.name && project.name === currentProject.name;
     const slideCount = project.slides?.length || 0;
+    const safeName = escapeHtml(project.name || 'Sans nom');
     return `
     <div class="project-item ${isCurrentProject ? 'current' : ''}" data-index="${index}">
       <div class="project-info">
-        <span class="project-name">${project.name || 'Sans nom'}${isCurrentProject ? '<span class="project-current-badge">Ouvert</span>' : ''}</span>
+        <span class="project-name">${safeName}${isCurrentProject ? '<span class="project-current-badge">Ouvert</span>' : ''}</span>
         <span class="project-meta">
           <svg class="project-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
@@ -505,12 +532,12 @@ function renderProjectList() {
         </span>
       </div>
       <div class="project-actions">
-        <button class="project-btn project-btn-open" onclick="loadProject(${index})" ${isCurrentProject ? 'disabled' : ''} title="Ouvrir">
+        <button class="project-btn project-btn-open" data-action="load-project" data-index="${index}" ${isCurrentProject ? 'disabled' : ''} title="Ouvrir">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
           </svg>
         </button>
-        <button class="project-btn project-btn-delete" onclick="deleteProject(${index})" ${isCurrentProject ? 'disabled' : ''} title="Supprimer">
+        <button class="project-btn project-btn-delete" data-action="delete-project" data-index="${index}" ${isCurrentProject ? 'disabled' : ''} title="Supprimer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
           </svg>

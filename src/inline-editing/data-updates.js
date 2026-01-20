@@ -85,7 +85,7 @@ export function updateSlideData(key, value, index = null, subkey = null) {
   emit(EventTypes.SLIDE_UPDATED, { index: selectedSlideIndex, slide: slides[selectedSlideIndex] });
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex, key, value });
 
-  // Update editor panel (keep for now - no subscription exists yet)
+  // Update editor panel (refresh required for immediate UI update yet)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }

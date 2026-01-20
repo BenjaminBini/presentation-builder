@@ -9,6 +9,9 @@ export function startPresentation() {
         return;
     }
 
+    // Clean up any existing listeners to prevent memory leaks from repeated starts
+    cleanupPresentationListeners();
+
     const selectedIndex = getSelectedSlideIndex();
     set('player.slideIndex', selectedIndex >= 0 ? selectedIndex : 0);
 
@@ -22,21 +25,20 @@ export function startPresentation() {
     updatePlayerControls();
 
     document.addEventListener('keydown', handlePlayerKeydown);
+    window.addEventListener('resize', scalePlayerSlide);
 
     const playerContent = document.querySelector('.player-content');
-    if (playerContent && !get('player.resizeObserver')) {
+    if (playerContent) {
         const observer = new ResizeObserver(() => scalePlayerSlide());
         set('player.resizeObserver', observer);
         observer.observe(playerContent);
     }
-
-    window.addEventListener('resize', scalePlayerSlide);
 }
 
-export function exitPresentation() {
-    const player = document.getElementById('presentationPlayer');
-    if (player) player.classList.remove('active');
-
+/**
+ * Clean up event listeners and observers to prevent memory leaks
+ */
+function cleanupPresentationListeners() {
     document.removeEventListener('keydown', handlePlayerKeydown);
     window.removeEventListener('resize', scalePlayerSlide);
 
@@ -45,6 +47,13 @@ export function exitPresentation() {
         resizeObserver.disconnect();
         set('player.resizeObserver', null);
     }
+}
+
+export function exitPresentation() {
+    const player = document.getElementById('presentationPlayer');
+    if (player) player.classList.remove('active');
+
+    cleanupPresentationListeners();
 
     setSelectedSlideIndex(get('player.slideIndex'));
     if (window.renderSlideList) window.renderSlideList();

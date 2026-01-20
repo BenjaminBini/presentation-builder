@@ -1,6 +1,6 @@
 // src/templates/components/layout.js
 // Layout templates: two-column, image-text
-import { escapeHtml } from '../../utils/html.js';
+import { escapeHtml, sanitizeImageUrl } from '../../utils/html.js';
 
 /**
  * Render two-columns template
@@ -64,8 +64,8 @@ export function renderImageTextTemplate(data, colorStyles) {
                 <div class="slide-content template-image-text" ${colorStyles}>
                     <div class="image-side" data-editable="image" data-field-key="image" style="position:relative;cursor:pointer;">
                         ${
-                          data.image
-                            ? `<img src="${data.image}" alt="${escapeHtml(
+                          data.image && sanitizeImageUrl(data.image)
+                            ? `<img src="${sanitizeImageUrl(data.image)}" alt="${escapeHtml(
                                 data.imageAlt || ""
                               )}">`
                             : '<div class="image-placeholder"><svg style="width:64px;height:64px;stroke:currentColor;stroke-width:1.5;fill:none;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>'

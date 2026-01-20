@@ -3,6 +3,11 @@
 
 import { escapeHtml } from '../utils/html.js';
 
+function dismissErrorOverlay() {
+    const overlay = document.getElementById('errorOverlay');
+    if (overlay) overlay.remove();
+}
+
 function showErrorOverlay(message, source, lineno, colno) {
     // Remove existing overlay if any
     const existing = document.getElementById('errorOverlay');
@@ -22,11 +27,15 @@ function showErrorOverlay(message, source, lineno, colno) {
             <h2>Une erreur est survenue</h2>
             <p class="error-message">${escapeHtml(message)}</p>
             ${source ? `<p class="error-source">${escapeHtml(source)}${lineno ? `:${lineno}` : ''}${colno ? `:${colno}` : ''}</p>` : ''}
-            <button class="btn btn-primary" onclick="document.getElementById('errorOverlay').remove()">
+            <button class="btn btn-primary" data-action="dismiss-error-overlay">
                 Continuer
             </button>
         </div>
     `;
+
+    // Add click handler directly since this is created dynamically
+    overlay.querySelector('[data-action="dismiss-error-overlay"]')
+        ?.addEventListener('click', dismissErrorOverlay);
 
     // Add styles
     overlay.style.cssText = `

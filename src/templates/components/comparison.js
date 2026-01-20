@@ -1,6 +1,6 @@
 // src/templates/components/comparison.js
 // Comparison and table templates: comparison, mermaid, drawio
-import { escapeHtml } from '../../utils/html.js';
+import { escapeHtml, sanitizeImageUrl } from '../../utils/html.js';
 
 /**
  * Render comparison template
@@ -142,8 +142,8 @@ export function renderDrawioTemplate(data, colorStyles) {
                     )}</p>
                     <div class="drawio-container" data-editable="drawio" data-field-key="diagram">
                         ${
-                          data.diagram
-                            ? `<img class="drawio-svg" src="${escapeHtml(
+                          data.diagram && sanitizeImageUrl(data.diagram)
+                            ? `<img class="drawio-svg" src="${sanitizeImageUrl(
                                 data.diagram
                               )}" alt="Diagram">`
                             : `<div class="drawio-placeholder">${placeholderSvg}<p>Cliquez pour créer un diagramme</p></div>`

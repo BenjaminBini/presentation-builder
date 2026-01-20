@@ -4,6 +4,67 @@
 import { TEMPLATES, TEMPLATE_COLOR_SETTINGS, COLOR_LABELS, GRAY_LABELS } from '../config/index.js';
 import { renderTemplateSettings } from './template-settings.js';
 import { getProject, getSelectedSlideIndex } from '../core/state.js';
+import { registerActions } from '../core/event-delegation.js';
+
+// ============================================================================
+// ACTION HANDLERS (for event delegation)
+// ============================================================================
+
+/**
+ * Handle toggle color picker via event delegation
+ */
+function handleToggleColorPicker(_event, _element, params) {
+  if (typeof window.toggleColorPicker === 'function') {
+    window.toggleColorPicker(params.key);
+  }
+}
+
+/**
+ * Handle select slide color via event delegation
+ */
+function handleSelectSlideColor(event, _element, params) {
+  event.stopPropagation();
+  if (typeof window.selectSlideColor === 'function') {
+    window.selectSlideColor(params.key, params.color);
+  }
+}
+
+/**
+ * Handle reset slide color via event delegation
+ */
+function handleResetSlideColor(event, _element, params) {
+  event.stopPropagation();
+  if (typeof window.resetSlideColor === 'function') {
+    window.resetSlideColor(params.key);
+  }
+}
+
+/**
+ * Handle showing color name on hover
+ */
+function handleShowColorName(_event, element, _params) {
+  if (typeof window.showColorName === 'function') {
+    window.showColorName(element);
+  }
+}
+
+/**
+ * Handle hiding color name on hover leave
+ */
+function handleHideColorName(_event, element, _params) {
+  if (typeof window.hideColorName === 'function') {
+    window.hideColorName(element);
+  }
+}
+
+// Register panel actions
+registerActions({
+  'toggle-color-picker': handleToggleColorPicker,
+  'select-slide-color': handleSelectSlideColor,
+  'reset-slide-color': handleResetSlideColor,
+  'show-color-name': handleShowColorName,
+  'hide-color-name': handleHideColorName
+});
 
 // Current active tab
 let currentEditorTab = 'properties';
@@ -75,9 +136,11 @@ function renderColorSections(key, currentValue) {
                                 class="color-swatch-btn ${currentValue === color ? 'selected' : ''}"
                                 style="background-color: var(--${color});"
                                 data-color-name="${colorLabel}"
-                                onclick="event.stopPropagation(); selectSlideColor('${key}', '${color}')"
-                                onmouseenter="showColorName(this)"
-                                onmouseleave="hideColorName(this)">
+                                data-action="select-slide-color"
+                                data-key="${key}"
+                                data-color="${color}"
+                                data-hover-action="show-color-name"
+                                data-hover-leave-action="hide-color-name">
                             </button>
                         `;
                     }).join('')}
@@ -173,14 +236,14 @@ export function renderEditor(animationDirection = null) {
             const colorName = COLOR_LABELS[currentValue] || GRAY_LABELS[currentValue] || currentValue;
 
             return `
-                <div class="color-item ${isCustom ? 'overridden' : ''}" data-color="${setting.key}" onclick="toggleColorPicker('${setting.key}')">
+                <div class="color-item ${isCustom ? 'overridden' : ''}" data-color="${setting.key}" data-action="toggle-color-picker" data-key="${setting.key}">
                     <div class="color-swatch" style="background-color: var(--${currentValue});"></div>
                     <div class="color-info">
                         <div class="color-name">${setting.label}</div>
                         <div class="color-value">${colorName}</div>
                     </div>
                     ${isCustom ? `
-                        <button class="color-reset" onclick="event.stopPropagation(); resetSlideColor('${setting.key}')" title="Réinitialiser">
+                        <button class="color-reset" data-action="reset-slide-color" data-key="${setting.key}" title="Réinitialiser">
                             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
                         </button>
                     ` : ''}

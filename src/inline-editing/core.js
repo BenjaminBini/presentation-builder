@@ -32,6 +32,15 @@ class InlineEditor {
     this._boundHandleDocumentClick = null;
     this._boundHandleBlur = null;
 
+    // Bound preview event handlers (for cleanup on destroy)
+    this._boundHandlePreviewClick = null;
+    this._boundHandleAnnotationMouseDown = null;
+    this._boundHandleAnnotationMouseMove = null;
+    this._boundHandleAnnotationMouseUp = null;
+    this._boundHandleAnnotationMouseLeave = null;
+    this._previewContainer = null;
+    this._initialized = false;
+
     // Image picker state
     this.imagePickerFieldKey = null;
     this.imagePickerFieldIndex = null;
@@ -55,43 +64,77 @@ class InlineEditor {
    * Initialize inline editor with event listeners
    */
   init() {
-    const previewContainer = document.getElementById('previewSlide');
-    if (!previewContainer) {
-      console.warn('InlineEditor: Preview container not found');
+    // Prevent double initialization (memory leak prevention)
+    if (this._initialized) {
       return;
     }
 
-    // Add click listener for inline editing
-    previewContainer.addEventListener('click', (event) => {
-      this.handlePreviewClick(event);
-    });
+    const previewContainer = document.getElementById('previewSlide');
+    if (!previewContainer) {
+      console.warn('InlineEditor: Preview container not found - inline editing disabled');
+      return;
+    }
 
-    // Add mousedown/mousemove/mouseup for annotation drag selection
-    previewContainer.addEventListener('mousedown', (event) => {
-      this.handleAnnotationMouseDown(event);
-    });
+    this._previewContainer = previewContainer;
 
-    previewContainer.addEventListener('mousemove', (event) => {
-      this.handleAnnotationMouseMove(event);
-    });
-
-    previewContainer.addEventListener('mouseup', () => {
-      this.handleAnnotationMouseUp();
-    });
-
-    // Cancel selection if mouse leaves the preview
-    previewContainer.addEventListener('mouseleave', () => {
+    // Create bound handlers for proper cleanup
+    this._boundHandlePreviewClick = (event) => this.handlePreviewClick(event);
+    this._boundHandleAnnotationMouseDown = (event) => this.handleAnnotationMouseDown(event);
+    this._boundHandleAnnotationMouseMove = (event) => this.handleAnnotationMouseMove(event);
+    this._boundHandleAnnotationMouseUp = () => this.handleAnnotationMouseUp();
+    this._boundHandleAnnotationMouseLeave = () => {
       if (this.isSelectingAnnotation) {
         this.cancelAnnotationSelection();
       }
-    });
+    };
+
+    // Add event listeners
+    previewContainer.addEventListener('click', this._boundHandlePreviewClick);
+    previewContainer.addEventListener('mousedown', this._boundHandleAnnotationMouseDown);
+    previewContainer.addEventListener('mousemove', this._boundHandleAnnotationMouseMove);
+    previewContainer.addEventListener('mouseup', this._boundHandleAnnotationMouseUp);
+    previewContainer.addEventListener('mouseleave', this._boundHandleAnnotationMouseLeave);
 
     // Initialize image drop zone (if available globally)
     if (typeof window.initImageDropZone === 'function') {
       window.initImageDropZone();
     }
 
-    console.log('InlineEditor initialized');
+    this._initialized = true;
+  }
+
+  /**
+   * Destroy inline editor and clean up event listeners
+   * Call this before reinitializing or when the component is unmounted
+   */
+  destroy() {
+    if (!this._initialized || !this._previewContainer) {
+      return;
+    }
+
+    // Remove all event listeners
+    this._previewContainer.removeEventListener('click', this._boundHandlePreviewClick);
+    this._previewContainer.removeEventListener('mousedown', this._boundHandleAnnotationMouseDown);
+    this._previewContainer.removeEventListener('mousemove', this._boundHandleAnnotationMouseMove);
+    this._previewContainer.removeEventListener('mouseup', this._boundHandleAnnotationMouseUp);
+    this._previewContainer.removeEventListener('mouseleave', this._boundHandleAnnotationMouseLeave);
+
+    // Clear references
+    this._boundHandlePreviewClick = null;
+    this._boundHandleAnnotationMouseDown = null;
+    this._boundHandleAnnotationMouseMove = null;
+    this._boundHandleAnnotationMouseUp = null;
+    this._boundHandleAnnotationMouseLeave = null;
+    this._previewContainer = null;
+    this._initialized = false;
+  }
+
+  /**
+   * Reinitialize the editor (destroy and init)
+   */
+  reinit() {
+    this.destroy();
+    this.init();
   }
 
   // ========================================================================

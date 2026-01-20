@@ -134,7 +134,7 @@ export function confirmCodeEdit() {
           slideData.showEllipsisAfter = showEllipsisAfterCheckbox.checked;
         }
 
-        // Refresh editor panel (keep for now - no subscription exists)
+        // Refresh editor panel (refresh required for immediate UI update)
         if (typeof window.renderEditor === 'function') {
           window.renderEditor();
         }

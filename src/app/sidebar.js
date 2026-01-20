@@ -2,6 +2,29 @@
 // Sidebar UI, tabs, and settings panel
 
 import { get, set } from '../core/state.js';
+import { registerActions } from '../core/event-delegation.js';
+
+// ============================================================================
+// ACTION HANDLERS (for event delegation)
+// ============================================================================
+
+/**
+ * Handle template selection via event delegation
+ */
+function handleSelectTemplate(_event, _element, params) {
+  if (typeof window.selectTemplate === 'function') {
+    window.selectTemplate(params.template);
+  }
+}
+
+// Register sidebar actions
+registerActions({
+  'select-template': handleSelectTemplate
+});
+
+// ============================================================================
+// TAB SWITCHING
+// ============================================================================
 
 export function switchSidebarTab(tab) {
     const previousTab = get('ui.currentSidebarTab') || 'slides';
@@ -73,7 +96,7 @@ export function initTemplateGrid() {
     if (!grid) return;
 
     grid.innerHTML = Object.entries(TEMPLATES).map(([key, template]) => `
-        <div class="template-option" data-template="${key}" onclick="window.selectTemplate('${key}')">
+        <div class="template-option" data-template="${key}" data-action="select-template">
             <div class="template-option-icon">${template.icon}</div>
             <div class="template-option-name">${template.name}</div>
         </div>

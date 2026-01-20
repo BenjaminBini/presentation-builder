@@ -65,7 +65,7 @@ export function deleteListItem(listKey, itemIndex) {
   setHasUnsavedChanges(true);
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex });
 
-  // Refresh editor panel (keep for now - no subscription exists)
+  // Refresh editor panel (refresh required for immediate UI update)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }
@@ -159,7 +159,7 @@ export function addListItem(listKey, listType) {
   setHasUnsavedChanges(true);
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex });
 
-  // Refresh editor panel (keep for now - no subscription exists)
+  // Refresh editor panel (refresh required for immediate UI update)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }
@@ -205,7 +205,7 @@ export function addTableColumn() {
   setHasUnsavedChanges(true);
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex });
 
-  // Refresh editor panel (keep for now - no subscription exists)
+  // Refresh editor panel (refresh required for immediate UI update)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }
@@ -259,7 +259,7 @@ export function deleteTableColumn(colIndex) {
   setHasUnsavedChanges(true);
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex });
 
-  // Refresh editor panel (keep for now - no subscription exists)
+  // Refresh editor panel (refresh required for immediate UI update)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }
@@ -299,7 +299,7 @@ export function addTableRow() {
   setHasUnsavedChanges(true);
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex });
 
-  // Refresh editor panel (keep for now - no subscription exists)
+  // Refresh editor panel (refresh required for immediate UI update)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }
@@ -337,7 +337,7 @@ export function deleteTableRow(rowIndex) {
   setHasUnsavedChanges(true);
   emit(EventTypes.SLIDE_DATA_CHANGED, { index: selectedSlideIndex });
 
-  // Refresh editor panel (keep for now - no subscription exists)
+  // Refresh editor panel (refresh required for immediate UI update)
   if (typeof window.renderEditor === 'function') {
     window.renderEditor();
   }

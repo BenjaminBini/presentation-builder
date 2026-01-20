@@ -91,8 +91,8 @@ class DriveAuth {
     if (this.gapiInitialized && this.gisInitialized) {
       this.triggerCallbacks('onReady');
 
-      // Try to restore session
-      const savedToken = localStorage.getItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
+      // Try to restore session from sessionStorage (more secure than localStorage)
+      const savedToken = sessionStorage.getItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
       if (savedToken) {
         this.restoreSession(savedToken);
       }
@@ -109,8 +109,8 @@ class DriveAuth {
       return;
     }
 
-    // Save token
-    localStorage.setItem(
+    // Save token to sessionStorage (more secure - cleared on browser close)
+    sessionStorage.setItem(
       DriveConfig.STORAGE_KEYS.AUTH_TOKEN,
       JSON.stringify(response)
     );
@@ -137,13 +137,13 @@ class DriveAuth {
 
       // Check if token is expired
       if (token.expires_in) {
-        const savedAt = localStorage.getItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
+        const savedAt = sessionStorage.getItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
         if (savedAt) {
-          const elapsed = (Date.now() - parseInt(savedAt)) / 1000;
+          const elapsed = (Date.now() - parseInt(savedAt, 10)) / 1000;
           if (elapsed > token.expires_in) {
             // Token expired, need to re-auth
-            localStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
-            localStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
+            sessionStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
+            sessionStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
             return;
           }
         }
@@ -154,8 +154,8 @@ class DriveAuth {
       this.triggerCallbacks('onSignIn', this.currentUser);
     } catch (error) {
       console.error('Session restore error:', error);
-      localStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
-      localStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
+      sessionStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
+      sessionStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
     }
   }
 
@@ -202,7 +202,7 @@ class DriveAuth {
     }
 
     // Save current time for token expiration calculation
-    localStorage.setItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time', Date.now().toString());
+    sessionStorage.setItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time', Date.now().toString());
 
     if (gapi.client.getToken() === null) {
       // First time - prompt for consent
@@ -220,14 +220,14 @@ class DriveAuth {
     const token = gapi.client.getToken();
     if (token) {
       google.accounts.oauth2.revoke(token.access_token, () => {
-        console.log('Token revoked');
+        // Token revoked successfully
       });
       gapi.client.setToken(null);
     }
 
     // Clear storage
-    localStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
+    sessionStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN);
+    sessionStorage.removeItem(DriveConfig.STORAGE_KEYS.AUTH_TOKEN + '_time');
 
     this.currentUser = null;
     this.tokenExpiresAt = null;

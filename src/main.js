@@ -31,6 +31,9 @@ import { emit, on, off, once, EventTypes } from './core/events.js';
 // Error handler
 import { initErrorHandler } from './core/error-handler.js';
 
+// Event delegation
+import { initEventDelegation } from './core/event-delegation.js';
+
 // Templates
 import { renderTemplate } from './templates/renderer.js';
 import { getPreviewStyles } from './templates/preview-styles.js';
@@ -264,6 +267,9 @@ function deleteSlideAt(index) {
 function initializeApp() {
     initErrorHandler();
 
+    // Initialize event delegation for data-action handlers
+    initEventDelegation();
+
     // Initialize event subscriptions for event-driven UI
     initPreviewSubscriptions();
     initSlideListSubscriptions();
@@ -445,5 +451,3 @@ if (document.readyState === 'loading') {
 } else {
     initializeApp();
 }
-
-console.log('Presentation Builder loaded (ES6 modules)');

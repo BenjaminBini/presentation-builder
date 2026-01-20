@@ -3,6 +3,57 @@
 
 import { COLOR_LABELS, GRAY_LABELS } from '../config/index.js';
 import { getProject, getSelectedSlideIndex, markAsChanged } from '../core/state.js';
+import { registerActions } from '../core/event-delegation.js';
+
+// ============================================================================
+// ACTION HANDLERS (for event delegation)
+// ============================================================================
+
+/**
+ * Handle color selection via event delegation
+ */
+function handleSelectColor(event, _element, params) {
+  event.stopPropagation();
+  selectSlideColor(params.key, params.color);
+}
+
+/**
+ * Handle toggle color picker via event delegation
+ */
+function handleToggleColorPicker(_event, _element, params) {
+  toggleColorPicker(params.key);
+}
+
+/**
+ * Handle reset color via event delegation
+ */
+function handleResetColor(event, _element, params) {
+  event.stopPropagation();
+  resetSlideColor(params.key);
+}
+
+/**
+ * Handle showing color name on hover
+ */
+function handleShowColorName(_event, element, _params) {
+  showColorName(element);
+}
+
+/**
+ * Handle hiding color name on hover leave
+ */
+function handleHideColorName(_event, element, _params) {
+  hideColorName(element);
+}
+
+// Register color selector actions
+registerActions({
+  'select-color': handleSelectColor,
+  'toggle-inline-color-picker': handleToggleColorPicker,
+  'reset-inline-color': handleResetColor,
+  'show-color-name': handleShowColorName,
+  'hide-color-name': handleHideColorName
+});
 
 // Color sections for organized display
 export const COLOR_SECTIONS = {
@@ -47,9 +98,11 @@ export function renderInlineColorSelector(key, label, currentValue, _defaultValu
                                 class="color-swatch-btn ${currentValue === color ? 'selected' : ''}"
                                 style="background-color: var(--${color});"
                                 data-color-name="${colorLabel}"
-                                onclick="selectSlideColor('${key}', '${color}')"
-                                onmouseenter="showColorName(this)"
-                                onmouseleave="hideColorName(this)">
+                                data-action="select-color"
+                                data-key="${key}"
+                                data-color="${color}"
+                                data-hover-action="show-color-name"
+                                data-hover-leave-action="hide-color-name">
                             </button>
                         `;
                     }).join('')}
@@ -59,7 +112,7 @@ export function renderInlineColorSelector(key, label, currentValue, _defaultValu
     };
 
     const resetBtn = isCustom ? `
-        <button class="inline-color-reset" onclick="event.stopPropagation(); resetSlideColor('${key}')" title="Réinitialiser">
+        <button class="inline-color-reset" data-action="reset-inline-color" data-key="${key}" title="Réinitialiser">
             <svg class="icon" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
         </button>
     ` : '';
@@ -69,7 +122,7 @@ export function renderInlineColorSelector(key, label, currentValue, _defaultValu
             <span class="inline-color-label">${label}</span>
             <div class="inline-color-controls">
                 <span class="inline-color-btn-wrapper">
-                    <button class="inline-color-btn" onclick="toggleColorPicker('${key}')" title="${label}">
+                    <button class="inline-color-btn" data-action="toggle-inline-color-picker" data-key="${key}" title="${label}">
                         <span class="inline-color-swatch" style="background-color: var(--${currentValue});"></span>
                     </button>
                     ${resetBtn}
