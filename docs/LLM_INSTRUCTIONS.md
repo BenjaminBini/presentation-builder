@@ -459,7 +459,7 @@ The system can generate:
 To generate static HTML from JSON:
 
 ```bash
-node slide-generator/index.js presentation-data.json output.html
+node slide-generator/index.js examples/presentation-data.json output.html
 ```
 
 Or import and use programmatically:

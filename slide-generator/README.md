@@ -20,7 +20,7 @@ This module is split into smaller, maintainable files (all under 400 lines):
 # Basic usage
 node slide-generator/index.js input.json output.html
 
-# Default files (presentation-data.json -> presentation.html)
+# Default files (examples/presentation-data.json -> presentation.html)
 node slide-generator/index.js
 ```
 

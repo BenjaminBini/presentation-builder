@@ -6,7 +6,7 @@
  * Usage: node slide-generator/index.js [input.json] [output.html]
  *
  * If no arguments provided:
- *   - Input: presentation-data.json
+ *   - Input: examples/presentation-data.json
  *   - Output: presentation.html
  */
 
@@ -17,7 +17,7 @@ const { generateSlidesHtml } = require('./templates');
 const { CSS_STYLES } = require('./styles');
 
 // Get command line arguments
-const inputFile = process.argv[2] || 'presentation-data.json';
+const inputFile = process.argv[2] || 'examples/presentation-data.json';
 const outputFile = process.argv[3] || 'presentation.html';
 
 /**
