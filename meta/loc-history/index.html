@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Commit Stats - Lines Added/Removed</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7d8590;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #161b22;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            border: 1px solid #30363d;
+        }
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            background: #1c2128;
+            color: #7d8590;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            border-color: #484f58;
+            color: #adbac7;
+        }
+        .filter-btn.active {
+            border-color: var(--filter-color, #58a6ff);
+            background: var(--filter-bg, rgba(88, 166, 255, 0.15));
+            color: #e6edf3;
+        }
+        .filter-btn .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #484f58;
+            transition: background 0.2s;
+        }
+        .filter-btn.active .dot {
+            background: var(--filter-color, #58a6ff);
+        }
+        .filter-btn[data-type="js"] { --filter-color: #f1e05a; --filter-bg: rgba(241, 224, 90, 0.15); }
+        .filter-btn[data-type="html"] { --filter-color: #e34c26; --filter-bg: rgba(227, 76, 38, 0.15); }
+        .filter-btn[data-type="css"] { --filter-color: #563d7c; --filter-bg: rgba(86, 61, 124, 0.15); }
+        .filter-btn[data-type="json"] { --filter-color: #40d47e; --filter-bg: rgba(64, 212, 126, 0.15); }
+        .filter-btn[data-type="md"] { --filter-color: #083fa1; --filter-bg: rgba(8, 63, 161, 0.15); }
+        .filter-btn[data-type="sh"] { --filter-color: #89e051; --filter-bg: rgba(137, 224, 81, 0.15); }
+        .x-axis-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .x-axis-label {
+            color: #adbac7;
+            font-size: 12px;
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-track {
+            width: 28px;
+            height: 14px;
+            background: #30363d;
+            border-radius: 7px;
+            position: relative;
+            transition: background 0.2s;
+        }
+        .toggle-thumb {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #7d8590;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s, background 0.2s;
+        }
+        .toggle-switch.active .toggle-track {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .toggle-switch.active .toggle-thumb {
+            left: 16px;
+            background: #fff;
+        }
+        .toggle-label {
+            color: #7d8590;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+        .toggle-switch.active .toggle-label {
+            color: #e6edf3;
+        }
+        .toggle-switch:hover .toggle-thumb {
+            background: #adbac7;
+        }
+        .toggle-switch.active:hover .toggle-thumb {
+            background: #fff;
+        }
+
+        svg { display: block; margin: 0 auto; overflow: visible; }
+        svg text { fill: #adbac7; }
+        svg text.axis { fill: #adbac7; font-size: 11px; }
+        svg text.axis.dimmed { fill: #484f58; }
+        .hover-zone.dimmed { opacity: 0.4; }
+        svg line.axis, svg path.axis { stroke: #30363d; }
+        svg line.grid { stroke: #21262d; }
+        .bar-added { fill: #238636; }
+        .bar-deleted { fill: #da3633; }
+        .hover-zone { cursor: pointer; }
+        .hover-zone:hover { fill: rgba(255,255,255,0.03); }
+        .loc-line { fill: none; stroke: #a371f7; stroke-width: 1.5; pointer-events: none; }
+        .loc-dot { fill: #a371f7; pointer-events: none; }
+        .loc-dot.dimmed { fill: #484f58; }
+        .tooltip {
+            position: fixed;
+            background: #1c2128;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .tooltip.visible { opacity: 1; }
+        .tooltip .hash { color: #58a6ff; font-family: monospace; font-size: 14px; }
+        .tooltip .stats { margin: 8px 0; display: flex; gap: 16px; }
+        .tooltip .added { color: #3fb950; font-weight: 600; }
+        .tooltip .deleted { color: #f85149; font-weight: 600; }
+        .tooltip .breakdown { margin-top: 8px; padding-top: 8px; border-top: 1px solid #30363d; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 11px; }
+        .tooltip .breakdown-item { display: flex; align-items: center; gap: 4px; color: #7d8590; }
+        .tooltip .breakdown-item .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .tooltip .breakdown-item .values { color: #e6edf3; }
+        .tooltip .msg { color: #7d8590; font-size: 12px; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 8px; }
+        .tooltip .cumulative { color: #a371f7; font-weight: 600; }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #7d8590;
+        }
+        .legend-item { display: flex; align-items: center; gap: 10px; }
+        .legend-box { width: 16px; height: 16px; border-radius: 3px; }
+        .legend-box.added { background: #238636; }
+        .legend-box.deleted { background: #da3633; }
+        .legend-line { width: 20px; height: 3px; background: #a371f7; border-radius: 2px; }
+        .summary {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #30363d;
+        }
+        .summary-item { text-align: center; }
+        .summary-value { font-size: 24px; font-weight: 600; }
+        .summary-value.added { color: #3fb950; }
+        .summary-value.deleted { color: #f85149; }
+        .summary-value.net { color: #58a6ff; }
+        .summary-label { color: #7d8590; font-size: 13px; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Git Commit Statistics</h1>
+    <p class="subtitle">Presentation Builder - Lines Added & Removed per Commit</p>
+
+    <div class="chart-container">
+        <div class="filters">
+            <button class="filter-btn active" data-type="js"><span class="dot"></span>JavaScript</button>
+            <button class="filter-btn active" data-type="html"><span class="dot"></span>HTML</button>
+            <button class="filter-btn active" data-type="css"><span class="dot"></span>CSS</button>
+            <button class="filter-btn active" data-type="json"><span class="dot"></span>JSON</button>
+            <button class="filter-btn active" data-type="md"><span class="dot"></span>Markdown</button>
+            <button class="filter-btn active" data-type="sh"><span class="dot"></span>Shell</button>
+        </div>
+
+        <svg id="chart" width="1340" height="560"></svg>
+
+        <div class="x-axis-row">
+            <span class="x-axis-label">Commits (chronological order)</span>
+            <label class="toggle-switch" id="hideNoDiff">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label">Hide empty</span>
+            </label>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-box added"></div> Lines Added</div>
+            <div class="legend-item"><div class="legend-box deleted"></div> Lines Removed</div>
+            <div class="legend-item"><div class="legend-line"></div> Total LOC</div>
+        </div>
+        <div class="summary">
+            <div class="summary-item">
+                <div class="summary-value added" id="totalAdded">0</div>
+                <div class="summary-label">Total Lines Added</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value deleted" id="totalDeleted">0</div>
+                <div class="summary-label">Total Lines Removed</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value net" id="netChange">0</div>
+                <div class="summary-label">Net Change</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const data = [
+            { hash: "491d258", date: "2026-01-15", js: {a:3354,d:0}, html: {a:230,d:0}, css: {a:1669,d:0}, json: {a:196,d:0}, md: {a:580,d:0}, sh: {a:0,d:0}, msg: "Initial commit: Presentation Builder" },
+            { hash: "f73b170", date: "2026-01-15", js: {a:170,d:1}, html: {a:64,d:0}, css: {a:228,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add import popup with JSON code input and file drop zone" },
+            { hash: "634026b", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add GitHub Action for PR preview deployments" },
+            { hash: "cacf212", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add GitHub Actions workflow for static site deployment" },
+            { hash: "8d732b3", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add GitHub Pages deployment workflow using gh-pages branch" },
+            { hash: "e31aa37", date: "2026-01-16", js: {a:1316,d:65}, html: {a:93,d:1}, css: {a:600,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add inline editing improvements and annotation controls" },
+            { hash: "d3aec24", date: "2026-01-16", js: {a:4,d:4}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Increase contrast for code templates" },
+            { hash: "57c1dd0", date: "2026-01-16", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Fix code window titlebar contrast" },
+            { hash: "e6d9bc9", date: "2026-01-16", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Lighten code window background" },
+            { hash: "52ac1a6", date: "2026-01-16", js: {a:145,d:130}, html: {a:1,d:1}, css: {a:277,d:269}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Refactor CSS variables to semantic naming convention" },
+            { hash: "5de4c9e", date: "2026-01-16", js: {a:1910,d:431}, html: {a:78,d:44}, css: {a:2328,d:1381}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add draw.io template, improve UI density and fix delete buttons" },
+            { hash: "3d00487", date: "2026-01-16", js: {a:6669,d:5021}, html: {a:55,d:7}, css: {a:3472,d:3452}, json: {a:0,d:0}, md: {a:345,d:6}, sh: {a:0,d:0}, msg: "Refactor codebase into modular architecture" },
+            { hash: "edf6299", date: "2026-01-17", js: {a:3,d:0}, html: {a:0,d:0}, css: {a:85,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Fix save status indicator initialization" },
+            { hash: "d1c7088", date: "2026-01-17", js: {a:19,d:6}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "fix: critical bug fixes in inline editing and file import" },
+            { hash: "ba41b8d", date: "2026-01-17", js: {a:40,d:10}, html: {a:5,d:4}, css: {a:85,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: implement visual save status indicator" },
+            { hash: "9aec4ae", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:219,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "chore: clean up repository and update gitignore" },
+            { hash: "b7c9a98", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "fix: restore specific Claude Flow ignore patterns in .gitignore" },
+            { hash: "8383097", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:352,d:0}, sh: {a:0,d:0}, msg: "docs: add Claude Code configuration and SPARC methodology" },
+            { hash: "cc3afc1", date: "2026-01-17", js: {a:3,d:0}, html: {a:0,d:0}, css: {a:1,d:1}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Merge branch 'feature/save-label'" },
+            { hash: "68288b4", date: "2026-01-17", js: {a:20,d:13}, html: {a:120,d:3}, css: {a:79,d:47}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: improve sidebar collapse UX and slide item design" },
+            { hash: "ee5815c", date: "2026-01-18", js: {a:2041,d:106}, html: {a:73,d:32}, css: {a:1086,d:169}, json: {a:0,d:0}, md: {a:2294,d:0}, sh: {a:0,d:0}, msg: "feat: add logo support to section template and improve editor panel" },
+            { hash: "d46d7d8", date: "2026-01-18", js: {a:61,d:1}, html: {a:1003,d:446}, css: {a:179,d:30}, json: {a:0,d:0}, md: {a:394,d:0}, sh: {a:0,d:0}, msg: "feat: modernize UI with desktop app-like buttons and inputs" },
+            { hash: "99b9bd3", date: "2026-01-18", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:12,d:0}, sh: {a:0,d:0}, msg: "docs: add quick start section to agents.md" },
+            { hash: "3f20ba8", date: "2026-01-18", js: {a:666,d:46}, html: {a:33,d:3}, css: {a:638,d:155}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: replace native color picker with custom dropdown picker" },
+            { hash: "bd02e3b", date: "2026-01-20", js: {a:9180,d:6914}, html: {a:115,d:112}, css: {a:319,d:190}, json: {a:3,d:3}, md: {a:652,d:2435}, sh: {a:501,d:0}, msg: "docs(agent): update documentation" },
+            { hash: "93a6621", date: "2026-01-20", js: {a:1772,d:1063}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: comprehensive codebase improvements" },
+            { hash: "027156c", date: "2026-01-20", js: {a:1645,d:1490}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: implement clean layer separation architecture" },
+            { hash: "37b8cc8", date: "2026-01-20", js: {a:703,d:11}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: add SVG to Draw.io converter with embedded connection support" },
+            { hash: "b89a355", date: "2026-01-20", js: {a:0,d:780}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:415}, md: {a:0,d:0}, sh: {a:0,d:501}, msg: "chore: remove legacy and unused files" },
+            { hash: "afa6391", date: "2026-01-20", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:5,d:4}, sh: {a:0,d:0}, msg: "docs: update paths to examples folder" },
+            { hash: "883abb4", date: "2026-01-20", js: {a:61,d:19}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: improve presentation app layer" },
+            { hash: "ff8331e", date: "2026-01-20", js: {a:7,d:7}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: fix import paths in editor and templates" },
+            { hash: "2c168a4", date: "2026-01-20", js: {a:7,d:5}, html: {a:1,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: add favicon and export new modal functions" },
+            { hash: "bc2286d", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:415,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "chore: move example presentations to examples folder" },
+            { hash: "4a7f8a4", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:1084,d:0}, msg: "chore: add utility scripts" },
+            { hash: "58b9494", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:1230,d:0}, sh: {a:0,d:0}, msg: "docs: add code review and security audit reports" }
+        ];
+
+        const fileTypes = ['js', 'html', 'css', 'json', 'md', 'sh'];
+        const typeColors = {
+            js: '#f1e05a',
+            html: '#e34c26',
+            css: '#563d7c',
+            json: '#40d47e',
+            md: '#083fa1',
+            sh: '#89e051'
+        };
+
+        let activeTypes = new Set(fileTypes);
+        let hideNoDiff = false;
+
+        // Filter buttons
+        const filterBtns = document.querySelectorAll('.filter-btn[data-type]');
+
+        function updateFilterButtons() {
+            filterBtns.forEach(btn => {
+                btn.classList.toggle('active', activeTypes.has(btn.dataset.type));
+            });
+        }
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.type;
+                const allSelected = activeTypes.size === fileTypes.length;
+                const onlyThisSelected = activeTypes.size === 1 && activeTypes.has(type);
+
+                if (onlyThisSelected) {
+                    // Clicking the only selected one → select all
+                    activeTypes = new Set(fileTypes);
+                } else {
+                    // Select only this one
+                    activeTypes = new Set([type]);
+                }
+
+                updateFilterButtons();
+                updateChart();
+            });
+        });
+
+        // Hide no-diff toggle
+        document.getElementById('hideNoDiff').addEventListener('click', () => {
+            hideNoDiff = !hideNoDiff;
+            document.getElementById('hideNoDiff').classList.toggle('active', hideNoDiff);
+            updateChart();
+        });
+
+        function getFilteredTotals(d) {
+            let added = 0, deleted = 0;
+            for (const type of activeTypes) {
+                added += d[type].a;
+                deleted += d[type].d;
+            }
+            return { added, deleted };
+        }
+
+        function updateChart() {
+            // Clear SVG
+            const svg = document.getElementById('chart');
+            svg.innerHTML = '';
+
+            const margin = { top: 30, right: 80, bottom: 130, left: 80 };
+            const width = 1340 - margin.left - margin.right;
+            const height = 560 - margin.top - margin.bottom;
+
+            // Calculate filtered data
+            let filteredData = data.map((d, i) => {
+                const totals = getFilteredTotals(d);
+                return { ...d, added: totals.added, deleted: totals.deleted, originalIndex: i };
+            });
+
+            // Hide empty commits if toggle is active
+            if (hideNoDiff) {
+                filteredData = filteredData.filter(d => d.added > 0 || d.deleted > 0);
+            }
+
+            // Handle empty data
+            if (filteredData.length === 0) {
+                const emptyText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                emptyText.setAttribute('x', margin.left + width / 2);
+                emptyText.setAttribute('y', margin.top + height / 2);
+                emptyText.setAttribute('text-anchor', 'middle');
+                emptyText.setAttribute('fill', '#7d8590');
+                emptyText.setAttribute('font-size', '14px');
+                emptyText.textContent = 'No commits to display';
+                svg.appendChild(emptyText);
+                document.getElementById('totalAdded').textContent = '+0';
+                document.getElementById('totalDeleted').textContent = '-0';
+                document.getElementById('netChange').textContent = '0';
+                return;
+            }
+
+            const maxValue = Math.max(...filteredData.map(d => Math.max(d.added, d.deleted)), 1);
+            const barWidth = width / filteredData.length * 0.8;
+            const barGap = width / filteredData.length * 0.2;
+
+            const xScale = (i) => margin.left + i * (barWidth + barGap) + barGap / 2;
+            const yScale = (val) => margin.top + height - (val / maxValue) * height;
+            const barHeight = (val) => (val / maxValue) * height;
+
+            // Grid lines
+            for (let i = 0; i <= 5; i++) {
+                const y = margin.top + (height / 5) * i;
+                const val = maxValue - (maxValue / 5) * i;
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', margin.left);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', margin.left + width);
+                line.setAttribute('y2', y);
+                line.setAttribute('class', 'grid');
+                svg.appendChild(line);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', margin.left - 10);
+                text.setAttribute('y', y + 4);
+                text.setAttribute('text-anchor', 'end');
+                text.setAttribute('class', 'axis');
+                text.setAttribute('fill', '#adbac7');
+                text.textContent = Math.round(val).toLocaleString();
+                svg.appendChild(text);
+            }
+
+            // Y axis title (left - per commit)
+            const yTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            yTitle.setAttribute('x', -height/2 - margin.top);
+            yTitle.setAttribute('y', 25);
+            yTitle.setAttribute('transform', 'rotate(-90)');
+            yTitle.setAttribute('text-anchor', 'middle');
+            yTitle.setAttribute('class', 'axis');
+            yTitle.setAttribute('fill', '#adbac7');
+            yTitle.textContent = 'Lines per Commit';
+            svg.appendChild(yTitle);
+
+            // Calculate cumulative LOC
+            let cumulative = 0;
+            const cumulativeData = filteredData.map(d => {
+                cumulative += (d.added - d.deleted);
+                return cumulative;
+            });
+            const maxCumulative = Math.max(...cumulativeData, 1);
+            const minCumulative = Math.min(...cumulativeData, 0);
+            const cumulativeRange = maxCumulative - minCumulative;
+            const yScaleCumulative = (val) => margin.top + height - ((val - minCumulative) / cumulativeRange) * height;
+
+            // Right Y axis for cumulative LOC
+            for (let i = 0; i <= 5; i++) {
+                const y = margin.top + (height / 5) * i;
+                const val = maxCumulative - (cumulativeRange / 5) * i;
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', margin.left + width + 10);
+                text.setAttribute('y', y + 4);
+                text.setAttribute('text-anchor', 'start');
+                text.setAttribute('class', 'axis');
+                text.setAttribute('fill', '#a371f7');
+                text.textContent = Math.round(val).toLocaleString();
+                svg.appendChild(text);
+            }
+
+            // Y axis title (right - cumulative)
+            const yTitleRight = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            yTitleRight.setAttribute('x', height/2 + margin.top);
+            yTitleRight.setAttribute('y', -margin.left - width - 55);
+            yTitleRight.setAttribute('transform', 'rotate(90)');
+            yTitleRight.setAttribute('text-anchor', 'middle');
+            yTitleRight.setAttribute('class', 'axis');
+            yTitleRight.setAttribute('fill', '#a371f7');
+            yTitleRight.textContent = 'Total LOC';
+            svg.appendChild(yTitleRight);
+
+            // Hover zones (full height invisible rectangles)
+            filteredData.forEach((d, i) => {
+                const x = xScale(i);
+                const isEmpty = d.added === 0 && d.deleted === 0;
+                const hoverZone = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                hoverZone.setAttribute('x', x - barGap / 2);
+                hoverZone.setAttribute('y', margin.top);
+                hoverZone.setAttribute('width', barWidth + barGap);
+                hoverZone.setAttribute('height', height);
+                hoverZone.setAttribute('class', 'hover-zone' + (isEmpty ? ' dimmed' : ''));
+                hoverZone.setAttribute('fill', 'transparent');
+                hoverZone.dataset.index = i;
+                hoverZone.dataset.originalIndex = d.originalIndex;
+                svg.appendChild(hoverZone);
+            });
+
+            // Bars
+            filteredData.forEach((d, i) => {
+                const x = xScale(i);
+                const halfBar = barWidth / 2 - 1;
+
+                if (d.added > 0) {
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', x);
+                    rect.setAttribute('y', yScale(d.added));
+                    rect.setAttribute('width', halfBar);
+                    rect.setAttribute('height', barHeight(d.added));
+                    rect.setAttribute('class', 'bar-added');
+                    rect.setAttribute('rx', 2);
+                    rect.setAttribute('pointer-events', 'none');
+                    svg.appendChild(rect);
+                }
+
+                if (d.deleted > 0) {
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', x + halfBar + 2);
+                    rect.setAttribute('y', yScale(d.deleted));
+                    rect.setAttribute('width', halfBar);
+                    rect.setAttribute('height', barHeight(d.deleted));
+                    rect.setAttribute('class', 'bar-deleted');
+                    rect.setAttribute('rx', 2);
+                    rect.setAttribute('pointer-events', 'none');
+                    svg.appendChild(rect);
+                }
+
+                // X axis label (vertical)
+                const isEmpty = d.added === 0 && d.deleted === 0;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x + barWidth / 2);
+                text.setAttribute('y', margin.top + height + 12);
+                text.setAttribute('text-anchor', 'start');
+                text.setAttribute('transform', `rotate(90, ${x + barWidth / 2}, ${margin.top + height + 12})`);
+                text.setAttribute('class', 'axis' + (isEmpty ? ' dimmed' : ''));
+                text.setAttribute('fill', isEmpty ? '#484f58' : '#adbac7');
+                text.setAttribute('font-size', '9px');
+                text.setAttribute('font-family', 'monospace');
+                text.textContent = d.hash;
+                svg.appendChild(text);
+            });
+
+            // Draw cumulative LOC line
+            let linePath = '';
+            cumulativeData.forEach((val, i) => {
+                const x = xScale(i) + barWidth / 2;
+                const y = yScaleCumulative(val);
+                linePath += (i === 0 ? 'M' : 'L') + ` ${x} ${y}`;
+            });
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            line.setAttribute('d', linePath);
+            line.setAttribute('class', 'loc-line');
+            svg.appendChild(line);
+
+            // Draw dots on the line
+            cumulativeData.forEach((val, i) => {
+                const x = xScale(i) + barWidth / 2;
+                const y = yScaleCumulative(val);
+                const isEmpty = filteredData[i].added === 0 && filteredData[i].deleted === 0;
+
+                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                dot.setAttribute('cx', x);
+                dot.setAttribute('cy', y);
+                dot.setAttribute('r', 2.5);
+                dot.setAttribute('class', 'loc-dot' + (isEmpty ? ' dimmed' : ''));
+                dot.setAttribute('pointer-events', 'none');
+                svg.appendChild(dot);
+            });
+
+            // Date brackets
+            const dateGroups = [];
+            let currentGroup = { date: filteredData[0].date, start: 0, end: 0 };
+
+            filteredData.forEach((d, i) => {
+                if (d.date === currentGroup.date) {
+                    currentGroup.end = i;
+                } else {
+                    dateGroups.push({ ...currentGroup });
+                    currentGroup = { date: d.date, start: i, end: i };
+                }
+            });
+            dateGroups.push(currentGroup);
+
+            const bracketY = margin.top + height + 75;
+            const dateY = margin.top + height + 110;
+
+            dateGroups.forEach(group => {
+                const startX = xScale(group.start) + barWidth / 2;
+                const endX = xScale(group.end) + barWidth / 2;
+                const midX = (startX + endX) / 2;
+
+                if (group.start === group.end) {
+                    // Single commit - just a vertical line
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', midX);
+                    line.setAttribute('y1', bracketY);
+                    line.setAttribute('x2', midX);
+                    line.setAttribute('y2', bracketY + 15);
+                    line.setAttribute('stroke', '#30363d');
+                    line.setAttribute('stroke-width', '1');
+                    svg.appendChild(line);
+                } else {
+                    // Multiple commits - bracket shape
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${startX} ${bracketY} L ${startX} ${bracketY + 10} L ${endX} ${bracketY + 10} L ${endX} ${bracketY}`);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', '#30363d');
+                    path.setAttribute('stroke-width', '1');
+                    svg.appendChild(path);
+
+                    // Center tick
+                    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    tick.setAttribute('x1', midX);
+                    tick.setAttribute('y1', bracketY + 10);
+                    tick.setAttribute('x2', midX);
+                    tick.setAttribute('y2', bracketY + 18);
+                    tick.setAttribute('stroke', '#30363d');
+                    tick.setAttribute('stroke-width', '1');
+                    svg.appendChild(tick);
+                }
+
+                // Date label
+                const dateText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                dateText.setAttribute('x', midX);
+                dateText.setAttribute('y', dateY);
+                dateText.setAttribute('text-anchor', 'middle');
+                dateText.setAttribute('fill', '#58a6ff');
+                dateText.setAttribute('font-size', '11px');
+                // Format date as "Jan 15"
+                const [year, month, day] = group.date.split('-');
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                dateText.textContent = `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`;
+                svg.appendChild(dateText);
+            });
+
+            // Update totals
+            const totalAdded = filteredData.reduce((sum, d) => sum + d.added, 0);
+            const totalDeleted = filteredData.reduce((sum, d) => sum + d.deleted, 0);
+            document.getElementById('totalAdded').textContent = '+' + totalAdded.toLocaleString();
+            document.getElementById('totalDeleted').textContent = '-' + totalDeleted.toLocaleString();
+            const net = totalAdded - totalDeleted;
+            document.getElementById('netChange').textContent = (net >= 0 ? '+' : '') + net.toLocaleString();
+        }
+
+        // Tooltip
+        const tooltip = document.getElementById('tooltip');
+        document.getElementById('chart').addEventListener('mousemove', (e) => {
+            const target = e.target;
+            const isHoverZone = target.classList.contains('hover-zone');
+
+            if (isHoverZone) {
+                const i = parseInt(target.dataset.index);
+                const originalIdx = parseInt(target.dataset.originalIndex);
+                const d = data[originalIdx];
+                const totals = getFilteredTotals(d);
+
+                // Calculate cumulative up to this commit
+                let runningTotal = 0;
+                for (let j = 0; j <= originalIdx; j++) {
+                    const t = getFilteredTotals(data[j]);
+                    runningTotal += (t.added - t.deleted);
+                }
+
+                let breakdownHtml = '';
+                for (const type of fileTypes) {
+                    if (d[type].a > 0 || d[type].d > 0) {
+                        breakdownHtml += `
+                            <div class="breakdown-item">
+                                <span class="dot" style="background:${typeColors[type]}"></span>
+                                <span>${type.toUpperCase()}</span>
+                                <span class="values">+${d[type].a}/-${d[type].d}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                tooltip.innerHTML = `
+                    <div class="hash">${d.hash}</div>
+                    <div class="stats">
+                        <span class="added">+${totals.added.toLocaleString()}</span>
+                        <span class="deleted">-${totals.deleted.toLocaleString()}</span>
+                        <span class="cumulative">Total: ${runningTotal.toLocaleString()}</span>
+                    </div>
+                    ${breakdownHtml ? `<div class="breakdown">${breakdownHtml}</div>` : ''}
+                    <div class="msg">${d.msg}</div>
+                `;
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY - 10) + 'px';
+                tooltip.classList.add('visible');
+            } else {
+                tooltip.classList.remove('visible');
+            }
+        });
+
+        document.getElementById('chart').addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+        });
+
+        // Initial render
+        updateChart();
+    </script>
+</body>
+</html>
