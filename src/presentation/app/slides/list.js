@@ -51,51 +51,256 @@ registerActions({
 // ============================================================================
 
 let draggedSlideIndex = null;
+let dropIndicator = null;
+let currentDropIndex = null;
+let draggedSlideElement = null;
+
+/**
+ * Create or get the drop indicator element (ghost of the slide)
+ */
+function getDropIndicator() {
+  if (!dropIndicator) {
+    dropIndicator = document.createElement('div');
+    dropIndicator.className = 'slide-drop-indicator';
+  }
+  return dropIndicator;
+}
+
+/**
+ * Update the ghost indicator content to match the dragged slide
+ */
+function updateGhostContent(sourceSlide) {
+  const indicator = getDropIndicator();
+  // Clone the slide content for the ghost
+  const clone = sourceSlide.cloneNode(true);
+  clone.classList.remove('dragging', 'active');
+  clone.classList.add('slide-ghost-content');
+  clone.removeAttribute('draggable');
+  clone.removeAttribute('ondragstart');
+  clone.removeAttribute('ondragend');
+  clone.removeAttribute('data-action');
+  indicator.innerHTML = '';
+  indicator.appendChild(clone);
+}
+
+/**
+ * Calculate drop position based on mouse position
+ * Returns the DOM element to insert before, or null for end
+ */
+function calculateDropTarget(event, slideList) {
+  const items = Array.from(slideList.querySelectorAll('.slide-item:not(.dragging):not(.slide-ghost-content)'));
+  const mouseY = event.clientY;
+
+  for (let i = 0; i < items.length; i++) {
+    const rect = items[i].getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
+
+    if (mouseY < midpoint) {
+      return { element: items[i], index: parseInt(items[i].dataset.index, 10) };
+    }
+  }
+
+  // Mouse is below all items - drop at end
+  if (items.length > 0) {
+    const lastIndex = parseInt(items[items.length - 1].dataset.index, 10);
+    return { element: null, index: lastIndex + 1 };
+  }
+
+  return { element: null, index: 0 };
+}
+
+/**
+ * Position the drop indicator at the correct location
+ * Always show ghost to maintain consistent item count and avoid UI jumps
+ */
+function positionDropIndicator(targetElement, targetIndex, slideList) {
+  const indicator = getDropIndicator();
+
+  // Always show the ghost - if at original position, show it there
+  // This maintains consistent item count and prevents UI jumps
+  if (targetIndex === draggedSlideIndex || targetIndex === draggedSlideIndex + 1) {
+    // Show ghost at the original position (right after the hidden dragged item)
+    const draggedItem = slideList.querySelector('.slide-item.dragging');
+    if (draggedItem) {
+      // Insert after the dragged item (which is hidden)
+      if (draggedItem.nextSibling) {
+        slideList.insertBefore(indicator, draggedItem.nextSibling);
+      } else {
+        slideList.appendChild(indicator);
+      }
+    }
+  } else {
+    // Insert at the target position
+    if (targetElement) {
+      slideList.insertBefore(indicator, targetElement);
+    } else {
+      slideList.appendChild(indicator);
+    }
+  }
+
+  indicator.classList.add('visible');
+}
+
+/**
+ * Update which items should shift to make room
+ */
+function updateShiftedItems(dropIndex, slideList) {
+  const items = Array.from(slideList.querySelectorAll('.slide-item'));
+
+  items.forEach(item => {
+    const itemIndex = parseInt(item.dataset.index, 10);
+    item.classList.remove('shift-down', 'shift-up');
+
+    if (draggedSlideIndex === null) return;
+
+    // Items between drag source and drop target should shift
+    if (draggedSlideIndex < dropIndex) {
+      // Dragging down: items between source and target shift up
+      if (itemIndex > draggedSlideIndex && itemIndex < dropIndex) {
+        item.classList.add('shift-up');
+      }
+    } else if (draggedSlideIndex > dropIndex) {
+      // Dragging up: items between target and source shift down
+      if (itemIndex >= dropIndex && itemIndex < draggedSlideIndex) {
+        item.classList.add('shift-down');
+      }
+    }
+  });
+}
 
 function handleDragStart(event, index) {
   draggedSlideIndex = index;
+  currentDropIndex = index;
+  draggedSlideElement = event.target;
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', index.toString());
-  event.target.classList.add('dragging');
+
+  // Create ghost content from the dragged slide
+  updateGhostContent(event.target);
+
+  // Get the slide list for positioning
+  const slideList = document.getElementById('slideList');
+
+  // Add dragging class and insert ghost immediately to prevent UI jump
+  requestAnimationFrame(() => {
+    event.target.classList.add('dragging');
+    document.body.classList.add('is-dragging-slide');
+
+    // Insert ghost right after the dragged item (which is now hidden)
+    const indicator = getDropIndicator();
+    if (event.target.nextSibling) {
+      slideList.insertBefore(indicator, event.target.nextSibling);
+    } else {
+      slideList.appendChild(indicator);
+    }
+    indicator.classList.add('visible');
+  });
 }
 
 function handleDragOver(event) {
   event.preventDefault();
   event.dataTransfer.dropEffect = 'move';
-  const item = event.target.closest('.slide-item');
-  if (item && !item.classList.contains('dragging')) {
-    item.classList.add('drag-over');
+
+  const slideList = document.getElementById('slideList');
+  if (!slideList || draggedSlideIndex === null) return;
+
+  const { element: targetElement, index: dropIndex } = calculateDropTarget(event, slideList);
+
+  if (dropIndex !== currentDropIndex) {
+    currentDropIndex = dropIndex;
+    positionDropIndicator(targetElement, dropIndex, slideList);
+    updateShiftedItems(dropIndex, slideList);
   }
 }
 
 function handleDragLeave(event) {
-  const item = event.target.closest('.slide-item');
-  if (item) {
-    item.classList.remove('drag-over');
+  // Only hide indicator if leaving the slide list entirely
+  const slideList = document.getElementById('slideList');
+  if (!slideList) return;
+
+  const relatedTarget = event.relatedTarget;
+  if (!relatedTarget || !slideList.contains(relatedTarget)) {
+    const indicator = getDropIndicator();
+    indicator.classList.remove('visible');
+
+    // Remove shift classes
+    slideList.querySelectorAll('.slide-item').forEach(item => {
+      item.classList.remove('shift-down', 'shift-up');
+    });
   }
 }
 
-function handleDrop(event, targetIndex) {
+function handleDrop(event, _targetIndex) {
   event.preventDefault();
-  const item = event.target.closest('.slide-item');
-  if (item) {
-    item.classList.remove('drag-over');
+
+  const slideList = document.getElementById('slideList');
+
+  // Calculate final drop position
+  let finalDropIndex = currentDropIndex;
+  if (finalDropIndex === null && slideList) {
+    const { index } = calculateDropTarget(event, slideList);
+    finalDropIndex = index;
   }
 
-  if (draggedSlideIndex !== null && draggedSlideIndex !== targetIndex) {
-    if (typeof window.moveSlide === 'function') {
-      window.moveSlide(draggedSlideIndex, targetIndex);
+  // Adjust index for move operation
+  if (draggedSlideIndex !== null && finalDropIndex !== null) {
+    // If dropping after the dragged item's original position, adjust
+    let adjustedIndex = finalDropIndex;
+    if (finalDropIndex > draggedSlideIndex) {
+      adjustedIndex = finalDropIndex - 1;
+    }
+
+    if (draggedSlideIndex !== adjustedIndex) {
+      if (typeof window.moveSlide === 'function') {
+        window.moveSlide(draggedSlideIndex, adjustedIndex);
+      }
     }
   }
-  draggedSlideIndex = null;
+
+  cleanupDragState();
 }
 
 function handleDragEnd(event) {
   event.target.classList.remove('dragging');
-  document.querySelectorAll('.slide-item').forEach(item => {
-    item.classList.remove('drag-over');
-  });
+  cleanupDragState();
+}
+
+/**
+ * Clean up all drag state and visual indicators
+ */
+function cleanupDragState() {
+  const slideList = document.getElementById('slideList');
+
+  // Remove indicator
+  const indicator = getDropIndicator();
+  indicator.classList.remove('visible');
+  if (indicator.parentNode) {
+    indicator.parentNode.removeChild(indicator);
+  }
+
+  // Remove all drag-related classes
+  if (slideList) {
+    slideList.querySelectorAll('.slide-item').forEach(item => {
+      item.classList.remove('dragging', 'drag-over', 'shift-down', 'shift-up');
+    });
+  }
+
+  document.body.classList.remove('is-dragging-slide');
   draggedSlideIndex = null;
+  currentDropIndex = null;
+  draggedSlideElement = null;
+}
+
+// Handle drag over on the list container itself
+function handleListDragOver(event) {
+  event.preventDefault();
+  handleDragOver(event);
+}
+
+// Handle drop on the list container
+function handleListDrop(event) {
+  event.preventDefault();
+  handleDrop(event, currentDropIndex);
 }
 
 // Expose drag handlers to window for use in HTML attributes
@@ -105,6 +310,8 @@ window.handleDragOver = handleDragOver;
 window.handleDragLeave = handleDragLeave;
 window.handleDrop = handleDrop;
 window.handleDragEnd = handleDragEnd;
+window.handleListDragOver = handleListDragOver;
+window.handleListDrop = handleListDrop;
 
 // ============================================================================
 // RENDER FUNCTIONS
@@ -130,6 +337,11 @@ export function renderSlideList() {
     return;
   }
 
+  // Add list-level drag handlers for better drop detection
+  list.setAttribute('ondragover', 'window.handleListDragOver(event)');
+  list.setAttribute('ondrop', 'window.handleListDrop(event)');
+  list.setAttribute('ondragleave', 'window.handleDragLeave(event)');
+
   list.innerHTML = currentProject.slides.map((slide, index) => {
     const template = TEMPLATES[slide.template];
     const title = slide.data.title || slide.data.quote?.substring(0, 30) || `Slide ${index + 1}`;
@@ -139,9 +351,6 @@ export function renderSlideList() {
            data-index="${index}"
            draggable="true"
            ondragstart="window.handleDragStart(event, ${index})"
-           ondragover="window.handleDragOver(event)"
-           ondragleave="window.handleDragLeave(event)"
-           ondrop="window.handleDrop(event, ${index})"
            ondragend="window.handleDragEnd(event)"
            data-action="select-slide">
           <div class="slide-item-number">${index + 1}</div>

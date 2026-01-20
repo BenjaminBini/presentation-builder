@@ -2,7 +2,6 @@
 // Add, delete, duplicate, reorder slides - ES6 module version
 // Uses slide-service for all slide mutations
 
-import { get, set } from '../../../core/state.js';
 import { getDefaultData } from '../../../config/index.js';
 import { refreshSlideList, refreshEditor, refreshPreview } from '../ui-refresh.js';
 import { closeModal } from '../modals.js';
@@ -12,10 +11,6 @@ import {
   duplicateSlide as duplicateSlideService,
   moveSlide as moveSlideService
 } from '../../../services/slide-service.js';
-
-// Helper functions for drag state
-const getDraggedIndex = () => get('draggedIndex');
-const setDraggedIndex = (value) => set('draggedIndex', value);
 
 export function addSlide() {
     if (window.setSelectedTemplate) window.setSelectedTemplate(null);
@@ -66,46 +61,6 @@ export function moveSlide(fromIndex, toIndex) {
 // ============================================================================
 // DRAG AND DROP
 // ============================================================================
-
-export function handleDragStart(event, index) {
-    setDraggedIndex(index);
-    event.target.classList.add('dragging');
-}
-
-export function handleDragOver(event) {
-    event.preventDefault();
-    const item = event.target.closest('.slide-item');
-    if (item) {
-        // Remove from all others first
-        document.querySelectorAll('.slide-item.drag-over').forEach(el => {
-            if (el !== item) el.classList.remove('drag-over');
-        });
-        item.classList.add('drag-over');
-    }
-}
-
-export function handleDragLeave(event) {
-    const item = event.target.closest('.slide-item');
-    if (item && !item.contains(event.relatedTarget)) {
-        item.classList.remove('drag-over');
-    }
-}
-
-export function handleDrop(event, targetIndex) {
-    event.preventDefault();
-    const draggedIndex = getDraggedIndex();
-    if (draggedIndex !== null && draggedIndex !== targetIndex) {
-        // Use slide-service - handles state, selected index update, events, and unsaved changes
-        moveSlideService(draggedIndex, targetIndex);
-        refreshSlideList();
-        refreshPreview();
-    }
-    document.querySelectorAll('.slide-item').forEach(el => el.classList.remove('drag-over'));
-}
-
-export function handleDragEnd() {
-    setDraggedIndex(null);
-    document.querySelectorAll('.slide-item').forEach(el => {
-        el.classList.remove('dragging', 'drag-over');
-    });
-}
+// Note: Drag and drop handlers are now in list.js with improved UX
+// (drop indicator, animations). The window.handleDrag* functions are
+// set there and used via inline HTML attributes.
