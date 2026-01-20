@@ -123,7 +123,7 @@ import {
 import { renderSlideList, selectSlide, initSlideListSubscriptions } from './presentation/app/slides/list.js';
 import {
     addSlide, selectTemplate,
-    deleteSlide, duplicateSlide,
+    deleteSlide, duplicateSlide, moveSlide,
     handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd
 } from './presentation/app/slides/management.js';
 import { updatePreview, scalePreviewSlide, initPreviewSubscriptions } from './presentation/app/slides/preview.js';
@@ -137,7 +137,8 @@ import {
 // Modals
 import {
     closeModal, initModalBehaviors, openProjectsModal,
-    cancelPromptModal, confirmPromptModal, resolveConflict
+    openPromptModal, cancelPromptModal, confirmPromptModal,
+    setConflictResolver, resolveConflict
 } from './presentation/app/modals.js';
 
 // Import modal
@@ -426,7 +427,7 @@ Object.assign(window, {
     updateSidebarTabUnderline, updateEditorTabUnderline,
 
     // Slide management - needed for HTML onclick handlers
-    addSlide, selectTemplate, deleteSlide, duplicateSlide, duplicateSlideAt, deleteSlideAt,
+    addSlide, selectTemplate, deleteSlide, duplicateSlide, moveSlide, duplicateSlideAt, deleteSlideAt,
 
     // Drag and drop - needed for ondragstart/ondragover/etc attributes
     handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd,
@@ -455,8 +456,9 @@ Object.assign(window, {
     closeModal, openProjectsModal, newProject, createEmptyProject, createDemoProject,
     saveProject, exportProject, importProject,
     exportToHtml, confirmImport, confirmSaveProject, onSaveStatusClick,
-    clearSelectedFile, switchImportTab, formatJsonInput, cancelPromptModal, confirmPromptModal,
-    resolveConflict, handleFileSelect, handleImport,
+    clearSelectedFile, switchImportTab, formatJsonInput,
+    openPromptModal, cancelPromptModal, confirmPromptModal,
+    setConflictResolver, resolveConflict, handleFileSelect, handleImport,
 
     // Theme color picker functions - needed for HTML onclick handlers
     toggleThemeColorPicker, closeAllThemeColorPickers,
