@@ -76,8 +76,10 @@
         .filter-btn[data-type="html"] { --filter-color: #e34c26; --filter-bg: rgba(227, 76, 38, 0.15); }
         .filter-btn[data-type="css"] { --filter-color: #563d7c; --filter-bg: rgba(86, 61, 124, 0.15); }
         .filter-btn[data-type="json"] { --filter-color: #40d47e; --filter-bg: rgba(64, 212, 126, 0.15); }
+        .filter-btn[data-type="yaml"] { --filter-color: #cb171e; --filter-bg: rgba(203, 23, 30, 0.15); }
         .filter-btn[data-type="md"] { --filter-color: #083fa1; --filter-bg: rgba(8, 63, 161, 0.15); }
         .filter-btn[data-type="sh"] { --filter-color: #89e051; --filter-bg: rgba(137, 224, 81, 0.15); }
+        .filter-btn[data-type="dot"] { --filter-color: #6e7681; --filter-bg: rgba(110, 118, 129, 0.15); }
         .x-axis-row {
             display: flex;
             justify-content: center;
@@ -215,8 +217,10 @@
             <button class="filter-btn active" data-type="html"><span class="dot"></span>HTML</button>
             <button class="filter-btn active" data-type="css"><span class="dot"></span>CSS</button>
             <button class="filter-btn active" data-type="json"><span class="dot"></span>JSON</button>
+            <button class="filter-btn active" data-type="yaml"><span class="dot"></span>YAML</button>
             <button class="filter-btn active" data-type="md"><span class="dot"></span>Markdown</button>
             <button class="filter-btn active" data-type="sh"><span class="dot"></span>Shell</button>
+            <button class="filter-btn active" data-type="dot"><span class="dot"></span>Dotfiles</button>
         </div>
 
         <svg id="chart" width="1340" height="560"></svg>
@@ -254,52 +258,58 @@
 
     <script>
         const data = [
-            { hash: "491d258", date: "2026-01-15", js: {a:3354,d:0}, html: {a:230,d:0}, css: {a:1669,d:0}, json: {a:196,d:0}, md: {a:580,d:0}, sh: {a:0,d:0}, msg: "Initial commit: Presentation Builder" },
-            { hash: "f73b170", date: "2026-01-15", js: {a:170,d:1}, html: {a:64,d:0}, css: {a:228,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add import popup with JSON code input and file drop zone" },
-            { hash: "634026b", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add GitHub Action for PR preview deployments" },
-            { hash: "cacf212", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add GitHub Actions workflow for static site deployment" },
-            { hash: "8d732b3", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add GitHub Pages deployment workflow using gh-pages branch" },
-            { hash: "e31aa37", date: "2026-01-16", js: {a:1316,d:65}, html: {a:93,d:1}, css: {a:600,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add inline editing improvements and annotation controls" },
-            { hash: "d3aec24", date: "2026-01-16", js: {a:4,d:4}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Increase contrast for code templates" },
-            { hash: "57c1dd0", date: "2026-01-16", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Fix code window titlebar contrast" },
-            { hash: "e6d9bc9", date: "2026-01-16", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Lighten code window background" },
-            { hash: "52ac1a6", date: "2026-01-16", js: {a:145,d:130}, html: {a:1,d:1}, css: {a:277,d:269}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Refactor CSS variables to semantic naming convention" },
-            { hash: "5de4c9e", date: "2026-01-16", js: {a:1910,d:431}, html: {a:78,d:44}, css: {a:2328,d:1381}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Add draw.io template, improve UI density and fix delete buttons" },
-            { hash: "3d00487", date: "2026-01-16", js: {a:6669,d:5021}, html: {a:55,d:7}, css: {a:3472,d:3452}, json: {a:0,d:0}, md: {a:345,d:6}, sh: {a:0,d:0}, msg: "Refactor codebase into modular architecture" },
-            { hash: "edf6299", date: "2026-01-17", js: {a:3,d:0}, html: {a:0,d:0}, css: {a:85,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Fix save status indicator initialization" },
-            { hash: "d1c7088", date: "2026-01-17", js: {a:19,d:6}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "fix: critical bug fixes in inline editing and file import" },
-            { hash: "ba41b8d", date: "2026-01-17", js: {a:40,d:10}, html: {a:5,d:4}, css: {a:85,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: implement visual save status indicator" },
-            { hash: "9aec4ae", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:219,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "chore: clean up repository and update gitignore" },
-            { hash: "b7c9a98", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "fix: restore specific Claude Flow ignore patterns in .gitignore" },
-            { hash: "8383097", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:352,d:0}, sh: {a:0,d:0}, msg: "docs: add Claude Code configuration and SPARC methodology" },
-            { hash: "cc3afc1", date: "2026-01-17", js: {a:3,d:0}, html: {a:0,d:0}, css: {a:1,d:1}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "Merge branch 'feature/save-label'" },
-            { hash: "68288b4", date: "2026-01-17", js: {a:20,d:13}, html: {a:120,d:3}, css: {a:79,d:47}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: improve sidebar collapse UX and slide item design" },
-            { hash: "ee5815c", date: "2026-01-18", js: {a:2041,d:106}, html: {a:73,d:32}, css: {a:1086,d:169}, json: {a:0,d:0}, md: {a:2294,d:0}, sh: {a:0,d:0}, msg: "feat: add logo support to section template and improve editor panel" },
-            { hash: "d46d7d8", date: "2026-01-18", js: {a:61,d:1}, html: {a:1003,d:446}, css: {a:179,d:30}, json: {a:0,d:0}, md: {a:394,d:0}, sh: {a:0,d:0}, msg: "feat: modernize UI with desktop app-like buttons and inputs" },
-            { hash: "99b9bd3", date: "2026-01-18", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:12,d:0}, sh: {a:0,d:0}, msg: "docs: add quick start section to agents.md" },
-            { hash: "3f20ba8", date: "2026-01-18", js: {a:666,d:46}, html: {a:33,d:3}, css: {a:638,d:155}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: replace native color picker with custom dropdown picker" },
-            { hash: "bd02e3b", date: "2026-01-20", js: {a:9180,d:6914}, html: {a:115,d:112}, css: {a:319,d:190}, json: {a:3,d:3}, md: {a:652,d:2435}, sh: {a:501,d:0}, msg: "docs(agent): update documentation" },
-            { hash: "93a6621", date: "2026-01-20", js: {a:1772,d:1063}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: comprehensive codebase improvements" },
-            { hash: "027156c", date: "2026-01-20", js: {a:1645,d:1490}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: implement clean layer separation architecture" },
-            { hash: "37b8cc8", date: "2026-01-20", js: {a:703,d:11}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: add SVG to Draw.io converter with embedded connection support" },
-            { hash: "b89a355", date: "2026-01-20", js: {a:0,d:780}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:415}, md: {a:0,d:0}, sh: {a:0,d:501}, msg: "chore: remove legacy and unused files" },
-            { hash: "afa6391", date: "2026-01-20", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:5,d:4}, sh: {a:0,d:0}, msg: "docs: update paths to examples folder" },
-            { hash: "883abb4", date: "2026-01-20", js: {a:61,d:19}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: improve presentation app layer" },
-            { hash: "ff8331e", date: "2026-01-20", js: {a:7,d:7}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "refactor: fix import paths in editor and templates" },
-            { hash: "2c168a4", date: "2026-01-20", js: {a:7,d:5}, html: {a:1,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "feat: add favicon and export new modal functions" },
-            { hash: "bc2286d", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:415,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, msg: "chore: move example presentations to examples folder" },
-            { hash: "4a7f8a4", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:0,d:0}, sh: {a:1084,d:0}, msg: "chore: add utility scripts" },
-            { hash: "58b9494", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, md: {a:1230,d:0}, sh: {a:0,d:0}, msg: "docs: add code review and security audit reports" }
+            { hash: "491d258", date: "2026-01-15", js: {a:3354,d:0}, html: {a:230,d:0}, css: {a:1669,d:0}, json: {a:196,d:0}, yaml: {a:0,d:0}, md: {a:580,d:0}, sh: {a:0,d:0}, dot: {a:13,d:0}, msg: "Initial commit: Presentation Builder" },
+            { hash: "f73b170", date: "2026-01-15", js: {a:170,d:1}, html: {a:64,d:0}, css: {a:228,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Add import popup with JSON code input and file drop zone" },
+            { hash: "634026b", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:26,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Add GitHub Action for PR preview deployments" },
+            { hash: "cacf212", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:43,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Add GitHub Actions workflow for static site deployment" },
+            { hash: "8d732b3", date: "2026-01-15", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:23,d:69}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Add GitHub Pages deployment workflow using gh-pages branch" },
+            { hash: "e31aa37", date: "2026-01-16", js: {a:1316,d:65}, html: {a:93,d:1}, css: {a:600,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Add inline editing improvements and annotation controls" },
+            { hash: "d3aec24", date: "2026-01-16", js: {a:4,d:4}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Increase contrast for code templates" },
+            { hash: "57c1dd0", date: "2026-01-16", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Fix code window titlebar contrast" },
+            { hash: "e6d9bc9", date: "2026-01-16", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Lighten code window background" },
+            { hash: "52ac1a6", date: "2026-01-16", js: {a:145,d:130}, html: {a:1,d:1}, css: {a:277,d:269}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Refactor CSS variables to semantic naming convention" },
+            { hash: "5de4c9e", date: "2026-01-16", js: {a:1910,d:431}, html: {a:78,d:44}, css: {a:2328,d:1381}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Add draw.io template, improve UI density and fix delete buttons" },
+            { hash: "3d00487", date: "2026-01-16", js: {a:6669,d:5021}, html: {a:55,d:7}, css: {a:3472,d:3452}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:345,d:6}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Refactor codebase into modular architecture" },
+            { hash: "edf6299", date: "2026-01-17", js: {a:3,d:0}, html: {a:0,d:0}, css: {a:85,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Fix save status indicator initialization" },
+            { hash: "d1c7088", date: "2026-01-17", js: {a:19,d:6}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "fix: critical bug fixes in inline editing and file import" },
+            { hash: "ba41b8d", date: "2026-01-17", js: {a:40,d:10}, html: {a:5,d:4}, css: {a:85,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:51,d:0}, msg: "feat: implement visual save status indicator" },
+            { hash: "9aec4ae", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:219,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:9,d:10}, msg: "chore: clean up repository and update gitignore" },
+            { hash: "b7c9a98", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:10,d:0}, msg: "fix: restore specific Claude Flow ignore patterns in .gitignore" },
+            { hash: "8383097", date: "2026-01-17", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:352,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "docs: add Claude Code configuration and SPARC methodology" },
+            { hash: "cc3afc1", date: "2026-01-17", js: {a:3,d:0}, html: {a:0,d:0}, css: {a:1,d:1}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "Merge branch 'feature/save-label'" },
+            { hash: "68288b4", date: "2026-01-17", js: {a:20,d:13}, html: {a:120,d:3}, css: {a:79,d:47}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "feat: improve sidebar collapse UX and slide item design" },
+            { hash: "ee5815c", date: "2026-01-18", js: {a:2041,d:106}, html: {a:73,d:32}, css: {a:1086,d:169}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:2294,d:0}, sh: {a:0,d:0}, dot: {a:0,d:26}, msg: "feat: add logo support to section template and improve editor panel" },
+            { hash: "d46d7d8", date: "2026-01-18", js: {a:61,d:1}, html: {a:1003,d:446}, css: {a:179,d:30}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:394,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "feat: modernize UI with desktop app-like buttons and inputs" },
+            { hash: "99b9bd3", date: "2026-01-18", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:12,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "docs: add quick start section to agents.md" },
+            { hash: "3f20ba8", date: "2026-01-18", js: {a:666,d:46}, html: {a:33,d:3}, css: {a:638,d:155}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "feat: replace native color picker with custom dropdown picker" },
+            { hash: "bd02e3b", date: "2026-01-20", js: {a:9180,d:6914}, html: {a:115,d:112}, css: {a:319,d:190}, json: {a:3,d:3}, yaml: {a:0,d:0}, md: {a:652,d:2435}, sh: {a:501,d:0}, dot: {a:3,d:0}, msg: "docs(agent): update documentation" },
+            { hash: "93a6621", date: "2026-01-20", js: {a:1772,d:1063}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "refactor: comprehensive codebase improvements" },
+            { hash: "027156c", date: "2026-01-20", js: {a:1645,d:1490}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "refactor: implement clean layer separation architecture" },
+            { hash: "37b8cc8", date: "2026-01-20", js: {a:703,d:11}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "feat: add SVG to Draw.io converter with embedded connection support" },
+            { hash: "b89a355", date: "2026-01-20", js: {a:0,d:780}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:415}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:501}, dot: {a:0,d:0}, msg: "chore: remove legacy and unused files" },
+            { hash: "afa6391", date: "2026-01-20", js: {a:2,d:2}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:5,d:4}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "docs: update paths to examples folder" },
+            { hash: "883abb4", date: "2026-01-20", js: {a:61,d:19}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "refactor: improve presentation app layer" },
+            { hash: "ff8331e", date: "2026-01-20", js: {a:7,d:7}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "refactor: fix import paths in editor and templates" },
+            { hash: "2c168a4", date: "2026-01-20", js: {a:7,d:5}, html: {a:1,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "feat: add favicon and export new modal functions" },
+            { hash: "bc2286d", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:415,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "chore: move example presentations to examples folder" },
+            { hash: "4a7f8a4", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:1084,d:0}, dot: {a:0,d:0}, msg: "chore: add utility scripts" },
+            { hash: "58b9494", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:1230,d:0}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "docs: add code review and security audit reports" },
+            { hash: "d187421", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:57,d:322}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "docs: simplify CLAUDE.md for project use" },
+            { hash: "0b4fcd1", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:17,d:12}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "docs: update README structure and fix paths" },
+            { hash: "6d42e51", date: "2026-01-20", js: {a:0,d:0}, html: {a:0,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:2286}, sh: {a:0,d:0}, dot: {a:0,d:0}, msg: "chore: remove obsolete documentation and tooling" },
+            { hash: "eb6e5e9", date: "2026-01-20", js: {a:0,d:0}, html: {a:688,d:0}, css: {a:0,d:0}, json: {a:0,d:0}, yaml: {a:0,d:0}, md: {a:0,d:0}, sh: {a:89,d:0}, dot: {a:0,d:0}, msg: "chore: add project metrics tooling" }
         ];
 
-        const fileTypes = ['js', 'html', 'css', 'json', 'md', 'sh'];
+        const fileTypes = ['js', 'html', 'css', 'json', 'yaml', 'md', 'sh', 'dot'];
         const typeColors = {
             js: '#f1e05a',
             html: '#e34c26',
             css: '#563d7c',
             json: '#40d47e',
+            yaml: '#cb171e',
             md: '#083fa1',
-            sh: '#89e051'
+            sh: '#89e051',
+            dot: '#6e7681'
         };
 
         let activeTypes = new Set(fileTypes);
