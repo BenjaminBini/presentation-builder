@@ -3,6 +3,7 @@
 // Converted to ES6 module - uses event-driven architecture
 
 import { updateSlideData, getFieldValue } from './data-updates.js';
+import { svgToDrawio, getSampleSvgDiagram, isSvgContent, decodeSvgDataUri, extractMxGraphFromSvg } from '../../infrastructure/utils/svg-to-drawio.js';
 
 /**
  * Open Draw.io editor modal
@@ -46,20 +47,43 @@ export function openDrawioEditor(fieldKey, fieldIndex) {
     if (msg.event === 'init') {
       // Send current diagram to editor
       let diagramData = '';
-      if (currentValue && currentValue.startsWith('data:image/svg+xml;base64,')) {
+
+      if (currentValue && isSvgContent(currentValue)) {
         try {
-          // Properly decode base64 with UTF-8 support
-          const base64 = currentValue.substring('data:image/svg+xml;base64,'.length);
-          const binary = atob(base64);
-          const bytes = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
+          // Decode SVG from base64 data URI if needed
+          let svgContent = currentValue;
+          if (currentValue.startsWith('data:image/svg+xml;base64,')) {
+            svgContent = decodeSvgDataUri(currentValue);
           }
-          diagramData = new TextDecoder('utf-8').decode(bytes);
+
+          // First, try to extract embedded mxGraph XML from SVG
+          const embeddedMxGraph = extractMxGraphFromSvg(svgContent);
+          if (embeddedMxGraph) {
+            // Use embedded mxGraph data (preserves connections)
+            diagramData = embeddedMxGraph;
+            console.log('[Draw.io] Using embedded mxGraph XML from SVG');
+          } else if (svgContent.includes('<mxGraphModel') || svgContent.includes('mxfile')) {
+            // Already mxGraph XML format, use as-is
+            diagramData = svgContent;
+          } else {
+            // Convert plain SVG to Draw.io mxGraph XML format
+            diagramData = svgToDrawio(svgContent);
+            console.log('[Draw.io] Converted plain SVG to mxGraph XML');
+          }
         } catch (e) {
-          console.warn('Failed to decode diagram data:', e);
+          console.warn('Failed to process diagram data:', e);
         }
       }
+
+      // Fallback: if no valid diagram data, load sample
+      if (!diagramData) {
+        const sampleSvg = getSampleSvgDiagram();
+        diagramData = svgToDrawio(sampleSvg);
+        console.log('[Draw.io] Loading sample diagram, XML length:', diagramData.length);
+        console.log('[Draw.io] Sample XML preview:', diagramData.substring(0, 500));
+      }
+
+      console.log('[Draw.io] Sending load message with XML');
       iframe.contentWindow.postMessage(JSON.stringify({
         action: 'load',
         xml: diagramData,
@@ -69,14 +93,21 @@ export function openDrawioEditor(fieldKey, fieldIndex) {
       // Show saving status
       boundUpdateStatus('saving', 'Enregistrement...');
       // Request export as SVG with embedded XML for re-editing
+      // xml: true includes the mxGraph XML for re-editing
+      // data: true ensures we get a data URI
       iframe.contentWindow.postMessage(JSON.stringify({
         action: 'export',
         format: 'xmlsvg',
+        xml: true,
+        data: true,
         background: '#ffffff',
         spinKey: 'saving'
       }), 'https://embed.diagrams.net');
     } else if (msg.event === 'export') {
       // Save the SVG data - updateSlideData emits SLIDE_DATA_CHANGED for preview update
+      console.log('[Draw.io] Export received, data type:', typeof msg.data);
+      console.log('[Draw.io] Export data preview:', msg.data ? msg.data.substring(0, 100) : 'empty');
+      console.log('[Draw.io] Saving to field:', this.drawioEditorFieldKey);
       updateSlideData(this.drawioEditorFieldKey, msg.data, this.drawioEditorFieldIndex, null);
       // Close the editor after saving
       boundCloseEditor();

@@ -1,6 +1,24 @@
 // src/config/sample-data.js
 // Sample project data - Showcases all available templates
 
+import { getSampleSvgDiagram } from '../infrastructure/utils/svg-to-drawio.js';
+
+// Convert sample SVG to base64 data URI for display
+function svgToDataUri(svg) {
+  // Encode SVG to UTF-8 bytes then to base64
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(svg);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const base64 = btoa(binary);
+  return `data:image/svg+xml;base64,${base64}`;
+}
+
+// Sample SVG diagram as data URI
+const SAMPLE_DIAGRAM_SVG = svgToDataUri(getSampleSvgDiagram());
+
 export const SAMPLE_PROJECT = {
   name: 'Galerie des Templates',
   metadata: {
@@ -243,8 +261,8 @@ pres.addSlide('title', { title: 'Hello World' });`,
       template: 'drawio',
       data: {
         title: 'Template Draw.io',
-        description: 'Créez des diagrammes interactifs avec l\'éditeur intégré',
-        diagram: ''
+        description: 'Cliquez sur le diagramme pour éditer avec Draw.io',
+        diagram: SAMPLE_DIAGRAM_SVG
       }
     },
     // 18. Final title slide
