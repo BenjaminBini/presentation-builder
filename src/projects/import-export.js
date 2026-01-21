@@ -3,6 +3,7 @@
 
 import { getProject, setProject, setSelectedSlideIndex, setHasUnsavedChanges } from '../core/state.js';
 import { refreshSlideList, refreshEditor, refreshPreview } from '../presentation/app/ui-refresh.js';
+import { TEMPLATES } from '../config/index.js';
 
 /**
  * Export current project to JSON file
@@ -68,6 +69,105 @@ function validateObjectStructure(obj, depth = 0) {
 }
 
 /**
+ * Field type validators
+ * Maps field types to validation functions
+ */
+const FIELD_TYPE_VALIDATORS = {
+    text: (value) => typeof value === 'string',
+    textarea: (value) => typeof value === 'string',
+    wysiwyg: (value) => typeof value === 'string',
+    number: (value) => typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value))),
+    checkbox: (value) => typeof value === 'boolean',
+    array: (value) => Array.isArray(value),
+    column: (value) => typeof value === 'object' && value !== null,
+    stats: (value) => Array.isArray(value),
+    steps: (value) => Array.isArray(value),
+    annotations: (value) => Array.isArray(value),
+    'table-rows': (value) => Array.isArray(value),
+    'agenda-items': (value) => Array.isArray(value),
+    drawio: (value) => typeof value === 'string',
+};
+
+/**
+ * Validate slide fields against template schema
+ * @param {Object} slide - Slide object with template and data
+ * @param {number} slideIndex - Slide index for error messages
+ * @returns {Object} { errors: string[], warnings: string[] }
+ */
+function validateSlideFields(slide, slideIndex) {
+    const errors = [];
+    const warnings = [];
+    const slideNum = slideIndex + 1;
+
+    // Check if slide has required structure
+    if (!slide || typeof slide !== 'object') {
+        errors.push(`Slide ${slideNum}: Structure invalide`);
+        return { errors, warnings };
+    }
+
+    // Check if template is specified
+    if (!slide.template) {
+        errors.push(`Slide ${slideNum}: Template non spécifié`);
+        return { errors, warnings };
+    }
+
+    // Check if template exists
+    const template = TEMPLATES[slide.template];
+    if (!template) {
+        warnings.push(`Slide ${slideNum}: Template inconnu "${slide.template}"`);
+        return { errors, warnings };
+    }
+
+    // Check if data exists
+    if (!slide.data || typeof slide.data !== 'object') {
+        errors.push(`Slide ${slideNum}: Données manquantes`);
+        return { errors, warnings };
+    }
+
+    // Validate each field in the schema
+    const fields = template.fields || [];
+    for (const field of fields) {
+        const value = slide.data[field.key];
+        const hasValue = value !== undefined && value !== null && value !== '';
+
+        // Check required fields
+        if (field.required && !hasValue) {
+            errors.push(`Slide ${slideNum} (${template.name}): Champ requis "${field.label}" manquant`);
+            continue;
+        }
+
+        // Skip type validation if no value
+        if (!hasValue) continue;
+
+        // Validate field type
+        const validator = FIELD_TYPE_VALIDATORS[field.type];
+        if (validator && !validator(value)) {
+            warnings.push(`Slide ${slideNum} (${template.name}): Type invalide pour "${field.label}" (attendu: ${field.type})`);
+        }
+    }
+
+    return { errors, warnings };
+}
+
+/**
+ * Validate all slides in a project
+ * @param {Array} slides - Array of slide objects
+ * @returns {Object} { errors: string[], warnings: string[] }
+ */
+function validateAllSlides(slides) {
+    const allErrors = [];
+    const allWarnings = [];
+
+    slides.forEach((slide, index) => {
+        const { errors, warnings } = validateSlideFields(slide, index);
+        allErrors.push(...errors);
+        allWarnings.push(...warnings);
+    });
+
+    return { errors: allErrors, warnings: allWarnings };
+}
+
+/**
  * Import project from JSON file
  */
 export function importFromJSON(file) {
@@ -106,6 +206,19 @@ export function importFromJSON(file) {
                 // Deep validation of all slide data
                 for (const slide of project.slides) {
                     validateObjectStructure(slide);
+                }
+
+                // Validate template-specific fields
+                const { errors, warnings } = validateAllSlides(project.slides);
+
+                // Log warnings but don't block import
+                if (warnings.length > 0) {
+                    console.warn('Import warnings:', warnings);
+                }
+
+                // Block import if there are errors
+                if (errors.length > 0) {
+                    throw new Error(errors.join('\n'));
                 }
 
                 // Set as current project using centralized state

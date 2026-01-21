@@ -3,12 +3,16 @@
 
 import { getProject, getSelectedSlideIndex, setSelectedSlideIndex, get, set } from '../../core/state.js';
 import { refreshSlideList, refreshEditor, refreshPreview } from './ui-refresh.js';
+import { hideUnsavedAlert } from './state-ui.js';
 
 export function startPresentation() {
     const project = getProject();
     if (!project?.slides?.length) {
         return;
     }
+
+    // Close unsaved warning prompt if open
+    hideUnsavedAlert();
 
     // Clean up any existing listeners to prevent memory leaks from repeated starts
     cleanupPresentationListeners();
@@ -76,9 +80,12 @@ function updatePlayerSlide() {
         const { template, data } = slide;
         const getPreviewStyles = window.getPreviewStyles || (() => '');
         const renderTemplate = window.renderTemplate || (() => '');
+        const adjustTextTemplateScale = window.adjustTextTemplateScale || (() => {});
         const styles = getPreviewStyles();
         slideContainer.innerHTML = `<style>${styles}</style>${renderTemplate(template, data)}`;
 
+        // Adjust text template scaling before player scaling
+        adjustTextTemplateScale(slideContainer);
         scalePlayerSlide();
 
         if (slide.template === 'mermaid' && window.mermaid) {

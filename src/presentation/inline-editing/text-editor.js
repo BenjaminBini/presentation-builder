@@ -242,8 +242,8 @@ export function changeItemIndentation(element, delta) {
 export function handlePaste(event) {
   event.preventDefault();
 
-  // Get plain text from clipboard
-  const text = (event.clipboardData || window.clipboardData).getData('text/plain');
+  // Get plain text from clipboard and trim leading/trailing whitespace
+  const text = (event.clipboardData || window.clipboardData).getData('text/plain').trim();
 
   // For single-line fields, remove newlines
   const fieldType = this.currentEditingElement.dataset.editable;

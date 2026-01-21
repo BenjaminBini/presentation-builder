@@ -49,6 +49,7 @@ import { renderTemplate } from './presentation/templates/renderer.js';
 import { getPreviewStyles } from './presentation/templates/preview-styles.js';
 import { getThemeColor, getThemeColors, resolveThemeColor } from './presentation/templates/theme.js';
 import { renderCodeLines } from './presentation/templates/utilities.js';
+import { adjustTextTemplateScale } from './presentation/templates/components/layout.js';
 
 // Projects
 import { showConfirm, hideConfirm, handleConfirmResponse } from './projects/notifications.js';
@@ -417,7 +418,7 @@ function initializeApp() {
 // New code should import directly from modules instead of using window globals
 Object.assign(window, {
     // Templates - needed for presentation.js which uses window.renderTemplate and window.getPreviewStyles
-    renderTemplate, getPreviewStyles,
+    renderTemplate, getPreviewStyles, adjustTextTemplateScale,
 
     // UI functions - needed for HTML onclick handlers
     renderSlideList, selectSlide, renderEditor, updatePreview, scalePreviewSlide,
