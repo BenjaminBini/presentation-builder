@@ -2,6 +2,7 @@
 // Layout templates: two-column, image-text
 import {
   escapeHtml,
+  sanitizeHtml,
   sanitizeImageUrl,
 } from "../../../infrastructure/utils/html.js";
 
@@ -61,7 +62,9 @@ export function renderTwoColumnsTemplate(data, colorStyles) {
  * Uses container/content structure for DOM-based scaling
  */
 export function renderTextTemplate(data, colorStyles) {
-  const content = data.content || "<p>Votre texte ici...</p>";
+  const rawContent = data.content || "<p>Votre texte ici...</p>";
+  // Sanitize HTML to prevent XSS while preserving safe formatting tags
+  const content = sanitizeHtml(rawContent);
 
   return `
                 <div class="slide-content template-text" ${colorStyles}>

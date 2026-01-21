@@ -4,6 +4,7 @@
 
 import { updateSlideData, getFieldValue } from './data-updates.js';
 import { adjustTextTemplateScale } from '../templates/components/layout.js';
+import { sanitizeLinkUrl, escapeHtml } from '../../infrastructure/utils/html.js';
 
 // Toolbar button definitions
 const TOOLBAR_BUTTONS = [
@@ -25,6 +26,13 @@ let wysiwygFieldIndex = null;
 let originalContent = null;
 let inlineEditorRef = null;
 
+// Store event handler references for cleanup
+let toolbarMousedownHandler = null;
+let toolbarClickHandler = null;
+
+// RAF debouncing for text scaling
+let scaleRafId = null;
+
 /**
  * Create floating toolbar element
  */
@@ -40,16 +48,48 @@ function createFloatingToolbar() {
     return `<button type="button" class="wysiwyg-toolbar-btn" data-command="${btn.command}" title="${btn.label}"${btn.handler ? ` data-handler="${btn.handler}"` : ''}>${btn.icon}</button>`;
   }).join('');
 
-  // Add event listener for toolbar clicks
-  toolbar.addEventListener('mousedown', (e) => {
+  // Store event handler references for cleanup
+  toolbarMousedownHandler = (e) => {
     e.preventDefault(); // Prevent losing focus from contenteditable
-  });
+  };
+  toolbarClickHandler = handleToolbarClick;
 
-  toolbar.addEventListener('click', handleToolbarClick);
+  toolbar.addEventListener('mousedown', toolbarMousedownHandler);
+  toolbar.addEventListener('click', toolbarClickHandler);
 
   document.body.appendChild(toolbar);
   floatingToolbar = toolbar;
   return toolbar;
+}
+
+/**
+ * Destroy floating toolbar and clean up event listeners
+ * Call this when the editor component is being torn down
+ */
+export function destroyFloatingToolbar() {
+  if (floatingToolbar) {
+    // Remove event listeners
+    if (toolbarMousedownHandler) {
+      floatingToolbar.removeEventListener('mousedown', toolbarMousedownHandler);
+    }
+    if (toolbarClickHandler) {
+      floatingToolbar.removeEventListener('click', toolbarClickHandler);
+    }
+
+    // Remove from DOM
+    floatingToolbar.remove();
+    floatingToolbar = null;
+  }
+
+  // Clear handler references
+  toolbarMousedownHandler = null;
+  toolbarClickHandler = null;
+
+  // Cancel any pending RAF
+  if (scaleRafId) {
+    cancelAnimationFrame(scaleRafId);
+    scaleRafId = null;
+  }
 }
 
 /**
@@ -75,7 +115,7 @@ function handleToolbarClick(event) {
 }
 
 /**
- * Handle link command - prompts for URL
+ * Handle link command - prompts for URL with validation
  */
 function handleLinkCommand() {
   const selection = window.getSelection();
@@ -85,10 +125,18 @@ function handleLinkCommand() {
   const url = prompt('URL du lien:', 'https://');
 
   if (url && url !== 'https://') {
+    // Validate URL to prevent javascript: and other dangerous protocols
+    const safeUrl = sanitizeLinkUrl(url);
+    if (!safeUrl) {
+      alert('URL invalide. Utilisez http://, https://, ou un lien relatif.');
+      return;
+    }
+
     if (selectedText) {
-      document.execCommand('createLink', false, url);
+      document.execCommand('createLink', false, safeUrl);
     } else {
-      const link = `<a href="${url}">${url}</a>`;
+      // Escape the URL for display text, use validated URL for href
+      const link = `<a href="${safeUrl}">${escapeHtml(safeUrl)}</a>`;
       document.execCommand('insertHTML', false, link);
     }
   }
@@ -251,11 +299,19 @@ function handleWysiwygInput() {
     }
   });
 
-  // Live resize content based on height
-  const previewSlide = document.getElementById('previewSlide');
-  if (previewSlide) {
-    adjustTextTemplateScale(previewSlide);
+  // Live resize content based on height - use RAF debouncing to avoid layout thrashing
+  // Cancel any pending scale calculation
+  if (scaleRafId) {
+    cancelAnimationFrame(scaleRafId);
   }
+
+  scaleRafId = requestAnimationFrame(() => {
+    const previewSlide = document.getElementById('previewSlide');
+    if (previewSlide) {
+      adjustTextTemplateScale(previewSlide);
+    }
+    scaleRafId = null;
+  });
 }
 
 /**
