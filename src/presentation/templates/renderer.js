@@ -2,7 +2,7 @@
 // Main template render dispatcher
 import { getSlideColorStyles } from './theme.js';
 import { renderTitleTemplate, renderSectionTemplate, renderBulletsTemplate, renderQuoteTemplate } from './components/basic.js';
-import { renderTwoColumnsTemplate, renderImageTextTemplate } from './components/layout.js';
+import { renderTwoColumnsTemplate, renderImageTextTemplate, renderTextTemplate } from './components/layout.js';
 import { renderCodeTemplate, renderCodeAnnotatedTemplate } from './components/code.js';
 import { renderComparisonTemplate, renderMermaidTemplate, renderDrawioTemplate } from './components/comparison.js';
 import { renderStatsTemplate, renderTimelineTemplate, renderAgendaTemplate } from './components/data.js';
@@ -57,6 +57,9 @@ export function renderTemplate(template, data) {
 
     case "drawio":
       return renderDrawioTemplate(data, colorStyles);
+
+    case "text":
+      return renderTextTemplate(data, colorStyles);
 
     default:
       return `<div class="slide-content" style="display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;">Template inconnu: ${escapeHtml(template)}</div>`;
