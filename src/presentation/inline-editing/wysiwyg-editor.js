@@ -4,7 +4,7 @@
 
 import { updateSlideData, getFieldValue } from './data-updates.js';
 import { adjustTextTemplateScale } from '../templates/components/layout.js';
-import { sanitizeLinkUrl, escapeHtml } from '../../infrastructure/utils/html.js';
+import { sanitizeLinkUrl, escapeHtml, trimHtml, sanitizeHtml } from '../../infrastructure/utils/html.js';
 
 // Toolbar button definitions
 const TOOLBAR_BUTTONS = [
@@ -275,6 +275,7 @@ export function openWysiwygEditor(fieldKey, fieldIndex) {
   element.addEventListener('blur', handleWysiwygBlur);
   element.addEventListener('mouseup', handleWysiwygSelection);
   element.addEventListener('keyup', handleWysiwygSelection);
+  element.addEventListener('paste', handleWysiwygPaste);
 
   // Store reference for event handlers
   inlineEditorRef = this;
@@ -454,6 +455,38 @@ function handleWysiwygSelection() {
 }
 
 /**
+ * Handle paste event - sanitize and trim pasted HTML content
+ */
+function handleWysiwygPaste(event) {
+  event.preventDefault();
+
+  // Get pasted data
+  const clipboardData = event.clipboardData || window.clipboardData;
+  if (!clipboardData) return;
+
+  // Try to get HTML first, fallback to plain text
+  let pastedContent = clipboardData.getData('text/html');
+
+  if (pastedContent) {
+    // Sanitize and trim HTML content
+    pastedContent = sanitizeHtml(pastedContent);
+    pastedContent = trimHtml(pastedContent);
+  } else {
+    // Plain text - escape and wrap in paragraph
+    const plainText = clipboardData.getData('text/plain');
+    if (plainText) {
+      // Convert line breaks to <br> and wrap in <p>
+      pastedContent = '<p>' + escapeHtml(plainText).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+    }
+  }
+
+  if (pastedContent) {
+    // Insert the sanitized content
+    document.execCommand('insertHTML', false, pastedContent);
+  }
+}
+
+/**
  * Close WYSIWYG editor without saving
  */
 export function closeWysiwygEditor() {
@@ -464,6 +497,7 @@ export function closeWysiwygEditor() {
     currentWysiwygElement.removeEventListener('blur', handleWysiwygBlur);
     currentWysiwygElement.removeEventListener('mouseup', handleWysiwygSelection);
     currentWysiwygElement.removeEventListener('keyup', handleWysiwygSelection);
+    currentWysiwygElement.removeEventListener('paste', handleWysiwygPaste);
 
     // Remove editable state
     currentWysiwygElement.contentEditable = 'false';
@@ -487,11 +521,8 @@ export function closeWysiwygEditor() {
  */
 export function confirmWysiwygEdit() {
   if (currentWysiwygElement && wysiwygFieldKey) {
-    // Clean up the HTML content
-    let newValue = currentWysiwygElement.innerHTML;
-
-    // Remove empty tags at the end
-    newValue = newValue.replace(/(<p><br><\/p>|<p>\s*<\/p>)+$/, '');
+    // Clean up the HTML content - trim whitespace, br tags, empty paragraphs
+    let newValue = trimHtml(currentWysiwygElement.innerHTML);
 
     // Ensure at least one paragraph if empty
     if (!newValue.trim() || newValue === '<br>') {

@@ -4,7 +4,9 @@ import {
   escapeHtml,
   sanitizeHtml,
   sanitizeImageUrl,
+  trimHtml,
 } from "../../../infrastructure/utils/html.js";
+import { adjustTextFieldScale } from "../../components/text-field.js";
 
 /**
  * Render two-columns template
@@ -59,20 +61,20 @@ export function renderTwoColumnsTemplate(data, colorStyles) {
 
 /**
  * Render text template with WYSIWYG content
- * Uses container/content structure for DOM-based scaling
+ * Uses TextFieldComponent for auto-scaling
  */
 export function renderTextTemplate(data, colorStyles) {
   const rawContent = data.content || "<p>Votre texte ici...</p>";
-  // Sanitize HTML to prevent XSS while preserving safe formatting tags
-  const content = sanitizeHtml(rawContent);
+  // Sanitize HTML to prevent XSS, then trim trailing whitespace/br tags
+  const content = trimHtml(sanitizeHtml(rawContent));
 
   return `
-                <div class="slide-content template-text" ${colorStyles}>
+                <div class="slide-content template-text" ${colorStyles} data-text-field>
                     <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
                       data.title || "",
                     )}</h2>
-                    <div class="text-content-container">
-                        <div class="text-content wysiwyg-editable" data-editable="wysiwyg" data-field-key="content">
+                    <div class="text-content-container" data-text-field-area>
+                        <div class="text-content text-field-content wysiwyg-editable" data-text-field-content data-editable="wysiwyg" data-field-key="content">
                             ${content}
                         </div>
                     </div>
@@ -82,55 +84,11 @@ export function renderTextTemplate(data, colorStyles) {
 
 /**
  * Adjust text template scale based on actual DOM measurements
- * Uses binary search to find optimal scale since font scaling is non-linear
- * (text reflows differently at different sizes)
+ * Delegates to TextFieldComponent for the actual scaling logic
+ * @deprecated Use adjustTextFieldScale directly for new code
  */
 export function adjustTextTemplateScale(container) {
-  const textTemplate = container?.querySelector(".template-text");
-  if (!textTemplate) return;
-
-  const contentContainer = textTemplate.querySelector(
-    ".text-content-container",
-  );
-  const textContent = textTemplate.querySelector(".text-content");
-  if (!contentContainer || !textContent) return;
-
-  // Temporarily set overflow hidden for measurement
-  contentContainer.style.overflow = "hidden";
-
-  const availableHeight = contentContainer.clientHeight;
-
-  // Binary search for optimal scale
-  let minScale = 0.25;
-  let maxScale = 1;
-  let scale = 1;
-
-  // Check if we need to scale down at all
-  textTemplate.style.setProperty("--text-scale", "1");
-  void textContent.offsetHeight;
-  if (textContent.scrollHeight <= availableHeight) {
-    contentContainer.style.overflow = "";
-    return; // No scaling needed
-  }
-
-  // Binary search for the right scale (5 iterations is enough precision)
-  for (let i = 0; i < 5; i++) {
-    scale = (minScale + maxScale) / 2;
-    textTemplate.style.setProperty("--text-scale", scale.toString());
-    void textContent.offsetHeight;
-
-    if (textContent.scrollHeight > availableHeight) {
-      maxScale = scale; // Need smaller scale
-    } else {
-      minScale = scale; // Can try larger scale
-    }
-  }
-
-  // Use the smaller of the two bounds to ensure content fits
-  textTemplate.style.setProperty("--text-scale", minScale.toString());
-
-  // Remove overflow hidden after calculation
-  contentContainer.style.overflow = "";
+  adjustTextFieldScale(container);
 }
 
 /**
