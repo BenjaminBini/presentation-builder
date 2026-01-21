@@ -135,5 +135,13 @@ export const TEMPLATES = {
       { key: 'description', label: 'Description', type: 'text' },
       { key: 'diagram', label: 'Diagramme', type: 'drawio', required: true }
     ]
+  },
+  text: {
+    name: 'Texte',
+    icon: ICONS.text,
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'content', label: 'Contenu', type: 'wysiwyg', required: true, hint: 'Cliquez pour ouvrir l\'éditeur de texte riche' }
+    ]
   }
 };

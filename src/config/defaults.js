@@ -15,8 +15,9 @@ export function getDefaultData(template) {
     timeline: { title: 'Timeline', steps: [{ icon: '1', title: 'Étape 1', description: '' }] },
     comparison: { title: 'Tableau', columns: ['Colonne 1', 'Colonne 2', 'Colonne 3'], rows: [['Ligne 1', 'Valeur', 'Valeur'], ['Ligne 2', 'Valeur', 'Valeur']] },
     mermaid: { title: 'Diagramme', description: '', diagram: 'flowchart LR\n    A-->B' },
-    agenda: { title: 'Agenda', showDuration: true, items: [{ title: 'Introduction', subtitle: '', duration: '5 min' }, { title: 'Sujet principal', subtitle: '', duration: '15 min' }, { title: 'Questions', subtitle: '', duration: '10 min' }] },
-    drawio: { title: 'Diagramme Draw.io', description: '', diagram: '' }
+    agenda: { title: 'Agenda', showDuration: true, showSubtitle: true, items: [{ title: 'Introduction', subtitle: 'Présentation du contexte', duration: '5 min' }, { title: 'Sujet principal', subtitle: 'Développement des idées clés', duration: '15 min' }, { title: 'Questions', subtitle: 'Discussion et échanges', duration: '10 min' }] },
+    drawio: { title: 'Diagramme Draw.io', description: '', diagram: '' },
+    text: { title: 'Titre', content: '<p>Votre texte ici...</p>' }
   };
   return defaults[template] || { title: 'Nouvelle slide' };
 }
