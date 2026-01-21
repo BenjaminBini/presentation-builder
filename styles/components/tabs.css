@@ -37,6 +37,7 @@
 
 .import-tab-content {
   display: none;
+  height: 420px;
 }
 
 .import-tab-content.active {
