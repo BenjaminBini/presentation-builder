@@ -24,6 +24,7 @@
       "data": {
         "title": "Sommaire",
         "showDuration": true,
+        "showSubtitle": true,
         "items": [
           { "title": "Introduction", "subtitle": "Présentation du projet", "duration": "5 min" },
           { "title": "Templates de contenu", "subtitle": "Listes, colonnes, images", "duration": "10 min" },

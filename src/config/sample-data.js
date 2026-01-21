@@ -48,12 +48,13 @@ export const SAMPLE_PROJECT = {
       data: {
         title: 'Au programme',
         showDuration: true,
+        showSubtitle: true,
         items: [
-          { title: 'Templates de structure', subtitle: 'Title, Section, Agenda', duration: '' },
-          { title: 'Templates de contenu', subtitle: 'Bullets, Two-columns, Image-text', duration: '' },
-          { title: 'Templates de données', subtitle: 'Stats, Comparison, Timeline', duration: '' },
-          { title: 'Templates techniques', subtitle: 'Code, Code-annotated, Mermaid', duration: '' },
-          { title: 'Autres templates', subtitle: 'Quote, Draw.io', duration: '' }
+          { title: 'Templates de structure', subtitle: 'Title, Section, Agenda', duration: '5 min' },
+          { title: 'Templates de contenu', subtitle: 'Bullets, Two-columns, Image-text', duration: '10 min' },
+          { title: 'Templates de données', subtitle: 'Stats, Comparison, Timeline', duration: '10 min' },
+          { title: 'Templates techniques', subtitle: 'Code, Code-annotated, Mermaid', duration: '15 min' },
+          { title: 'Autres templates', subtitle: 'Quote, Draw.io', duration: '5 min' }
         ]
       }
     },
