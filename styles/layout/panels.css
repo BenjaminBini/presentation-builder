@@ -21,7 +21,7 @@
   width: 1280px;
   height: 720px;
   transform-origin: top left;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Editor Panel */
@@ -106,7 +106,7 @@
 }
 
 .editor-tabs::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: var(--underline-left);
@@ -394,4 +394,3 @@
   margin-bottom: 24px;
   color: var(--gray-600);
 }
-

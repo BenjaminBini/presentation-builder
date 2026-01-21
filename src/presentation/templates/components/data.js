@@ -90,8 +90,22 @@ export function renderTimelineTemplate(data, colorStyles) {
 export function renderAgendaTemplate(data, colorStyles) {
   const agendaItems = data.items || [];
   const showDuration = data.showDuration !== false;
+  const showSubtitle = data.showSubtitle === true;
+  const itemCount = Math.max(1, agendaItems.length);
+
+  // Calculate scale factor to fit items in available height
+  // Slide: 720px, title area: ~110px, padding: ~100px, button: ~60px = ~450px available
+  const availableHeight = 450;
+  const idealItemHeight = 88; // Comfortable height per item at scale 1
+  const naturalHeight = itemCount * idealItemHeight;
+  const scale = Math.min(1, availableHeight / naturalHeight);
+  // Clamp scale to reasonable bounds (0.45 to 1)
+  const clampedScale = Math.max(0.45, Math.min(1, scale));
+  // Add compact class when items are small (subtitle goes inline)
+  const compactClass = clampedScale < 0.7 ? 'agenda-compact' : '';
+
   return `
-                <div class="slide-content template-agenda" ${colorStyles}>
+                <div class="slide-content template-agenda ${compactClass}" ${colorStyles} style="--agenda-scale: ${clampedScale.toFixed(3)}; --agenda-items: ${itemCount};" data-item-count="${itemCount}">
                     <h2 data-editable="text" data-field-key="title" data-placeholder="Agenda">${escapeHtml(
                       data.title || ""
                     )}</h2>
@@ -113,9 +127,9 @@ export function renderAgendaTemplate(data, colorStyles) {
                               i + 1
                             }">${escapeHtml(item.title || "")}</div>
                                     ${
-                                      item.subtitle
-                                        ? `<div class="agenda-subtitle">${escapeHtml(
-                                            item.subtitle
+                                      showSubtitle
+                                        ? `<div class="agenda-subtitle" data-editable="text" data-field-key="items" data-field-index="${i}" data-field-subkey="subtitle" data-placeholder="Sous-titre">${escapeHtml(
+                                            item.subtitle || ""
                                           )}</div>`
                                         : ""
                                     }
@@ -131,8 +145,8 @@ export function renderAgendaTemplate(data, colorStyles) {
                         `
                           )
                           .join("")}
-                        <li class="add-item-row"><button class="add-item-btn" data-list-key="items" title="Ajouter un point">+ Ajouter</button></li>
                     </ul>
+                    <button class="add-item-btn agenda-add-btn" data-list-key="items" title="Ajouter un point">+ Ajouter</button>
                 </div>
             `;
 }
