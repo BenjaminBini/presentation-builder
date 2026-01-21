@@ -19,6 +19,7 @@
 @import url('./components/color-pickers.css');
 @import url('./components/code-editors.css');
 @import url('./components/tabs.css');
+@import url('./components/text-field.css');
 
 /* Template/Slide Styles */
 @import url('./templates/slides-editors-basic.css');

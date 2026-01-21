@@ -187,6 +187,38 @@ export function sanitizeHtml(html) {
 }
 
 /**
+ * Trim trailing whitespace, <br> tags, and empty paragraphs from HTML.
+ * Also trims leading whitespace.
+ * @param {string} html - HTML string to trim
+ * @returns {string} Trimmed HTML string
+ */
+export function trimHtml(html) {
+  if (!html || typeof html !== 'string') return '';
+
+  let result = html;
+
+  // Trim leading/trailing whitespace
+  result = result.trim();
+
+  // Remove trailing <br>, <br/>, <br /> tags (with optional whitespace)
+  result = result.replace(/(\s*<br\s*\/?>\s*)+$/gi, '');
+
+  // Remove leading <br> tags
+  result = result.replace(/^(\s*<br\s*\/?>\s*)+/gi, '');
+
+  // Remove trailing empty paragraphs <p></p>, <p>&nbsp;</p>, <p><br></p>
+  result = result.replace(/(\s*<p>\s*(<br\s*\/?>|&nbsp;|\s)*<\/p>\s*)+$/gi, '');
+
+  // Remove leading empty paragraphs
+  result = result.replace(/^(\s*<p>\s*(<br\s*\/?>|&nbsp;|\s)*<\/p>\s*)+/gi, '');
+
+  // Clean up multiple consecutive <br> tags (more than 2) to just 2
+  result = result.replace(/(<br\s*\/?>\s*){3,}/gi, '<br><br>');
+
+  return result;
+}
+
+/**
  * Validate and sanitize a URL for use in anchor href attributes.
  * Blocks javascript: and other dangerous protocols.
  * @param {string} url - URL to validate
