@@ -323,15 +323,22 @@
 /* Sort animation - items shifting in real-time during drag */
 .preview-slide .template-agenda .agenda-item {
   transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+}
+
+/* Disable transition on dragged item */
+.preview-slide .template-agenda .agenda-item.dragging {
+  transition: none !important;
 }
 
 /* Shift classes - animate items to preview final positions */
+/* Uses --item-height from template-agenda for dynamic sizing */
 .preview-slide .template-agenda .agenda-item.shift-down {
-  transform: translateY(98px);
+  transform: translateY(var(--item-height, 60px)) !important;
 }
 
 .preview-slide .template-agenda .agenda-item.shift-up {
-  transform: translateY(-98px);
+  transform: translateY(calc(-1 * var(--item-height, 60px))) !important;
 }
 
 /* Add item button */
@@ -497,22 +504,25 @@ body.is-dragging-list-item * {
   border-bottom: none !important;
   pointer-events: none;
   z-index: 5;
+  transition: opacity 0.15s ease, top 0.2s cubic-bezier(0.2, 0, 0, 1);
+  height: auto !important;
+  overflow: visible !important;
 }
 
 .preview-slide .template-agenda .list-drop-indicator.visible {
   height: auto;
 }
 
-/* Ghost content inherits the agenda-item styling naturally */
+/* Ghost content inherits the agenda-item styling - uses same dynamic sizing */
 .preview-slide .template-agenda .list-drop-indicator .list-ghost-content {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 20px 0 !important;
+  gap: calc(14px + 10px * var(--s, 1));
+  height: var(--item-height);
   margin: 0 !important;
   border: none !important;
   border-bottom: 1px solid var(--gray-200) !important;
-  background: transparent;
+  background: rgba(252, 109, 38, 0.05);
   box-shadow: none;
   transform: none;
   border-radius: 0;
@@ -520,8 +530,8 @@ body.is-dragging-list-item * {
 }
 
 .preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-number {
-  width: 48px;
-  height: 48px;
+  width: calc(28px + 20px * var(--s, 1));
+  height: calc(28px + 20px * var(--s, 1));
   background: rgba(252, 109, 38, 0.15);
   border: 2px dashed var(--accent-main);
   border-radius: 50%;
@@ -529,7 +539,7 @@ body.is-dragging-list-item * {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 20px;
+  font-size: calc(13px + 7px * var(--s, 1));
   font-weight: 700;
   color: var(--accent-main);
 }
@@ -541,10 +551,12 @@ body.is-dragging-list-item * {
 
 .preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-title {
   color: var(--accent-main);
+  font-size: calc(16px + 10px * var(--s, 1));
 }
 
 .preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-duration {
   opacity: 0.5;
+  font-size: calc(11px + 5px * var(--s, 1));
 }
 
 .preview-slide .template-agenda .list-drop-indicator .list-ghost-content .delete-item-btn {

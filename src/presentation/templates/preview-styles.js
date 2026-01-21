@@ -1,6 +1,6 @@
 // src/templates/preview-styles.js
 // Preview CSS generation for slide rendering
-import { getThemeColors } from './theme.js';
+import { getThemeColors } from "./theme.js";
 
 /**
  * Get CSS styles for slide preview with dynamic theme colors
@@ -212,17 +212,22 @@ export function getPreviewStyles() {
         .template-mermaid .mermaid-container { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--gray-100); border-radius: 16px; padding: 30px; overflow: hidden; min-height: 0; position: relative; }
         .template-mermaid .mermaid { font-family: 'Inter', sans-serif; position: absolute; top: 30px; left: 30px; right: 30px; bottom: 30px; display: flex; align-items: center; justify-content: center; }
         .template-mermaid .mermaid svg { max-width: 100%; max-height: 100%; width: auto !important; height: auto !important; }
-        /* Agenda */
-        .template-agenda { background: var(--slide-bgColor, var(--white)); padding: 60px 100px; height: 100%; }
-        .template-agenda h2 { font-size: 48px; font-weight: 700; color: var(--slide-titleColor, var(--gray-900)); margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); }
-        .template-agenda .agenda-list { list-style: none; }
-        .template-agenda .agenda-item { display: flex; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--gray-200); }
+        /* Agenda - uses --agenda-scale (0.45-1) and --agenda-items for dynamic sizing */
+        .template-agenda { --s: var(--agenda-scale, 1); --n: var(--agenda-items, 1); --list-height: 510px; --item-height: calc(var(--list-height) / var(--n)); background: var(--slide-bgColor, var(--white)); padding: 40px 80px 70px; height: 100%; position: relative; display: flex; flex-direction: column; box-sizing: border-box; }
+        .template-agenda h2 { font-size: calc(32px + 16px * var(--s)); font-weight: 700; color: var(--slide-titleColor, var(--gray-900)); margin-bottom: calc(16px + 14px * var(--s)); padding-bottom: calc(10px + 10px * var(--s)); border-bottom: 3px solid var(--accent-main); flex-shrink: 0; }
+        .template-agenda .agenda-list { list-style: none; flex: 1; display: flex; flex-direction: column; overflow: visible; min-height: 0; }
+        .template-agenda .agenda-add-btn { position: absolute; bottom: 25px; left: 80px; border: 2px dashed var(--gray-400); background: transparent; color: var(--gray-500); font-size: 14px; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .template-agenda .agenda-add-btn:hover { border-color: var(--accent-main); color: var(--accent-main); background: rgba(252, 109, 38, 0.1); }
+        .template-agenda .agenda-item { display: flex; align-items: center; gap: calc(14px + 10px * var(--s)); height: var(--item-height); max-height: var(--item-height); min-height: 0; border-bottom: 1px solid var(--gray-200); overflow: visible; box-sizing: border-box; }
         .template-agenda .agenda-item:last-child { border-bottom: none; }
-        .template-agenda .agenda-number { width: 48px; height: 48px; border-radius: 50%; background: var(--slide-numberColor, var(--gradient-accent)); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; flex-shrink: 0; }
-        .template-agenda .agenda-content { flex: 1; }
-        .template-agenda .agenda-title { font-size: 26px; font-weight: 600; color: var(--slide-itemColor, var(--gray-800)); line-height: 1.3; }
-        .template-agenda .agenda-subtitle { font-size: 16px; color: var(--gray-500); margin-top: 4px; }
-        .template-agenda .agenda-duration { font-size: 16px; font-weight: 500; color: var(--slide-durationColor, var(--gray-500)); background: var(--gray-100); padding: 8px 16px; border-radius: 20px; white-space: nowrap; }
+        .template-agenda .agenda-number { width: calc(28px + 20px * var(--s)); height: calc(28px + 20px * var(--s)); border-radius: 50%; background: var(--slide-numberColor, var(--gradient-accent)); color: white; display: flex; align-items: center; justify-content: center; font-size: calc(13px + 7px * var(--s)); font-weight: 700; flex-shrink: 0; }
+        .template-agenda .agenda-content { flex: 1; min-width: 0; overflow: visible; display: flex; flex-direction: column; gap: 2px; }
+        .template-agenda .agenda-title { font-size: calc(16px + 10px * var(--s)); font-weight: 600; color: var(--slide-itemColor, var(--gray-800)); line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .template-agenda .agenda-subtitle { font-size: calc(11px + 5px * var(--s)); color: var(--gray-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* Compact mode: subtitle inline with title */
+        .template-agenda.agenda-compact .agenda-content { flex-direction: row; align-items: baseline; gap: 12px; }
+        .template-agenda.agenda-compact .agenda-subtitle { flex-shrink: 0; }
+        .template-agenda .agenda-duration { font-size: calc(11px + 5px * var(--s)); font-weight: 500; color: var(--slide-durationColor, var(--gray-500)); background: var(--gray-100); padding: calc(4px + 4px * var(--s)) calc(8px + 8px * var(--s)); border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
         /* Draw.io */
         .template-drawio { background: var(--slide-bgColor, var(--white)); padding: 50px 60px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
         .template-drawio h2 { font-size: 36px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); margin-bottom: 16px; flex-shrink: 0; }

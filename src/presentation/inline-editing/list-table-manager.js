@@ -540,6 +540,11 @@ export function handleListItemDragStart(event, listKey, itemIndex) {
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', itemIndex.toString());
 
+  // Hide browser's default drag ghost image
+  const emptyImg = new Image();
+  emptyImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  event.dataTransfer.setDragImage(emptyImg, 0, 0);
+
   // Create ghost content
   updateGhostContent(dragState.draggedElement);
 
