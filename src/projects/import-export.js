@@ -92,36 +92,39 @@ const FIELD_TYPE_VALIDATORS = {
  * Validate slide fields against template schema
  * @param {Object} slide - Slide object with template and data
  * @param {number} slideIndex - Slide index for error messages
- * @returns {Object} { errors: string[], warnings: string[] }
+ * @returns {Object} { slideNum, templateName, errors: string[], warnings: string[] }
  */
 function validateSlideFields(slide, slideIndex) {
     const errors = [];
     const warnings = [];
     const slideNum = slideIndex + 1;
+    let templateName = '';
 
     // Check if slide has required structure
     if (!slide || typeof slide !== 'object') {
-        errors.push(`Slide ${slideNum}: Structure invalide`);
-        return { errors, warnings };
+        errors.push('Structure invalide');
+        return { slideNum, templateName, errors, warnings };
     }
 
     // Check if template is specified
     if (!slide.template) {
-        errors.push(`Slide ${slideNum}: Template non spécifié`);
-        return { errors, warnings };
+        errors.push('Template non spécifié');
+        return { slideNum, templateName, errors, warnings };
     }
 
     // Check if template exists
     const template = TEMPLATES[slide.template];
     if (!template) {
-        warnings.push(`Slide ${slideNum}: Template inconnu "${slide.template}"`);
-        return { errors, warnings };
+        warnings.push(`Template inconnu "${slide.template}"`);
+        return { slideNum, templateName: slide.template, errors, warnings };
     }
+
+    templateName = template.name;
 
     // Check if data exists
     if (!slide.data || typeof slide.data !== 'object') {
-        errors.push(`Slide ${slideNum}: Données manquantes`);
-        return { errors, warnings };
+        errors.push('Données manquantes');
+        return { slideNum, templateName, errors, warnings };
     }
 
     // Validate each field in the schema
@@ -132,7 +135,7 @@ function validateSlideFields(slide, slideIndex) {
 
         // Check required fields
         if (field.required && !hasValue) {
-            errors.push(`Slide ${slideNum} (${template.name}): Champ requis "${field.label}" manquant`);
+            errors.push(`Champ "${field.label}" manquant`);
             continue;
         }
 
@@ -142,26 +145,44 @@ function validateSlideFields(slide, slideIndex) {
         // Validate field type
         const validator = FIELD_TYPE_VALIDATORS[field.type];
         if (validator && !validator(value)) {
-            warnings.push(`Slide ${slideNum} (${template.name}): Type invalide pour "${field.label}" (attendu: ${field.type})`);
+            errors.push(`Champ "${field.label}" - type invalide (attendu: ${field.type})`);
         }
     }
 
-    return { errors, warnings };
+    return { slideNum, templateName, errors, warnings };
 }
 
 /**
  * Validate all slides in a project
  * @param {Array} slides - Array of slide objects
+ * @param {number[]} [lineNumbers] - Optional array of line numbers for each slide
  * @returns {Object} { errors: string[], warnings: string[] }
  */
-function validateAllSlides(slides) {
+export function validateAllSlides(slides, lineNumbers = []) {
     const allErrors = [];
     const allWarnings = [];
 
     slides.forEach((slide, index) => {
-        const { errors, warnings } = validateSlideFields(slide, index);
-        allErrors.push(...errors);
-        allWarnings.push(...warnings);
+        const { slideNum, templateName, errors, warnings } = validateSlideFields(slide, index);
+        const lineNum = lineNumbers[index];
+
+        // Build prefix: "Ligne X - Slide Y (Template)" or "Slide Y" if no line
+        const buildPrefix = () => {
+            const slidePart = templateName
+                ? `Slide ${slideNum} (${templateName})`
+                : `Slide ${slideNum}`;
+            return lineNum ? `Ligne ${lineNum} - ${slidePart}` : slidePart;
+        };
+
+        // Add each error as separate line
+        errors.forEach(err => {
+            allErrors.push(`${buildPrefix()} - ${err}`);
+        });
+
+        // Add each warning as separate line
+        warnings.forEach(warn => {
+            allWarnings.push(`${buildPrefix()} - ${warn}`);
+        });
     });
 
     return { errors: allErrors, warnings: allWarnings };

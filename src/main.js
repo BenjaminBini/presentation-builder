@@ -145,7 +145,7 @@ import {
 // Import modal
 import {
     openImportModal, switchImportTab, handleFileSelect, handleImport,
-    clearSelectedFile, confirmImport, formatJsonInput, initFileDropZone
+    clearSelectedFile, confirmImport, formatJsonInput, initFileDropZone, initJsonCodeInput
 } from './presentation/app/import-modal.js';
 
 // Inline editing (auto-initializes on DOM ready)
@@ -389,8 +389,9 @@ function initializeApp() {
     }
     window.addEventListener('resize', scalePreviewSlide);
 
-    // Initialize file drop zone for import modal
+    // Initialize file drop zone and JSON input for import modal
     initFileDropZone();
+    initJsonCodeInput();
 
     // Initialize modal behaviors
     initModalBehaviors();

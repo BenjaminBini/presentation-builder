@@ -667,6 +667,7 @@
                 </svg>
               </button>
             </div>
+            <div class="code-input-error" id="fileError"></div>
           </div>
 
           <!-- Code Input Tab -->
@@ -687,11 +688,17 @@
                   Formater
                 </button>
               </div>
-              <textarea
-                id="jsonCodeInput"
-                class="json-code-input"
-                placeholder='{"metadata": {"title": "Ma présentation"}, "slides": [...]}'
-              ></textarea>
+              <div class="code-input-body">
+                <div class="code-input-line-numbers" id="jsonLineNumbers">1</div>
+                <div class="code-input-editor">
+                  <div class="code-input-highlights" id="jsonHighlights"></div>
+                  <textarea
+                    id="jsonCodeInput"
+                    class="json-code-input"
+                    placeholder='{"name": "...", "slides": [...]}'
+                  ></textarea>
+                </div>
+              </div>
               <div class="code-input-error" id="jsonError"></div>
             </div>
           </div>
