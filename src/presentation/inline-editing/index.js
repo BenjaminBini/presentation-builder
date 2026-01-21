@@ -44,6 +44,7 @@ import {
 import {
   deleteListItem,
   addListItem,
+  moveListItem,
   addTableColumn,
   deleteTableColumn,
   addTableRow,
@@ -100,6 +101,7 @@ Object.assign(InlineEditor.prototype, {
   // List and table management
   deleteListItem,
   addListItem,
+  moveListItem,
   addTableColumn,
   deleteTableColumn,
   addTableRow,
@@ -150,6 +152,7 @@ export {
   clearAnnotationSelectionHighlight,
   deleteListItem,
   addListItem,
+  moveListItem,
   addTableColumn,
   deleteTableColumn,
   addTableRow,

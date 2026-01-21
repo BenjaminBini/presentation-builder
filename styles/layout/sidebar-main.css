@@ -309,6 +309,7 @@
 .slide-list {
   padding: 8px;
   padding-bottom: 0;
+  position: relative;
 }
 
 .slide-list-footer {

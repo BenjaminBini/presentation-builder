@@ -111,33 +111,52 @@ function calculateDropTarget(event, slideList) {
 
 /**
  * Position the drop indicator at the correct location
- * Always show ghost to maintain consistent item count and avoid UI jumps
+ * Uses offsetTop to get position without CSS transforms
  */
 function positionDropIndicator(targetElement, targetIndex, slideList) {
   const indicator = getDropIndicator();
 
-  // Always show the ghost - if at original position, show it there
-  // This maintains consistent item count and prevents UI jumps
+  // Ensure indicator is in the container
+  if (!slideList.contains(indicator)) {
+    slideList.appendChild(indicator);
+  }
+
+  // Calculate top position using offsetTop (ignores transforms)
+  let topPosition = 0;
+  const draggedItem = slideList.querySelector('.slide-item.dragging');
+
   if (targetIndex === draggedSlideIndex || targetIndex === draggedSlideIndex + 1) {
-    // Show ghost at the original position (right after the hidden dragged item)
-    const draggedItem = slideList.querySelector('.slide-item.dragging');
+    // At or near original position - position at dragged item's location
     if (draggedItem) {
-      // Insert after the dragged item (which is hidden)
-      if (draggedItem.nextSibling) {
-        slideList.insertBefore(indicator, draggedItem.nextSibling);
-      } else {
-        slideList.appendChild(indicator);
+      topPosition = draggedItem.offsetTop;
+    }
+  } else if (draggedSlideIndex < targetIndex) {
+    // Dragging DOWN - ghost appears one slot above the target
+    // (because the dragged item will end up at targetIndex - 1 after removal)
+    const prevIndex = targetIndex - 1;
+    const prevItem = slideList.querySelector(`.slide-item[data-index="${prevIndex}"]`);
+    if (prevItem && prevItem !== draggedItem) {
+      topPosition = prevItem.offsetTop;
+    } else if (draggedItem) {
+      // prevItem is the dragged item, use the one before that
+      const beforePrevItem = slideList.querySelector(`.slide-item[data-index="${prevIndex - 1}"]`);
+      if (beforePrevItem) {
+        topPosition = beforePrevItem.offsetTop + beforePrevItem.offsetHeight + 4; // 4px gap
       }
     }
+  } else if (targetElement) {
+    // Dragging UP - ghost appears at target position
+    topPosition = targetElement.offsetTop;
   } else {
-    // Insert at the target position
-    if (targetElement) {
-      slideList.insertBefore(indicator, targetElement);
-    } else {
-      slideList.appendChild(indicator);
+    // Position at end - calculate from last item's original position + height
+    const items = slideList.querySelectorAll('.slide-item:not(.dragging)');
+    if (items.length > 0) {
+      const lastItem = items[items.length - 1];
+      topPosition = lastItem.offsetTop + lastItem.offsetHeight + 4; // 4px gap
     }
   }
 
+  indicator.style.top = `${topPosition}px`;
   indicator.classList.add('visible');
 }
 
@@ -180,20 +199,25 @@ function handleDragStart(event, index) {
 
   // Get the slide list for positioning
   const slideList = document.getElementById('slideList');
+  const indicator = getDropIndicator();
 
-  // Add dragging class and insert ghost immediately to prevent UI jump
+  // Ensure indicator is in the container
+  if (!slideList.contains(indicator)) {
+    slideList.appendChild(indicator);
+  }
+
+  // Apply all changes at once
+  event.target.classList.add('dragging');
+  document.body.classList.add('is-dragging-slide');
+
+  // Set initial ghost position without animation
+  indicator.classList.add('no-transition');
+  indicator.style.top = `${event.target.offsetTop}px`;
+  indicator.classList.add('visible');
+
+  // Re-enable transitions after initial position is set
   requestAnimationFrame(() => {
-    event.target.classList.add('dragging');
-    document.body.classList.add('is-dragging-slide');
-
-    // Insert ghost right after the dragged item (which is now hidden)
-    const indicator = getDropIndicator();
-    if (event.target.nextSibling) {
-      slideList.insertBefore(indicator, event.target.nextSibling);
-    } else {
-      slideList.appendChild(indicator);
-    }
-    indicator.classList.add('visible');
+    indicator.classList.remove('no-transition');
   });
 }
 
