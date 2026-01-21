@@ -90,6 +90,7 @@ export function renderTimelineTemplate(data, colorStyles) {
 export function renderAgendaTemplate(data, colorStyles) {
   const agendaItems = data.items || [];
   const showDuration = data.showDuration !== false;
+  const showSubtitle = data.showSubtitle === true;
   const itemCount = Math.max(1, agendaItems.length);
 
   // Calculate scale factor to fit items in available height
@@ -126,9 +127,9 @@ export function renderAgendaTemplate(data, colorStyles) {
                               i + 1
                             }">${escapeHtml(item.title || "")}</div>
                                     ${
-                                      item.subtitle
-                                        ? `<div class="agenda-subtitle">${escapeHtml(
-                                            item.subtitle
+                                      showSubtitle
+                                        ? `<div class="agenda-subtitle" data-editable="text" data-field-key="items" data-field-index="${i}" data-field-subkey="subtitle" data-placeholder="Sous-titre">${escapeHtml(
+                                            item.subtitle || ""
                                           )}</div>`
                                         : ""
                                     }

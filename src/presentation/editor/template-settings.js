@@ -42,6 +42,7 @@ export function renderTemplateSettings(slide) {
 
     if (slide.template === 'agenda') {
         const showDuration = slide.data.showDuration !== false;
+        const showSubtitle = slide.data.showSubtitle === true;
         settings.push(`
             <div class="editor-toolbar-section editor-toolbar-section-block">
                 <span class="editor-toolbar-label">Affichage</span>
@@ -50,6 +51,11 @@ export function renderTemplateSettings(slide) {
                         <span class="toolbar-toggle-label">Durées</span>
                         <input type="checkbox" ${showDuration ? 'checked' : ''}
                                onchange="updateField('showDuration', this.checked); renderEditor(); updatePreview();">
+                    </label>
+                    <label class="toolbar-toggle">
+                        <span class="toolbar-toggle-label">Sous-titres</span>
+                        <input type="checkbox" ${showSubtitle ? 'checked' : ''}
+                               onchange="updateField('showSubtitle', this.checked); renderEditor(); updatePreview();">
                     </label>
                 </div>
             </div>
