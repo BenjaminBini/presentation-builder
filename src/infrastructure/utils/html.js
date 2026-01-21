@@ -84,3 +84,138 @@ export function sanitizeForCss(str) {
   if (str == null) return '';
   return String(str).replace(/[^a-zA-Z0-9-_]/g, '');
 }
+
+/**
+ * Sanitize HTML content to prevent XSS while preserving safe formatting tags.
+ * Used for WYSIWYG content where HTML structure must be preserved.
+ * @param {string} html - HTML string to sanitize
+ * @returns {string} Sanitized HTML string
+ */
+export function sanitizeHtml(html) {
+  if (!html || typeof html !== 'string') return '';
+
+  // Create a temporary element to parse the HTML
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+
+  // Allowed tags and their allowed attributes
+  const allowedTags = {
+    p: [],
+    strong: [],
+    b: [],
+    em: [],
+    i: [],
+    u: [],
+    a: ['href', 'class'],
+    ul: [],
+    ol: [],
+    li: [],
+    br: [],
+  };
+
+  /**
+   * Recursively sanitize a node and its children
+   */
+  function sanitizeNode(node) {
+    // Text nodes are safe
+    if (node.nodeType === Node.TEXT_NODE) {
+      return document.createTextNode(node.textContent);
+    }
+
+    // Only process element nodes
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return null;
+    }
+
+    const tagName = node.tagName.toLowerCase();
+
+    // If tag is not allowed, return only sanitized children as text
+    if (!allowedTags.hasOwnProperty(tagName)) {
+      const fragment = document.createDocumentFragment();
+      for (const child of node.childNodes) {
+        const sanitizedChild = sanitizeNode(child);
+        if (sanitizedChild) {
+          fragment.appendChild(sanitizedChild);
+        }
+      }
+      return fragment;
+    }
+
+    // Create new element with allowed tag
+    const newElement = document.createElement(tagName);
+
+    // Copy only allowed attributes
+    const allowedAttrs = allowedTags[tagName];
+    for (const attr of allowedAttrs) {
+      if (node.hasAttribute(attr)) {
+        let value = node.getAttribute(attr);
+
+        // Special validation for href - block dangerous protocols
+        if (attr === 'href') {
+          value = sanitizeLinkUrl(value);
+          if (!value) continue; // Skip invalid URLs
+        }
+
+        newElement.setAttribute(attr, value);
+      }
+    }
+
+    // Recursively sanitize children
+    for (const child of node.childNodes) {
+      const sanitizedChild = sanitizeNode(child);
+      if (sanitizedChild) {
+        newElement.appendChild(sanitizedChild);
+      }
+    }
+
+    return newElement;
+  }
+
+  // Sanitize all children
+  const result = document.createDocumentFragment();
+  for (const child of temp.childNodes) {
+    const sanitizedChild = sanitizeNode(child);
+    if (sanitizedChild) {
+      result.appendChild(sanitizedChild);
+    }
+  }
+
+  // Convert back to HTML string
+  const output = document.createElement('div');
+  output.appendChild(result);
+  return output.innerHTML;
+}
+
+/**
+ * Validate and sanitize a URL for use in anchor href attributes.
+ * Blocks javascript: and other dangerous protocols.
+ * @param {string} url - URL to validate
+ * @returns {string} Safe URL or empty string if invalid
+ */
+export function sanitizeLinkUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+
+  const trimmed = url.trim();
+
+  // Allow http and https protocols
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+
+  // Allow relative URLs (paths starting with / or # or not containing :)
+  if (
+    trimmed.startsWith('/') ||
+    trimmed.startsWith('#') ||
+    !trimmed.includes(':')
+  ) {
+    return trimmed;
+  }
+
+  // Allow mailto: protocol
+  if (trimmed.toLowerCase().startsWith('mailto:')) {
+    return trimmed;
+  }
+
+  // Reject all other protocols (javascript:, data:, vbscript:, etc.)
+  return '';
+}

@@ -238,5 +238,32 @@ export function getPreviewStyles() {
         .template-drawio .drawio-placeholder svg { width: 64px; height: 64px; margin-bottom: 12px; opacity: 0.5; }
         .template-drawio .drawio-placeholder p { font-size: 16px; }
         .template-drawio img.drawio-svg { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; color-scheme: light only; }
+        /* Text template with WYSIWYG content - uses --text-scale CSS variable for font scaling */
+        .template-text { --text-scale: 1; background: var(--slide-bgColor, var(--white)); padding: 60px 80px; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .template-text h2 { font-size: 42px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid var(--accent-main); flex-shrink: 0; }
+        .template-text .text-content-container { flex: 1; }
+        .template-text .text-content { min-height: 100%; font-size: calc(26px * var(--text-scale)); color: var(--slide-textColor, var(--gray-800)); line-height: 1.4; }
+        .template-text .text-content p { margin-bottom: calc(20px * var(--text-scale)); }
+        .template-text .text-content p:last-child { margin-bottom: 0; }
+        .template-text .text-content strong { font-weight: 700; }
+        .template-text .text-content em { font-style: italic; }
+        .template-text .text-content u { text-decoration: underline; }
+        .template-text .text-content ul, .template-text .text-content ol { list-style: none; margin-bottom: calc(20px * var(--text-scale)); }
+        .template-text .text-content li { font-size: calc(26px * var(--text-scale)); margin-bottom: calc(28px * var(--text-scale)); padding-left: calc(50px * var(--text-scale)); position: relative; line-height: 1.4; }
+        .template-text .text-content ul li::before { content: ''; position: absolute; left: 0; top: calc(8px * var(--text-scale)); width: calc(24px * var(--text-scale)); height: calc(24px * var(--text-scale)); background: var(--slide-bulletColor, var(--gradient-accent)); border-radius: calc(6px * var(--text-scale)); transform: rotate(45deg); }
+        .template-text .text-content ul ul li { margin-left: calc(40px * var(--text-scale)); font-size: calc(24px * var(--text-scale)); }
+        .template-text .text-content ul ul li::before { width: calc(18px * var(--text-scale)); height: calc(18px * var(--text-scale)); top: calc(10px * var(--text-scale)); border-radius: 50%; transform: none; }
+        .template-text .text-content ul ul ul li { margin-left: calc(80px * var(--text-scale)); font-size: calc(22px * var(--text-scale)); }
+        .template-text .text-content ul ul ul li::before { width: calc(14px * var(--text-scale)); height: calc(14px * var(--text-scale)); top: calc(10px * var(--text-scale)); border-radius: 0; opacity: 0.8; }
+        .template-text .text-content ul ul ul ul li { margin-left: calc(120px * var(--text-scale)); font-size: calc(20px * var(--text-scale)); }
+        .template-text .text-content ul ul ul ul li::before { width: calc(10px * var(--text-scale)); height: calc(10px * var(--text-scale)); top: calc(10px * var(--text-scale)); border-radius: 50%; transform: none; opacity: 0.6; }
+        .template-text .text-content ol { counter-reset: list-counter; }
+        .template-text .text-content ol li { counter-increment: list-counter; }
+        .template-text .text-content ol li::before { content: counter(list-counter) '.'; position: absolute; left: 0; top: 0; width: calc(40px * var(--text-scale)); font-weight: 700; color: var(--accent-main); }
+        .template-text .text-content ol ol { counter-reset: list-counter; }
+        .template-text .text-content ol ol li { margin-left: calc(40px * var(--text-scale)); font-size: calc(24px * var(--text-scale)); }
+        .template-text .text-content ol ol ol li { margin-left: calc(40px * var(--text-scale)); font-size: calc(22px * var(--text-scale)); }
+        .template-text .text-content a { color: var(--accent-main); text-decoration: underline; }
+        .template-text .text-content a:hover { text-decoration: none; }
     `;
 }

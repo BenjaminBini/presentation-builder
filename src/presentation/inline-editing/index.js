@@ -32,6 +32,11 @@ import {
   updateDrawioStatus
 } from './drawio-editor.js';
 import {
+  openWysiwygEditor,
+  closeWysiwygEditor,
+  confirmWysiwygEdit
+} from './wysiwyg-editor.js';
+import {
   deleteAnnotation,
   addAnnotation,
   handleAnnotationMouseDown,
@@ -88,6 +93,11 @@ Object.assign(InlineEditor.prototype, {
   closeDrawioEditor,
   updateDrawioStatus,
 
+  // WYSIWYG editor
+  openWysiwygEditor,
+  closeWysiwygEditor,
+  confirmWysiwygEdit,
+
   // Annotations
   deleteAnnotation,
   addAnnotation,
@@ -142,6 +152,9 @@ export {
   openDrawioEditor,
   closeDrawioEditor,
   updateDrawioStatus,
+  openWysiwygEditor,
+  closeWysiwygEditor,
+  confirmWysiwygEdit,
   deleteAnnotation,
   addAnnotation,
   handleAnnotationMouseDown,

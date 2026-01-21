@@ -3,6 +3,7 @@
 
 import { getProject, getSelectedSlideIndex } from '../../../core/state.js';
 import { on, EventTypes } from '../../../core/events.js';
+import { adjustTextTemplateScale } from '../../templates/components/layout.js';
 
 export function updatePreview() {
   if (typeof window.InlineEditor !== 'undefined' && window.InlineEditor.isEditing) {
@@ -29,6 +30,11 @@ export function updatePreview() {
 
   const slide = project.slides[selectedSlideIndex];
   preview.innerHTML = renderSlidePreview(slide);
+
+  // Adjust text template scale based on actual content height
+  if (slide.template === 'text') {
+    adjustTextTemplateScale(preview);
+  }
 
   scalePreviewSlide();
 
