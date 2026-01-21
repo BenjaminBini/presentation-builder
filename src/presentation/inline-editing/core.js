@@ -54,6 +54,10 @@ class InlineEditor {
     // Draw.io editor state
     this.drawioEditorFieldKey = null;
     this.drawioEditorFieldIndex = null;
+
+    // WYSIWYG editor state
+    this.wysiwygEditorFieldKey = null;
+    this.wysiwygEditorFieldIndex = null;
   }
 
   // ========================================================================
@@ -270,6 +274,9 @@ class InlineEditor {
     } else if (editType === 'drawio') {
       event.preventDefault();
       this.openDrawioEditor(fieldKey, fieldIndex);
+    } else if (editType === 'wysiwyg') {
+      event.preventDefault();
+      this.openWysiwygEditor(fieldKey, fieldIndex);
     } else if (editType === 'text' || editType === 'multiline') {
       // Don't restart edit if clicking same element
       if (this.currentEditingElement === editableElement) {
