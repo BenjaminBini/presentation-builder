@@ -89,22 +89,30 @@ function updatePlayerSlide() {
     }
 }
 
+let scalePlayerRAF = null;
+
 export function scalePlayerSlide() {
-    const content = document.querySelector('.player-content');
-    const wrapper = document.querySelector('.player-slide-wrapper');
-    const slide = document.getElementById('playerSlide');
-    if (!content || !wrapper || !slide) return;
+    if (scalePlayerRAF) return;
 
-    const availableWidth = content.clientWidth - 180;
-    const availableHeight = content.clientHeight - 40;
+    scalePlayerRAF = requestAnimationFrame(() => {
+        scalePlayerRAF = null;
 
-    const scaleX = availableWidth / 1280;
-    const scaleY = availableHeight / 720;
-    const scale = Math.min(1, scaleX, scaleY);
+        const content = document.querySelector('.player-content');
+        const wrapper = document.querySelector('.player-slide-wrapper');
+        const slide = document.getElementById('playerSlide');
+        if (!content || !wrapper || !slide) return;
 
-    slide.style.transform = `scale(${scale})`;
-    wrapper.style.width = `${1280 * scale}px`;
-    wrapper.style.height = `${720 * scale}px`;
+        const availableWidth = content.clientWidth - 180;
+        const availableHeight = content.clientHeight - 40;
+
+        const scaleX = availableWidth / 1280;
+        const scaleY = availableHeight / 720;
+        const scale = Math.min(1, scaleX, scaleY);
+
+        slide.style.transform = `scale(${scale})`;
+        wrapper.style.width = `${1280 * scale}px`;
+        wrapper.style.height = `${720 * scale}px`;
+    });
 }
 
 function updatePlayerControls() {

@@ -2,7 +2,9 @@
 /* Inline Editing Styles */
 /* Hover state for editable elements */
 .preview-slide [data-editable] {
-  transition: outline 0.15s ease, background 0.15s ease;
+  transition:
+    outline 0.15s ease,
+    background 0.15s ease;
   cursor: pointer;
 }
 
@@ -112,7 +114,9 @@
   border-radius: 50%;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   z-index: 10;
   padding: 5px;
   display: flex;
@@ -149,7 +153,9 @@
   border-radius: 4px;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,7 +225,9 @@
   align-items: center;
   justify-content: center;
   padding: 5px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   z-index: 10;
 }
 
@@ -258,6 +266,72 @@
   top: 8px;
   right: 8px;
   transform: none;
+}
+
+/* Specific positioning for agenda items - left side */
+.preview-slide .template-agenda .agenda-item.repeatable-item {
+  padding-right: 0;
+}
+
+.preview-slide .template-agenda .agenda-item.repeatable-item .delete-item-btn {
+  left: -32px;
+  right: auto;
+}
+
+/* ============================================================================
+   LIST ITEM ANIMATIONS (Add/Remove/Sort)
+   ============================================================================ */
+
+/* Add item animation - only applies when .item-added class is present */
+.preview-slide .template-agenda .agenda-item.item-added {
+  animation: slideIn 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Remove item animation class */
+.preview-slide .template-agenda .agenda-item.removing {
+  animation: collapseOut 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes collapseOut {
+  from {
+    opacity: 1;
+    max-height: 100px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-width: 0;
+  }
+}
+
+/* Sort animation - items shifting in real-time during drag */
+.preview-slide .template-agenda .agenda-item {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Shift classes - animate items to preview final positions */
+.preview-slide .template-agenda .agenda-item.shift-down {
+  transform: translateY(98px);
+}
+
+.preview-slide .template-agenda .agenda-item.shift-up {
+  transform: translateY(-98px);
 }
 
 /* Add item button */
@@ -300,7 +374,9 @@
   padding: 0;
   font-size: 24px;
   opacity: 0;
-  transition: opacity 0.15s, transform 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 }
 
 .preview-slide
@@ -332,4 +408,145 @@
   min-height: 120px;
   font-size: 32px;
   border-radius: 18px;
+}
+
+/* ============================================================================
+   LIST ITEM DRAG AND DROP
+   ============================================================================ */
+
+/* Drag handle for agenda items */
+.preview-slide .agenda-number {
+  cursor: move;
+  user-select: none;
+}
+
+.preview-slide .agenda-number:active {
+  cursor: grabbing;
+}
+
+/* Dragging state for list items - keep space for stable animations */
+.preview-slide .repeatable-item.dragging {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: none !important;
+}
+
+/* Body class during list drag for cursor */
+body.is-dragging-list-item {
+  cursor: grabbing !important;
+}
+
+body.is-dragging-list-item * {
+  cursor: grabbing !important;
+}
+
+/* Drop indicator - ghost of the list item showing where it will land */
+.list-drop-indicator {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+  list-style: none;
+}
+
+.list-drop-indicator.visible {
+  opacity: 1;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+/* The ghost list item content */
+.list-drop-indicator .list-ghost-content {
+  opacity: 0.6;
+  border: 2px dashed var(--accent-main);
+  background: rgba(252, 109, 38, 0.08);
+  box-shadow: 0 2px 8px rgba(252, 109, 38, 0.2);
+  border-radius: 8px;
+  transform: scale(0.98);
+  pointer-events: none;
+}
+
+/* Hide delete button in ghost */
+.list-drop-indicator .list-ghost-content .delete-item-btn {
+  display: none !important;
+}
+
+/* Smooth transitions for all list items during drag */
+.preview-slide .repeatable-item {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+              opacity 0.15s ease,
+              border-color 0.15s ease,
+              background 0.15s ease;
+}
+
+/* Agenda-specific ghost styling - absolutely positioned overlay */
+.preview-slide .template-agenda .agenda-list {
+  position: relative;
+}
+
+.preview-slide .template-agenda .list-drop-indicator {
+  position: absolute !important;
+  left: 0;
+  right: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.preview-slide .template-agenda .list-drop-indicator.visible {
+  height: auto;
+}
+
+/* Ghost content inherits the agenda-item styling naturally */
+.preview-slide .template-agenda .list-drop-indicator .list-ghost-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid var(--gray-200) !important;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  border-radius: 0;
+  opacity: 0.6;
+}
+
+.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-number {
+  width: 48px;
+  height: 48px;
+  background: rgba(252, 109, 38, 0.15);
+  border: 2px dashed var(--accent-main);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-main);
+}
+
+.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-content {
+  flex: 1;
+  opacity: 0.5;
+}
+
+.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-title {
+  color: var(--accent-main);
+}
+
+.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-duration {
+  opacity: 0.5;
+}
+
+.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .delete-item-btn {
+  display: none;
 }

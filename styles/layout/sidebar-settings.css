@@ -10,15 +10,11 @@
   cursor: grabbing;
 }
 
-/* Dragging state for slide items - hide the original, only show ghost */
+/* Dragging state for slide items - keep space for stable animations */
 .slide-item.dragging {
-  opacity: 0;
-  height: 0;
-  padding: 0;
-  margin: 0;
-  border: none;
-  overflow: hidden;
+  opacity: 0 !important;
   pointer-events: none;
+  transition: none !important;
 }
 
 /* Body class during drag for cursor */
@@ -32,29 +28,31 @@ body.is-dragging-slide * {
 
 /* Drop indicator - ghost of the slide showing where it will land */
 .slide-drop-indicator {
-  height: 0;
-  margin: 0;
-  padding: 0;
-  position: relative;
+  position: absolute !important;
+  left: 8px;
+  right: 8px;
+  margin: 0 !important;
+  padding: 0 !important;
   opacity: 0;
-  overflow: hidden;
-  transition: opacity 0.2s ease, height 0.25s cubic-bezier(0.2, 0, 0, 1), margin 0.25s cubic-bezier(0.2, 0, 0, 1);
   pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.15s ease, top 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .slide-drop-indicator.visible {
   opacity: 1;
-  height: auto;
-  margin-bottom: 4px;
+}
+
+.slide-drop-indicator.no-transition {
+  transition: none !important;
 }
 
 /* The ghost slide content */
 .slide-drop-indicator .slide-ghost-content {
   opacity: 0.6;
-  border: 2px dashed var(--ui-accent-main);
+  border: 1px dashed var(--ui-accent-main);
   background: rgba(252, 109, 38, 0.08);
   box-shadow: 0 2px 8px rgba(252, 109, 38, 0.2);
-  transform: scale(0.98);
   pointer-events: none;
 }
 
@@ -71,13 +69,13 @@ body.is-dragging-slide * {
               box-shadow 0.15s ease;
 }
 
-/* Items shifting to make room */
+/* Items shifting to make room - full item height (48px + 4px margin) */
 .slide-item.shift-down {
-  transform: translateY(4px);
+  transform: translateY(52px);
 }
 
 .slide-item.shift-up {
-  transform: translateY(-4px);
+  transform: translateY(-52px);
 }
 
 /* Legacy drag-over style (kept for fallback) */

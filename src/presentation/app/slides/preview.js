@@ -39,22 +39,30 @@ export function updatePreview() {
   }
 }
 
+let scalePreviewRAF = null;
+
 export function scalePreviewSlide() {
-  const panel = document.querySelector('.preview-panel');
-  const wrapper = document.getElementById('previewWrapper');
-  const preview = document.getElementById('previewSlide');
-  if (!panel || !wrapper || !preview) return;
+  if (scalePreviewRAF) return;
 
-  const availableWidth = panel.clientWidth - 40;
-  const availableHeight = panel.clientHeight - 40;
+  scalePreviewRAF = requestAnimationFrame(() => {
+    scalePreviewRAF = null;
 
-  const scaleX = availableWidth / 1280;
-  const scaleY = availableHeight / 720;
-  const scale = Math.min(1, scaleX, scaleY);
+    const panel = document.querySelector('.preview-panel');
+    const wrapper = document.getElementById('previewWrapper');
+    const preview = document.getElementById('previewSlide');
+    if (!panel || !wrapper || !preview) return;
 
-  preview.style.transform = `scale(${scale})`;
-  wrapper.style.width = `${1280 * scale}px`;
-  wrapper.style.height = `${720 * scale}px`;
+    const availableWidth = panel.clientWidth - 40;
+    const availableHeight = panel.clientHeight - 40;
+
+    const scaleX = availableWidth / 1280;
+    const scaleY = availableHeight / 720;
+    const scale = Math.min(1, scaleX, scaleY);
+
+    preview.style.transform = `scale(${scale})`;
+    wrapper.style.width = `${1280 * scale}px`;
+    wrapper.style.height = `${720 * scale}px`;
+  });
 }
 
 function renderSlidePreview(slide) {

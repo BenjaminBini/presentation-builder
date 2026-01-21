@@ -95,12 +95,19 @@ export function renderAgendaTemplate(data, colorStyles) {
                     <h2 data-editable="text" data-field-key="title" data-placeholder="Agenda">${escapeHtml(
                       data.title || ""
                     )}</h2>
-                    <ul class="agenda-list repeatable-list" data-list-key="items">
+                    <ul class="agenda-list repeatable-list" data-list-key="items"
+                        ondragover="window.handleListItemDragOver(event)"
+                        ondragleave="window.handleListItemDragLeave(event)"
+                        ondrop="window.handleListItemDrop(event)">
                         ${agendaItems
                           .map(
                             (item, i) => `
-                            <li class="agenda-item repeatable-item">
-                                <div class="agenda-number">${i + 1}</div>
+                            <li class="agenda-item repeatable-item" data-item-index="${i}">
+                                <button class="delete-item-btn" data-list-key="items" data-item-index="${i}" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                                <div class="agenda-number"
+                                     draggable="true"
+                                     ondragstart="window.handleListItemDragStart(event, 'items', ${i})"
+                                     ondragend="window.handleListItemDragEnd(event)">${i + 1}</div>
                                 <div class="agenda-content">
                                     <div class="agenda-title" data-editable="text" data-field-key="items" data-field-index="${i}" data-field-subkey="title" data-placeholder="Sujet ${
                               i + 1
@@ -120,7 +127,6 @@ export function renderAgendaTemplate(data, colorStyles) {
                                       )}</div>`
                                     : ""
                                 }
-                                <button class="delete-item-btn" data-list-key="items" data-item-index="${i}" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                             </li>
                         `
                           )
