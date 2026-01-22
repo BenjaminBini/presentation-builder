@@ -91,22 +91,32 @@ function renderTwoColumns(data) {
 
 /**
  * Render image-text slide template
+ * Supports both 'content' (WYSIWYG HTML) and legacy 'text' field
  */
 function renderImageText(data) {
     const imageContent = data.image
         ? `<img src="${escapeHtml(data.image)}" alt="${escapeHtml(data.imageAlt || '')}">`
         : `<div class="image-placeholder">📷</div>`;
 
-    const paragraphs = Array.isArray(data.text)
-        ? data.text.map(p => `<p>${escapeHtml(p)}</p>`).join('\n                ')
-        : `<p>${escapeHtml(data.text)}</p>`;
+    // Support both 'content' (new WYSIWYG) and 'text' (legacy) fields
+    let textContent;
+    if (data.content) {
+        // WYSIWYG content is already HTML (sanitized on save)
+        textContent = data.content;
+    } else {
+        // Legacy text field - convert to paragraphs
+        const paragraphs = Array.isArray(data.text)
+            ? data.text
+            : (data.text || '').split('\n');
+        textContent = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('\n                ');
+    }
 
     return `
         <div class="slide template-image-text">
             <div class="image-container">${imageContent}</div>
             <div class="text-container">
                 <h2>${escapeHtml(data.title)}</h2>
-                ${paragraphs}
+                <div class="text-content">${textContent}</div>
             </div>
         </div>
         `;

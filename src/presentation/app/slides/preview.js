@@ -31,8 +31,8 @@ export function updatePreview() {
   const slide = project.slides[selectedSlideIndex];
   preview.innerHTML = renderSlidePreview(slide);
 
-  // Adjust text template scale based on actual content height
-  if (slide.template === 'text') {
+  // Adjust text field scale based on actual content height
+  if (slide.template === 'text' || slide.template === 'image-text') {
     adjustTextTemplateScale(preview);
   }
 
