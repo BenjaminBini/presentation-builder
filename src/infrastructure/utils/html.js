@@ -187,7 +187,7 @@ export function sanitizeHtml(html) {
 }
 
 /**
- * Trim trailing whitespace, <br> tags, and empty paragraphs from HTML.
+ * Trim trailing whitespace, <br> tags, zero-width spaces, and empty paragraphs from HTML.
  * Also trims leading whitespace.
  * @param {string} html - HTML string to trim
  * @returns {string} Trimmed HTML string
@@ -196,6 +196,11 @@ export function trimHtml(html) {
   if (!html || typeof html !== 'string') return '';
 
   let result = html;
+
+  // Remove all zero-width spaces (used for cursor positioning)
+  result = result.replace(/\u200B/g, '');
+  result = result.replace(/&#8203;/g, '');
+  result = result.replace(/&#x200B;/gi, '');
 
   // Trim leading/trailing whitespace
   result = result.trim();
