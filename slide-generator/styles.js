@@ -315,11 +315,64 @@ const CSS_STYLES = `
             color: var(--gl-dark);
             margin-bottom: 24px;
         }
-        .template-image-text p {
+        .template-image-text .text-content {
             font-size: 20px;
             color: var(--gl-gray-700);
             line-height: 1.7;
+        }
+        .template-image-text .text-content p {
             margin-bottom: 16px;
+        }
+        .template-image-text .text-content p:last-child {
+            margin-bottom: 0;
+        }
+        .template-image-text .text-content strong {
+            font-weight: 700;
+        }
+        .template-image-text .text-content em {
+            font-style: italic;
+        }
+        .template-image-text .text-content u {
+            text-decoration: underline;
+        }
+        .template-image-text .text-content ul,
+        .template-image-text .text-content ol {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+        .template-image-text .text-content li {
+            margin-bottom: 12px;
+            padding-left: 30px;
+            position: relative;
+        }
+        .template-image-text .text-content ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            background: var(--gl-gradient-primary);
+            border-radius: 3px;
+            transform: rotate(45deg);
+        }
+        .template-image-text .text-content ol {
+            counter-reset: list-counter;
+        }
+        .template-image-text .text-content ol li {
+            counter-increment: list-counter;
+        }
+        .template-image-text .text-content ol li::before {
+            content: counter(list-counter) '.';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: 700;
+            color: var(--gl-orange);
+        }
+        .template-image-text .text-content a {
+            color: var(--gl-orange);
+            text-decoration: underline;
         }
 
         /* Template: Quote */

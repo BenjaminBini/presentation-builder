@@ -89,14 +89,15 @@ export function getPreviewStyles() {
         .template-two-columns .column li::before { content: '→'; position: absolute; left: 0; color: var(--slide-bulletColor, var(--accent-main)); font-weight: bold; }
         .template-two-columns .column li .item-text { flex: 1; }
         .template-two-columns .column li .delete-item-btn { flex-shrink: 0; }
-        /* Image text */
-        .template-image-text { display: grid; grid-template-columns: 1fr 1fr; height: 100%; background: var(--white); }
+        /* Image text - uses text-field-content class for WYSIWYG styling */
+        .template-image-text { --text-field-scale: 1; display: grid; grid-template-columns: 1fr 1fr; height: 100%; background: var(--white); }
         .template-image-text .image-side { background: var(--gray-200); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .template-image-text .image-side img { width: 100%; height: 100%; object-fit: contain; }
         .template-image-text .image-placeholder { width: 200px; height: 200px; background: var(--gradient-accent); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 60px; }
-        .template-image-text .text-side { padding: 60px; display: flex; flex-direction: column; justify-content: center; background: var(--slide-bgColor, white); }
-        .template-image-text h2 { font-size: 38px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); margin-bottom: 24px; }
-        .template-image-text p { font-size: 20px; color: var(--slide-textColor, var(--gray-700)); line-height: 1.7; margin-bottom: 16px; }
+        .template-image-text .text-side { padding: 60px; display: flex; flex-direction: column; background: var(--slide-bgColor, white); overflow: hidden; }
+        .template-image-text h2 { font-size: 38px; font-weight: 700; color: var(--slide-titleColor, var(--bg-main)); margin-bottom: 24px; flex-shrink: 0; }
+        .template-image-text .text-content-container { overflow: visible; flex: 1; min-height: 0; }
+        .template-image-text .text-content { min-height: 100%; color: var(--slide-textColor, var(--gray-700)); }
         /* Quote */
         .template-quote { background: var(--slide-bgColor, var(--gradient-bg)); display: flex; align-items: center; justify-content: center; padding: 80px; position: relative; height: 100%; }
         .template-quote::before { content: '"'; position: absolute; top: 60px; left: 80px; font-size: 300px; font-weight: 800; color: var(--slide-quoteMarkColor, var(--accent-main)); opacity: 0.15; line-height: 1; }

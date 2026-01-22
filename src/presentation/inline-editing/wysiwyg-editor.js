@@ -254,17 +254,13 @@ export function openWysiwygEditor(fieldKey, fieldIndex) {
     element.innerHTML = '<p><br></p>';
   }
 
-  // Focus the element and position cursor inside first <p>
+  // Focus the element and select all content
   element.focus();
-  const firstP = element.querySelector('p');
-  if (firstP) {
-    const range = document.createRange();
-    const selection = window.getSelection();
-    range.selectNodeContents(firstP);
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
+  const range = document.createRange();
+  const selection = window.getSelection();
+  range.selectNodeContents(element);
+  selection.removeAllRanges();
+  selection.addRange(range);
 
   // Show toolbar
   showToolbar(element);
@@ -358,55 +354,12 @@ function handleWysiwygKeydown(event) {
   if (event.key === 'Enter' && !isInListItem()) {
     event.preventDefault();
     if (event.shiftKey) {
-      // Shift+Enter: insert <br> and move cursor after it
-      const selection = window.getSelection();
-      if (selection.rangeCount) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-
-        // Insert <br> followed by empty text node for cursor positioning
-        const br = document.createElement('br');
-        const textNode = document.createTextNode('\u200B'); // Zero-width space
-        range.insertNode(textNode);
-        range.insertNode(br);
-
-        // Move cursor to the text node after <br>
-        range.setStart(textNode, 1);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+      // Shift+Enter: insert <br> for soft line break within same paragraph
+      document.execCommand('insertLineBreak', false, null);
     } else {
-      // Enter: create new <p> after current paragraph
-      const selection = window.getSelection();
-      if (selection.rangeCount) {
-        const range = selection.getRangeAt(0);
-
-        // Find the parent paragraph
-        let currentP = range.startContainer;
-        while (currentP && currentP.nodeName !== 'P' && currentP !== currentWysiwygElement) {
-          currentP = currentP.parentNode;
-        }
-
-        // Create new paragraph
-        const newP = document.createElement('p');
-        newP.innerHTML = '<br>';
-
-        if (currentP && currentP.nodeName === 'P') {
-          // Insert new <p> after the current <p>
-          currentP.parentNode.insertBefore(newP, currentP.nextSibling);
-        } else {
-          // No parent <p>, append to container
-          currentWysiwygElement.appendChild(newP);
-        }
-
-        // Move cursor into new paragraph
-        const newRange = document.createRange();
-        newRange.setStart(newP, 0);
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-      }
+      // Enter: create new paragraph using browser's built-in command
+      // This properly handles splitting formatting tags (b, i, u, etc.)
+      document.execCommand('insertParagraph', false, null);
     }
   }
 

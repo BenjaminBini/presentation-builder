@@ -7,7 +7,7 @@ export function getDefaultData(template) {
     section: { number: '01', title: 'Nouvelle section', subtitle: '' },
     bullets: { title: 'Liste', items: ['Premier élément', 'Deuxième élément'] },
     'two-columns': { title: 'Deux colonnes', left: { title: 'Gauche', items: ['Item 1'] }, right: { title: 'Droite', items: ['Item 1'] } },
-    'image-text': { title: 'Image et texte', image: '', text: 'Description ici...' },
+    'image-text': { title: 'Image et texte', image: '', content: '<p>Description ici...</p>' },
     quote: { quote: 'Votre citation ici...', authorName: '', authorTitle: '' },
     stats: { title: 'Statistiques', stats: [{ value: '100', label: 'Métrique', change: '+10%' }] },
     code: { title: 'Code', filename: 'example.js', code: '// Votre code ici', description: '' },

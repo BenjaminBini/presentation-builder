@@ -92,12 +92,23 @@ export function adjustTextTemplateScale(container) {
 }
 
 /**
- * Render image-text template
+ * Render image-text template with WYSIWYG content
+ * Uses TextFieldComponent for auto-scaling
  */
 export function renderImageTextTemplate(data, colorStyles) {
-  const textArray = Array.isArray(data.text)
-    ? data.text
-    : (data.text || "").split("\n");
+  // Support both 'content' (new WYSIWYG) and 'text' (legacy) fields
+  let rawContent = data.content;
+  if (!rawContent) {
+    // Convert legacy text field to HTML
+    const textArray = Array.isArray(data.text)
+      ? data.text
+      : (data.text || "").split("\n");
+    rawContent = textArray.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+  }
+  const content = rawContent
+    ? trimHtml(sanitizeHtml(rawContent))
+    : "<p>Votre texte ici...</p>";
+
   return `
                 <div class="slide-content template-image-text" ${colorStyles}>
                     <div class="image-side" data-editable="image" data-field-key="image" style="position:relative;cursor:pointer;">
@@ -109,18 +120,15 @@ export function renderImageTextTemplate(data, colorStyles) {
                             : '<div class="image-placeholder"><svg style="width:64px;height:64px;stroke:currentColor;stroke-width:1.5;fill:none;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>'
                         }
                     </div>
-                    <div class="text-side">
+                    <div class="text-side" data-text-field>
                         <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
                           data.title || "",
                         )}</h2>
-                        ${textArray
-                          .map(
-                            (p, i) =>
-                              `<p data-editable="text" data-field-key="text" data-field-index="${i}" data-placeholder="Paragraphe ${
-                                i + 1
-                              }">${escapeHtml(p)}</p>`,
-                          )
-                          .join("")}
+                        <div class="text-content-container" data-text-field-area>
+                            <div class="text-content text-field-content wysiwyg-editable" data-text-field-content data-editable="wysiwyg" data-field-key="content">
+                                ${content}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
