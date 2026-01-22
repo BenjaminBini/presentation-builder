@@ -278,6 +278,124 @@ export function openWysiwygEditor(fieldKey, fieldIndex) {
 }
 
 /**
+ * Check if an element is empty (contains only whitespace, <br>, or &nbsp;)
+ */
+function isEmptyElement(element) {
+  if (element.nodeType === Node.TEXT_NODE) {
+    return !element.textContent.trim();
+  }
+  if (element.nodeType !== Node.ELEMENT_NODE) {
+    return true;
+  }
+  const tagName = element.tagName.toLowerCase();
+  if (tagName === 'br') {
+    return true;
+  }
+  // Check if element contains only whitespace, <br>, or &nbsp;
+  const text = element.textContent.replace(/\u00A0/g, '').trim(); // Remove &nbsp; and whitespace
+  if (text) {
+    return false;
+  }
+  // Element has no meaningful text, check if it only has <br> children
+  const hasOnlyBrOrEmpty = Array.from(element.childNodes).every(child => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      return !child.textContent.trim();
+    }
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      return child.tagName.toLowerCase() === 'br' || isEmptyElement(child);
+    }
+    return true;
+  });
+  return hasOnlyBrOrEmpty;
+}
+
+/**
+ * Check if element is an inline formatting element.
+ */
+function isInlineFormattingElement(element) {
+  const inlineTags = ['b', 'i', 'u', 'strong', 'em', 'a', 'span'];
+  return inlineTags.includes(element.tagName.toLowerCase());
+}
+
+/**
+ * Recursively trim leading <br> tags from within an element.
+ * Handles cases like <p><b><br><br>D</b></p> -> <p><b>D</b></p>
+ */
+function trimLeadingBrWithinElement(element) {
+  while (element.firstChild) {
+    const first = element.firstChild;
+
+    if (first.nodeType === Node.TEXT_NODE) {
+      if (!first.textContent.trim()) {
+        first.remove();
+        continue;
+      }
+      // Has text content, stop
+      break;
+    }
+
+    if (first.nodeType === Node.ELEMENT_NODE) {
+      if (first.tagName.toLowerCase() === 'br') {
+        first.remove();
+        continue;
+      }
+      // Recurse into inline formatting elements
+      if (isInlineFormattingElement(first)) {
+        trimLeadingBrWithinElement(first);
+        // After trimming, if element is now empty, remove it
+        if (isEmptyElement(first)) {
+          first.remove();
+          continue;
+        }
+      }
+      // Has content, stop
+      break;
+    }
+
+    first.remove();
+  }
+}
+
+/**
+ * Trim leading empty elements from a contenteditable container.
+ * Removes leading <br>, empty elements (including nested <br> in formatting tags),
+ * and whitespace-only text nodes. Also trims leading <br> from within the first
+ * non-empty element.
+ */
+function trimLeadingEmptyElements(container) {
+  if (!container) return;
+
+  while (container.firstChild) {
+    const first = container.firstChild;
+
+    // Handle text nodes with only whitespace
+    if (first.nodeType === Node.TEXT_NODE) {
+      if (!first.textContent.trim()) {
+        first.remove();
+        continue;
+      }
+      // Has content, stop trimming
+      break;
+    }
+
+    // Handle element nodes - remove any empty element
+    // This handles nested cases like <p><u><b><br></b></u></p>
+    if (first.nodeType === Node.ELEMENT_NODE) {
+      if (isEmptyElement(first)) {
+        first.remove();
+        continue;
+      }
+      // First non-empty element - trim leading <br> from within it
+      trimLeadingBrWithinElement(first);
+      break;
+    }
+
+    // Remove other node types (comments, etc.)
+    first.remove();
+  }
+}
+
+/**
  * Handle input changes
  */
 function handleWysiwygInput() {
@@ -287,14 +405,33 @@ function handleWysiwygInput() {
   positionToolbar(currentWysiwygElement);
 
   // Wrap any orphan text nodes in <p> tags
+  // Merge with adjacent <p> siblings when possible to avoid one-char-per-paragraph issue
   const childNodes = Array.from(currentWysiwygElement.childNodes);
   childNodes.forEach(node => {
     if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+      // Check if immediate previous sibling is a <p> - if so, append to it
+      const prevSibling = node.previousSibling;
+      if (prevSibling && prevSibling.nodeType === Node.ELEMENT_NODE && prevSibling.tagName === 'P') {
+        prevSibling.appendChild(node);
+        return;
+      }
+
+      // Check if immediate next sibling is a <p> - if so, prepend to it
+      const nextSibling = node.nextSibling;
+      if (nextSibling && nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.tagName === 'P') {
+        nextSibling.insertBefore(node, nextSibling.firstChild);
+        return;
+      }
+
+      // No adjacent <p>, create new one
       const p = document.createElement('p');
       node.parentNode.insertBefore(p, node);
       p.appendChild(node);
     }
   });
+
+  // Trim leading empty elements (same as trimHtml does for strings)
+  trimLeadingEmptyElements(currentWysiwygElement);
 
   // Live resize content based on height - use RAF debouncing to avoid layout thrashing
   // Cancel any pending scale calculation
