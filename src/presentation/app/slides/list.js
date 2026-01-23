@@ -349,6 +349,23 @@ export function renderSlideList() {
   const currentProject = getProject();
   const selectedSlideIndex = getSelectedSlideIndex();
 
+  // Show loading state when waiting for Drive project
+  if (currentProject._pendingDriveLoad) {
+    list.innerHTML = `
+      <div class="empty-state loading-state">
+        <div class="empty-state-icon">
+          <svg class="icon icon-xl spinning" viewBox="0 0 24 24">
+            <path d="M12 2v4m0 12v4m-10-10h4m12 0h4m-3.5-6.5l-2.8 2.8m-7.4 7.4l-2.8 2.8m0-13l2.8 2.8m7.4 7.4l2.8 2.8"/>
+          </svg>
+        </div>
+        <h3>Chargement...</h3>
+        <p>Recuperation du projet depuis Google Drive</p>
+      </div>
+    `;
+    renderCompactSlideList();
+    return;
+  }
+
   if (currentProject.slides.length === 0) {
     list.innerHTML = `
       <div class="empty-state">

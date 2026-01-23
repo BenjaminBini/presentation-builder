@@ -512,7 +512,7 @@ const CSS_STYLES = `
         .template-code pre {
             padding: 30px;
             overflow-x: auto;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 16px;
             line-height: 1.6;
         }
@@ -577,7 +577,7 @@ const CSS_STYLES = `
             padding: 16px 0;
             overflow-y: auto;
             flex: 1;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 14px;
             line-height: 28px;
         }

@@ -394,3 +394,18 @@
   margin-bottom: 24px;
   color: var(--gray-600);
 }
+
+/* Loading State */
+.loading-state .empty-state-icon {
+  opacity: 0.6;
+}
+
+.loading-state .spinning,
+.icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

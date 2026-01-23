@@ -4,6 +4,9 @@
 import { getProject, setProject, setSelectedSlideIndex, setHasUnsavedChanges } from '../core/state.js';
 import { refreshSlideList, refreshEditor, refreshPreview } from '../presentation/app/ui-refresh.js';
 import { TEMPLATES } from '../config/index.js';
+import { convertPresentation } from '../infrastructure/slides/index.js';
+import { driveAuth } from '../infrastructure/drive/auth.js';
+import { driveAPI } from '../infrastructure/drive/api.js';
 
 /**
  * Export current project to JSON file
@@ -284,4 +287,216 @@ export function triggerFileInput() {
     };
 
     input.click();
+}
+
+/**
+ * Export state for Google Slides export button
+ */
+let googleSlidesExportState = {
+    isExporting: false,
+    button: null
+};
+
+/**
+ * Update the Google Slides export button UI
+ * @param {'idle' | 'exporting' | 'success' | 'error'} state
+ */
+function updateGoogleSlidesButton(state) {
+    const button = document.getElementById('exportGoogleSlidesBtn');
+    if (!button) return;
+
+    const label = button.querySelector('.btn-label');
+    const spinner = button.querySelector('.export-spinner');
+    const icon = button.querySelector('.icon-slides');
+
+    switch (state) {
+        case 'exporting':
+            button.disabled = true;
+            button.classList.add('exporting');
+            if (label) label.textContent = 'Exportation...';
+            if (spinner) spinner.style.display = 'inline-block';
+            if (icon) icon.style.display = 'none';
+            break;
+        case 'success':
+            button.disabled = false;
+            button.classList.remove('exporting');
+            if (label) label.textContent = 'Google Slides';
+            if (spinner) spinner.style.display = 'none';
+            if (icon) icon.style.display = '';
+            break;
+        case 'error':
+            button.disabled = false;
+            button.classList.remove('exporting');
+            if (label) label.textContent = 'Google Slides';
+            if (spinner) spinner.style.display = 'none';
+            if (icon) icon.style.display = '';
+            break;
+        default:
+            button.disabled = false;
+            button.classList.remove('exporting');
+            if (label) label.textContent = 'Google Slides';
+            if (spinner) spinner.style.display = 'none';
+            if (icon) icon.style.display = '';
+    }
+}
+
+/**
+ * Show a toast notification
+ * @param {string} message
+ * @param {'success' | 'error' | 'info'} type
+ * @param {number} duration
+ */
+function showToast(message, type = 'info', duration = 5000) {
+    // Remove existing toast
+    const existing = document.querySelector('.export-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `export-toast export-toast-${type}`;
+    toast.innerHTML = `
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // Auto remove
+    if (duration > 0) {
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    return toast;
+}
+
+/**
+ * Export current project to Google Slides
+ * @returns {Promise<Object>} Result with URL or error
+ */
+export async function exportToGoogleSlides() {
+    const project = getProject();
+    if (!project) {
+        showToast('Aucun projet à exporter', 'error');
+        return { success: false, error: 'No project' };
+    }
+
+    if (!project.slides || project.slides.length === 0) {
+        showToast('Le projet ne contient aucune slide', 'error');
+        return { success: false, error: 'No slides' };
+    }
+
+    // Check if already exporting
+    if (googleSlidesExportState.isExporting) {
+        return { success: false, error: 'Export in progress' };
+    }
+
+    googleSlidesExportState.isExporting = true;
+    updateGoogleSlidesButton('exporting');
+
+    try {
+        // Ensure Google authentication with presentations scope
+        const isSignedIn = driveAuth.isSignedIn();
+        if (!isSignedIn) {
+            // Need to sign in first - signIn() triggers OAuth popup
+            showToast('Connexion à Google requise - authentifiez-vous dans la fenêtre popup', 'info', 5000);
+            driveAuth.signIn();
+
+            // Wait for sign-in to complete via callback
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    driveAuth.off('onSignIn', onSignIn);
+                    driveAuth.off('onError', onError);
+                    reject(new Error('Authentication timeout'));
+                }, 120000); // 2 minute timeout for OAuth popup
+
+                const onSignIn = () => {
+                    clearTimeout(timeout);
+                    driveAuth.off('onSignIn', onSignIn);
+                    driveAuth.off('onError', onError);
+                    resolve();
+                };
+
+                const onError = (error) => {
+                    clearTimeout(timeout);
+                    driveAuth.off('onSignIn', onSignIn);
+                    driveAuth.off('onError', onError);
+                    reject(error);
+                };
+
+                driveAuth.on('onSignIn', onSignIn);
+                driveAuth.on('onError', onError);
+            });
+        }
+
+        // Ensure valid token
+        await driveAuth.ensureValidToken();
+
+        // Convert and create presentation
+        const result = await convertPresentation(project);
+
+        // Move to Drive folder if configured
+        const folderId = driveAPI.getSelectedFolderId();
+        if (folderId && result.presentationId) {
+            try {
+                // Move to the selected folder using server API
+                const moveResponse = await fetch(`/api/drive/files/${result.presentationId}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ folderId })
+                });
+                if (!moveResponse.ok) {
+                    const error = await moveResponse.json();
+                    throw new Error(error.error || 'Failed to move presentation');
+                }
+            } catch (e) {
+                console.warn('Could not move presentation to folder:', e);
+            }
+        }
+
+        googleSlidesExportState.isExporting = false;
+        updateGoogleSlidesButton('success');
+
+        // Show success with link
+        showToast(`
+            <a href="${result.url}" target="_blank" rel="noopener noreferrer">
+                Présentation créée - Cliquez pour ouvrir
+            </a>
+        `, 'success', 10000);
+
+        // Also open in new tab
+        window.open(result.url, '_blank');
+
+        return { success: true, url: result.url, presentationId: result.presentationId };
+
+    } catch (error) {
+        console.error('Google Slides export error:', error);
+        googleSlidesExportState.isExporting = false;
+        updateGoogleSlidesButton('error');
+
+        let errorMessage = 'Erreur lors de l\'export';
+        if (error.message) {
+            if (error.message.includes('popup')) {
+                errorMessage = 'Connexion Google annulée';
+            } else if (error.message.includes('scope') || error.message.includes('permission')) {
+                errorMessage = 'Permissions Google Slides requises. Reconnectez-vous.';
+            } else {
+                errorMessage = `Erreur: ${error.message}`;
+            }
+        }
+
+        showToast(errorMessage, 'error');
+        return { success: false, error: error.message };
+    }
 }

@@ -225,7 +225,7 @@
 
 /* Code textarea */
 .code-textarea {
-  font-family: "JetBrains Mono", "Fira Code", "Monaco", monospace;
+  font-family: "JetBrains Mono", "Monaco", monospace;
   font-size: 13px;
   line-height: 1.5;
   background: var(--gray-900);

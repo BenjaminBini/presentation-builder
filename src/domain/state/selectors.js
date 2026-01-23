@@ -43,12 +43,28 @@ export const getSelectedTemplate = () => store.get('selectedTemplate');
 export const hasUnsavedChanges = () => store.get('hasUnsavedChanges');
 
 /**
- * Check if project exists in localStorage
+ * Check if project is saved (either locally or on Drive)
  * @param {string} [name] - Project name to check, defaults to current project
  * @returns {boolean}
  */
 export const isProjectSaved = (name) => {
-  const projectName = name || store.get('project.name');
+  const project = store.get('project');
+  const projectName = name || project?.name;
+
+  // If project has a driveId, it's saved on Drive
+  if (project?.driveId) return true;
+
+  // If project has a localId and exists in localStorage, it's saved locally
+  if (project?.localId) {
+    try {
+      const projects = JSON.parse(localStorage.getItem('slideProjects') || '[]');
+      return projects.some(p => p.localId === project.localId);
+    } catch (e) {
+      // Fall through to name-based check
+    }
+  }
+
+  // Fallback: check by name in localStorage
   if (!projectName) return false;
 
   try {

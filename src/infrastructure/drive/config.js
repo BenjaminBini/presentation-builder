@@ -3,51 +3,43 @@
 
 /**
  * Google Drive API configuration
+ * Note: OAuth credentials are now handled server-side
  */
 export const DriveConfig = {
-  // OAuth 2.0 Client ID (to be configured by user)
-  // Get yours at: https://console.cloud.google.com/apis/credentials
-  CLIENT_ID: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+  // API base URL (all API calls go through the backend)
+  API_BASE: '',  // Empty for same-origin requests
 
-  // API Key for Picker (optional)
-  API_KEY: '',
-
-  // OAuth scopes - minimal permissions
-  SCOPES: 'https://www.googleapis.com/auth/drive.file',
-
-  // Discovery docs for GAPI
-  DISCOVERY_DOCS: [
-    'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
-  ],
-
-  // App folder name in user's Drive
-  APP_FOLDER_NAME: 'Presentation Builder',
+  // OAuth scopes (for reference - actual scopes handled server-side)
+  SCOPES: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/presentations',
 
   // File MIME types
   MIME_TYPES: {
     JSON: 'application/json',
-    FOLDER: 'application/vnd.google-apps.folder'
+    FOLDER: 'application/vnd.google-apps.folder',
+    GOOGLE_SLIDES: 'application/vnd.google-apps.presentation'
   },
 
   // File extension for presentations
   FILE_EXTENSION: '.presentation.json',
 
-  // Sync settings
-  SYNC: {
-    DEBOUNCE_MS: 3000,           // 3 seconds after last change
-    RETRY_ATTEMPTS: 3,
-    RETRY_BASE_DELAY_MS: 1000,
-    RETRY_MAX_DELAY_MS: 10000,
-    CONFLICT_THRESHOLD_MS: 5000  // 5 second window for conflicts
+  // Local storage keys for Drive state (simplified - no sync-related keys)
+  STORAGE_KEYS: {
+    SELECTED_FOLDER_ID: 'drive_selected_folder_id',
+    SELECTED_FOLDER_NAME: 'drive_selected_folder_name',
+    EXPLICIT_STATE: 'drive_explicit_state'
   },
 
-  // Local storage keys for Drive state
-  STORAGE_KEYS: {
-    AUTH_TOKEN: 'drive_auth_token',
-    FOLDER_ID: 'drive_folder_id',
-    SYNC_ENABLED: 'drive_sync_enabled',
-    LAST_SYNC: 'drive_last_sync',
-    PENDING_SYNC: 'drive_pending_sync'
+  // Session storage keys for file sidebar
+  SESSION_KEYS: {
+    FILE_SIDEBAR_COLLAPSED: 'filesidebar_collapsed',
+    FILE_SIDEBAR_ACTIVE_TAB: 'filesidebar_active_tab'
+  },
+
+  // Drive integration states
+  STATUS: {
+    NOT_CONNECTED: 'not_connected',
+    CONNECTED_NO_FOLDER: 'connected_no_folder',
+    READY: 'ready'
   }
 };
 

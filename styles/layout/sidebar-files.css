@@ -1,0 +1,714 @@
+/* Right Sidebar - File Manager Styles */
+/* Reuses patterns from sidebar-main.css */
+
+/* File Sidebar Container */
+.file-sidebar {
+  grid-row: 2;
+  grid-column: 3;
+  background: var(--white);
+  border-left: 1px solid var(--gray-200);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s ease;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Collapsed State */
+.file-sidebar.collapsed {
+  /* Width controlled by grid column */
+}
+
+/* Header with toggle and tabs */
+.file-sidebar-header {
+  display: flex;
+  align-items: stretch;
+  height: 36px;
+  border-bottom: 1px solid var(--gray-200);
+  flex-shrink: 0;
+  background: var(--white);
+}
+
+/* When collapsed, center the toggle button */
+.file-sidebar.collapsed .file-sidebar-header {
+  justify-content: center;
+}
+
+/* Toggle Button - always visible */
+.file-sidebar-toggle-btn {
+  width: 36px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--gray-400);
+  cursor: pointer;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  border-right: 1px solid var(--gray-200);
+}
+
+/* When collapsed, toggle button takes full width */
+.file-sidebar.collapsed .file-sidebar-toggle-btn {
+  width: 100%;
+  border-right: none;
+}
+
+.file-sidebar-toggle-btn:hover {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.file-sidebar-toggle-btn .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Chevron visibility based on state */
+.file-sidebar-toggle-btn .chevron-expand {
+  display: none;
+}
+
+.file-sidebar-toggle-btn .chevron-collapse {
+  display: block;
+}
+
+.file-sidebar.collapsed .file-sidebar-toggle-btn .chevron-expand {
+  display: block;
+}
+
+.file-sidebar.collapsed .file-sidebar-toggle-btn .chevron-collapse {
+  display: none;
+}
+
+/* Tabs container */
+.file-sidebar-tabs {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  position: relative;
+  --underline-left: 0px;
+  --underline-width: 0px;
+}
+
+/* Hide tabs when collapsed */
+.file-sidebar.collapsed .file-sidebar-tabs {
+  display: none;
+}
+
+.file-sidebar-tabs::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--underline-left);
+  width: var(--underline-width);
+  height: 2px;
+  background: var(--ui-accent-main);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.file-sidebar-tab {
+  flex: 1;
+  padding: 0 12px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+}
+
+.file-sidebar-tab .icon {
+  flex-shrink: 0;
+}
+
+.file-sidebar-tab:hover {
+  color: var(--gray-700);
+  background: var(--gray-50);
+}
+
+.file-sidebar-tab.active {
+  color: var(--ui-accent-main);
+}
+
+/* Content Area */
+.file-sidebar-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hide content when collapsed */
+.file-sidebar.collapsed .file-sidebar-content {
+  display: none;
+}
+
+.file-sidebar-content[data-tab="local"] .drive-panel,
+.file-sidebar-content[data-tab="local"] .file-panel,
+.file-sidebar-content[data-tab="drive"] .local-panel,
+.file-sidebar-content[data-tab="drive"] .file-panel,
+.file-sidebar-content[data-tab="file"] .local-panel,
+.file-sidebar-content[data-tab="file"] .drive-panel {
+  display: none;
+}
+
+.file-sidebar-panel {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* File List Styles */
+.file-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-list-item {
+  background: var(--white);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border: 1px solid var(--gray-200);
+  transition: all 0.15s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-list-item:hover {
+  border-color: var(--gray-300);
+  background: var(--gray-50);
+}
+
+.file-list-item.current {
+  border-color: var(--ui-accent-main);
+  background: rgba(252, 109, 38, 0.06);
+  box-shadow: inset 3px 0 0 var(--ui-accent-main);
+}
+
+.file-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-item-icon .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--gray-500);
+}
+
+.file-list-item.current .file-item-icon {
+  background: rgba(252, 109, 38, 0.15);
+}
+
+.file-list-item.current .file-item-icon .icon {
+  color: var(--ui-accent-main);
+}
+
+.file-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.file-item-meta {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 2px;
+  display: block;
+}
+
+.file-item-actions {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: none;
+  gap: 2px;
+}
+
+.file-list-item:hover .file-item-actions {
+  display: flex;
+}
+
+.file-list-item.current .file-item-actions {
+  display: none;
+}
+
+.file-item-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: none;
+  background: var(--white);
+  color: var(--gray-500);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-item-btn:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.file-item-btn.delete:hover {
+  background: var(--error);
+  color: white;
+}
+
+.file-item-btn .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.file-current-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ui-accent-main);
+  background: rgba(252, 109, 38, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Empty State */
+.file-list-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--gray-500);
+}
+
+.file-list-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  opacity: 0.5;
+}
+
+.file-list-empty-icon .icon {
+  width: 100%;
+  height: 100%;
+}
+
+.file-list-empty-text {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Drive States */
+.drive-state-container {
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.drive-state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drive-state-icon .icon {
+  width: 28px;
+  height: 28px;
+  color: var(--gray-400);
+}
+
+.drive-state-icon.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.drive-state-text {
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+
+.drive-state-cta {
+  width: 100%;
+  max-width: 200px;
+}
+
+.drive-state-cta .btn {
+  width: 100%;
+}
+
+.drive-state-secondary {
+  margin-top: 4px;
+}
+
+.drive-state-secondary .btn {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+/* Drive User Info in Sidebar */
+.drive-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.drive-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gray-200);
+}
+
+.drive-user-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drive-user-avatar-placeholder .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--gray-500);
+}
+
+.drive-user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.drive-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drive-user-email {
+  font-size: 11px;
+  color: var(--gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Drive Folder Header */
+.drive-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.drive-folder-header .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--gray-500);
+  flex-shrink: 0;
+}
+
+.drive-folder-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drive-folder-change-btn {
+  font-size: 11px;
+  color: var(--ui-accent-main);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.drive-folder-change-btn:hover {
+  background: rgba(252, 109, 38, 0.1);
+}
+
+.drive-folder-change-btn:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.drive-folder-change-btn .file-item-spinner {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+}
+
+/* Drive Disconnect Button */
+.drive-disconnect-btn {
+  margin: 8px 12px;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--gray-500);
+  background: transparent;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.drive-disconnect-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+
+.drive-disconnect-btn .icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Loading Spinner */
+.file-sidebar-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gray-200);
+  border-top-color: var(--ui-accent-main);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* File Item Loading Spinner */
+.file-item-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--gray-200);
+  border-top-color: var(--ui-accent-main);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.file-list-item.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Slide animations for panels */
+.file-sidebar-panel.slide-left {
+  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.file-sidebar-panel.slide-right {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* File Details Panel */
+.file-sidebar-panel.file-panel {
+  display: none;
+}
+
+.file-sidebar-content[data-tab="file"] .file-panel {
+  display: block;
+}
+
+.file-details {
+  padding: 16px;
+}
+
+.file-details-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--gray-400);
+}
+
+.file-details-empty-icon {
+  margin-bottom: 12px;
+}
+
+.file-details-empty-icon .icon {
+  width: 40px;
+  height: 40px;
+  stroke: var(--gray-300);
+}
+
+.file-details-empty p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.file-details-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.file-details-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-details-icon .icon {
+  width: 20px;
+  height: 20px;
+  color: var(--gray-500);
+}
+
+.file-details-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-details-title h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+  word-break: break-word;
+}
+
+.file-details-unsaved {
+  font-size: 11px;
+  color: var(--warn);
+  font-weight: 500;
+}
+
+.file-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-details-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-details-label {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.file-details-value {
+  font-size: 13px;
+  color: var(--gray-700);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-details-value .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--gray-400);
+}
+
+.file-details-id {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--gray-500);
+  word-break: break-all;
+}
+
+.file-details-actions {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-details-actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.file-details-actions .btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.file-details-actions .btn .file-item-spinner {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+  margin-right: 6px;
+}

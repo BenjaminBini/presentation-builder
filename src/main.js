@@ -55,23 +55,31 @@ import { adjustTextTemplateScale } from './presentation/templates/components/lay
 import { showConfirm, hideConfirm, handleConfirmResponse } from './projects/notifications.js';
 import {
     saveCurrentProject, loadProject, deleteProject, createNewProject,
-    openProjectModal, closeProjectModal, renameProject,
+    renameProject,
     openSaveProjectModal, closeSaveProjectModal, saveProjectWithName, validateSaveProjectName
 } from './projects/manager.js';
-import { exportToJSON, importFromJSON, triggerFileInput } from './projects/import-export.js';
+import { exportToJSON, importFromJSON, triggerFileInput, exportToGoogleSlides } from './projects/import-export.js';
 
 // Project title editing
 import {
     editProjectTitle, finishEditProjectTitle, handleTitleKeydown,
-    updateHeaderTitle, loadInitialProject
+    updateHeaderTitle, loadInitialProject, saveLastOpenedProject
 } from './presentation/app/project.js';
 
 // Drive
-import { driveAuth, driveAPI, driveSync } from './infrastructure/drive/index.js';
+import { driveAuth, driveAPI, driveStorageService } from './infrastructure/drive/index.js';
+import { driveUI } from './presentation/app/drive-ui.js';
+import { driveStateMachine, DriveState } from './infrastructure/drive/state-machine.js';
+
+// File sidebar
+import { fileSidebar } from './presentation/app/file-sidebar.js';
+import { FileList } from './presentation/app/file-list.js';
 
 // Theme (color customization)
 import {
     renderThemeSelector,
+    renderColorList,
+    initThemeColorPickerEvents,
     updateAppThemeColors,
     selectTheme,
     toggleThemeColorPicker, closeAllThemeColorPickers,
@@ -137,9 +145,8 @@ import {
 
 // Modals
 import {
-    closeModal, initModalBehaviors, openProjectsModal,
-    openPromptModal, cancelPromptModal, confirmPromptModal,
-    setConflictResolver, resolveConflict
+    closeModal, initModalBehaviors,
+    openPromptModal, cancelPromptModal, confirmPromptModal
 } from './presentation/app/modals.js';
 
 // Import modal
@@ -302,14 +309,16 @@ function initializeApp() {
         if (project?.name) {
             updateSaveButtonState('modifying');
 
-            // Autosave after 0.5s of inactivity
+            // Autosave with debouncing - longer delay for Drive to batch changes
+            const delay = project.driveId ? 2000 : 500;
+
             if (autosaveTimer) {
                 clearTimeout(autosaveTimer);
             }
             autosaveTimer = setTimeout(() => {
                 updateSaveButtonState('saving');
                 saveCurrentProject();
-            }, 500);
+            }, delay);
         } else {
             showUnsavedAlert();
         }
@@ -324,6 +333,8 @@ function initializeApp() {
     on(EventTypes.PROJECT_SAVED, () => {
         hideUnsavedAlert();
         updateSaveButtonState('saved');
+        // Save last opened project (may have new IDs after first save)
+        saveLastOpenedProject(getProject());
     });
 
     on(EventTypes.PROJECT_LOADED, () => {
@@ -334,16 +345,10 @@ function initializeApp() {
         updatePreview();
         updateHeaderTitle();
         renderSettingsPanel();
+        // Save last opened project for session restore
+        saveLastOpenedProject(getProject());
     });
 
-    // Subscribe to drive sync events - refresh UI after sync
-    on(EventTypes.DRIVE_SYNC_COMPLETED, () => {
-        renderSlideList();
-        renderEditor();
-        updatePreview();
-        updateHeaderTitle();
-        renderSettingsPanel();
-    });
 
     // Subscribe to modal events - close modals via event
     on(EventTypes.MODAL_CLOSED, ({ modalId }) => {
@@ -352,6 +357,15 @@ function initializeApp() {
             modal.classList.remove('active');
         }
     });
+
+    // Initialize Drive Auth (server-side authentication)
+    driveAuth.init();
+
+    // Initialize Drive UI
+    driveUI.init();
+
+    // Initialize File Sidebar
+    fileSidebar.init();
 
     loadInitialProject();
     updateAppThemeColors();
@@ -367,6 +381,7 @@ function initializeApp() {
     renderEditor();
     updatePreview();
     updateHeaderTitle();
+    renderSettingsPanel();
     initPanelStates();
 
     // Initialize save status
@@ -388,6 +403,19 @@ function initializeApp() {
         new ResizeObserver(() => scalePreviewSlide()).observe(previewPanel);
     }
     window.addEventListener('resize', scalePreviewSlide);
+
+    // Show "modifying" state immediately on input (before change is committed)
+    // Listen on document for both editor panel inputs and inline editing (contenteditable)
+    document.addEventListener('input', (e) => {
+        const target = e.target;
+        // For text inputs, textareas, and contenteditable elements
+        if (target.matches('input[type="text"], input[type="number"], textarea, [contenteditable="true"]')) {
+            const project = getProject();
+            if (project?.name) {
+                updateSaveButtonState('modifying');
+            }
+        }
+    });
 
     // Initialize file drop zone and JSON input for import modal
     initFileDropZone();
@@ -425,7 +453,7 @@ Object.assign(window, {
     renderSlideList, selectSlide, renderEditor, updatePreview, scalePreviewSlide,
     updateHeaderTitle, editProjectTitle, finishEditProjectTitle, handleTitleKeydown,
     switchSidebarTab, toggleSidebar, toggleEditorPanel, switchEditorTab,
-    renderSettingsPanel, initTemplateGrid, updateAppThemeColors, renderThemeSelector, selectTheme,
+    renderSettingsPanel, initTemplateGrid, updateAppThemeColors, renderThemeSelector, renderColorList, initThemeColorPickerEvents, selectTheme,
     updateSidebarTabUnderline, updateEditorTabUnderline,
 
     // Slide management - needed for HTML onclick handlers
@@ -449,17 +477,17 @@ Object.assign(window, {
 
     // Projects - needed for HTML onclick handlers
     showConfirm, hideConfirm, handleConfirmResponse,
-    openProjectModal, closeProjectModal, saveCurrentProject, loadProject, deleteProject, createNewProject, renameProject,
+    saveCurrentProject, loadProject, deleteProject, createNewProject, renameProject,
     openSaveProjectModal, closeSaveProjectModal, saveProjectWithName, validateSaveProjectName,
     exportToJSON, importFromJSON, triggerFileInput,
 
     // Modal & UI functions - needed for HTML onclick handlers
-    closeModal, openProjectsModal, newProject, createEmptyProject, createDemoProject,
-    saveProject, exportProject, importProject,
+    closeModal, newProject, createEmptyProject, createDemoProject,
+    saveProject, exportProject, importProject, exportToGoogleSlides,
     exportToHtml, confirmImport, confirmSaveProject, onSaveStatusClick,
     clearSelectedFile, switchImportTab, formatJsonInput,
     openPromptModal, cancelPromptModal, confirmPromptModal,
-    setConflictResolver, resolveConflict, handleFileSelect, handleImport,
+    handleFileSelect, handleImport,
 
     // Theme color picker functions - needed for HTML onclick handlers
     toggleThemeColorPicker, closeAllThemeColorPickers,
@@ -473,7 +501,13 @@ Object.assign(window, {
     dismissUnsavedAlert,
 
     // Drive - needed for external access
-    driveAuth, driveAPI, driveSync,
+    driveAuth, driveAPI, driveStorageService, driveStateMachine, DriveState,
+
+    // File sidebar - needed for onclick handlers
+    toggleFileSidebar: () => fileSidebar.toggle(),
+    switchFileSidebarTab: (tab) => fileSidebar.switchTab(tab),
+    FileSidebar: window.FileSidebar,
+    FileList,
 
     // Mermaid initialization - kept for window.initMermaid call in theme.js
     initMermaid: () => {

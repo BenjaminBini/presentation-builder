@@ -9,6 +9,7 @@ import {
   batch
 } from '../domain/state/index.js';
 import { emit, EventTypes } from '../domain/events/index.js';
+import { generateUUID } from '../infrastructure/storage/local.js';
 
 /**
  * Create initial project state
@@ -16,6 +17,8 @@ import { emit, EventTypes } from '../domain/events/index.js';
  */
 export function createEmptyProject() {
   return {
+    localId: generateUUID(), // Stable identity for local projects
+    driveId: null,           // Set when saved to Google Drive
     name: null,
     metadata: {
       title: 'Ma Presentation',
@@ -67,6 +70,10 @@ export function createNewProject(template) {
 
   // New projects are always unnamed until explicitly saved
   newProject.name = null;
+
+  // Ensure new project gets a fresh localId
+  newProject.localId = generateUUID();
+  newProject.driveId = null;
 
   const newSlideIndex = newProject.slides?.length > 0 ? 0 : -1;
 
@@ -135,6 +142,8 @@ export function importProject(data) {
   }
 
   const importedProject = {
+    localId: generateUUID(), // New localId for imported project
+    driveId: null,
     name: data.metadata?.title || 'Imported Project',
     metadata: data.metadata || {},
     theme: data.theme || { base: 'gitlab', overrides: {} },
