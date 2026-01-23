@@ -6,26 +6,26 @@ import { createNewProject as createProjectFromService } from '../services/projec
 import { emit, EventTypes } from '../core/events.js';
 import { storage, projectExists } from '../infrastructure/storage/local.js';
 import { openSaveProjectModal as openSaveModal } from './modals.js';
+import { driveStorageService } from '../infrastructure/drive/storage-service.js';
+import { driveAPI } from '../infrastructure/drive/api.js';
+import { driveAuth } from '../infrastructure/drive/auth.js';
 
 // Re-export modal functions for backwards compatibility
 export {
-  openProjectModal,
-  closeProjectModal,
   openSaveProjectModal,
   closeSaveProjectModal,
   saveProjectWithName,
   validateSaveProjectName,
-  renderProjectList,
   loadProject,
   deleteProject
 } from './modals.js';
 
 /**
- * Save current project to localStorage
+ * Save current project to its storage location (local or Drive)
  * @param {string} [name] - Optional project name (uses current if not provided)
- * @returns {boolean} Success status
+ * @returns {Promise<boolean>} Success status
  */
-export function saveCurrentProject(name) {
+export async function saveCurrentProject(name) {
   // Get project from centralized state
   const sourceProject = getProject();
   const project = { ...sourceProject };
@@ -42,18 +42,30 @@ export function saveCurrentProject(name) {
 
   project.savedAt = new Date().toISOString();
 
-  const success = storage.save(project);
+  try {
+    // Use driveStorageService to route to correct storage location
+    const savedProject = await driveStorageService.save(project);
 
-  if (success) {
     batch(() => {
-      setProject(project);
+      setProject(savedProject);
       setState({ hasUnsavedChanges: false });
     });
 
     // Emit event - UI updates are handled by main.js subscriptions
-    emit(EventTypes.PROJECT_SAVED, { project });
+    emit(EventTypes.PROJECT_SAVED, { project: savedProject });
     return true;
-  } else {
+  } catch (error) {
+    console.error('Error saving project:', error);
+    // Handle auth issues for Drive projects
+    if (error.message?.includes('Not authenticated') || error.message?.includes('sign in')) {
+      if (driveAuth.tokenClient) {
+        driveAuth.signIn();
+      } else {
+        alert('Veuillez rafraîchir la page et vous reconnecter à Google Drive.');
+      }
+    } else {
+      alert('Erreur lors de la sauvegarde: ' + error.message);
+    }
     return false;
   }
 }
@@ -234,29 +246,56 @@ export function validateProjectName(name, currentName) {
 /**
  * Rename current project
  * @param {string} newName - New project name
- * @returns {boolean} Success status
+ * @returns {Promise<boolean>} Success status
  */
-export function renameCurrentProject(newName) {
+export async function renameCurrentProject(newName) {
   const state = getState();
   const currentName = state.project.name;
+  const storageLocation = driveStorageService.getProjectStorageLocation(state.project);
 
   const validation = validateProjectName(newName, currentName);
   if (!validation.valid) {
     return false;
   }
 
-  // If project was previously saved, update it in storage
+  const updatedProject = {
+    ...state.project,
+    name: newName.trim(),
+    savedAt: new Date().toISOString()
+  };
+
+  // Handle Drive projects
+  if (storageLocation === 'drive' && state.project.driveId) {
+    try {
+      await driveAPI.updatePresentation(state.project.driveId, updatedProject);
+
+      batch(() => {
+        setProject(updatedProject);
+        setState({ hasUnsavedChanges: false });
+      });
+
+      emit(EventTypes.PROJECT_SAVED, { project: updatedProject });
+      return true;
+    } catch (error) {
+      console.error('Error renaming Drive project:', error);
+      // Handle auth issues by triggering sign-in
+      if (error.message?.includes('Not authenticated') || error.message?.includes('sign in')) {
+        if (driveAuth.tokenClient) {
+          driveAuth.signIn();
+        } else {
+          alert('Veuillez rafraîchir la page et vous reconnecter à Google Drive.');
+        }
+      }
+      return false;
+    }
+  }
+
+  // Handle local projects
   if (currentName) {
     const projects = storage.getAll();
     const index = projects.findIndex(p => p.name === currentName);
 
     if (index >= 0) {
-      const updatedProject = {
-        ...state.project,
-        name: newName.trim(),
-        savedAt: new Date().toISOString()
-      };
-
       projects[index] = updatedProject;
       localStorage.setItem('slideProjects', JSON.stringify(projects));
 

@@ -12,10 +12,20 @@ const TOOLBAR_BUTTONS = [
   { command: 'italic', icon: '<em>I</em>', label: 'Italique' },
   { command: 'underline', icon: '<u>U</u>', label: 'Souligné' },
   { divider: true },
+  { dropdown: 'blockFormat' }, // Paragraph/heading dropdown
+  { divider: true },
   { command: 'insertUnorderedList', icon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="6" x2="20" y2="6"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="20" y2="12"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/><line x1="9" y1="18" x2="20" y2="18"/></svg>', label: 'Liste à puces' },
   { command: 'insertOrderedList', icon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none"><text x="2" y="8" font-size="7" font-weight="600">1</text><rect x="9" y="4.5" width="11" height="2" rx="1"/><text x="2" y="14" font-size="7" font-weight="600">2</text><rect x="9" y="10.5" width="11" height="2" rx="1"/><text x="2" y="20" font-size="7" font-weight="600">3</text><rect x="9" y="16.5" width="11" height="2" rx="1"/></svg>', label: 'Liste numérotée' },
   { divider: true },
   { command: 'createLink', icon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>', label: 'Lien', handler: 'handleLinkCommand' }
+];
+
+// Block format options for dropdown
+const BLOCK_FORMAT_OPTIONS = [
+  { value: 'p', label: 'Normal' },
+  { value: 'h2', label: 'Titre 2' },
+  { value: 'h3', label: 'Titre 3' },
+  { value: 'h4', label: 'Titre 4' }
 ];
 
 // Track state
@@ -45,7 +55,22 @@ function createFloatingToolbar() {
     if (btn.divider) {
       return '<span class="wysiwyg-toolbar-divider"></span>';
     }
-    return `<button type="button" class="wysiwyg-toolbar-btn" data-command="${btn.command}" title="${btn.label}"${btn.handler ? ` data-handler="${btn.handler}"` : ''}>${btn.icon}</button>`;
+    if (btn.dropdown === 'blockFormat') {
+      return `
+        <div class="wysiwyg-dropdown" data-dropdown="blockFormat">
+          <button type="button" class="wysiwyg-dropdown-trigger" title="Type de paragraphe">
+            <span class="wysiwyg-dropdown-label">Normal</span>
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="wysiwyg-dropdown-menu">
+            ${BLOCK_FORMAT_OPTIONS.map(opt => `
+              <button type="button" class="wysiwyg-dropdown-item" data-value="${opt.value}">${opt.label}</button>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+    const valueAttr = btn.value ? ` data-value="${btn.value}"` : '';
+    return `<button type="button" class="wysiwyg-toolbar-btn" data-command="${btn.command}" title="${btn.label}"${btn.handler ? ` data-handler="${btn.handler}"` : ''}${valueAttr}>${btn.icon}</button>`;
   }).join('');
 
   // Store event handler references for cleanup
@@ -96,6 +121,32 @@ export function destroyFloatingToolbar() {
  * Handle toolbar button clicks
  */
 function handleToolbarClick(event) {
+  // Handle dropdown trigger click
+  const dropdownTrigger = event.target.closest('.wysiwyg-dropdown-trigger');
+  if (dropdownTrigger) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropdown = dropdownTrigger.closest('.wysiwyg-dropdown');
+    toggleDropdown(dropdown);
+    return;
+  }
+
+  // Handle dropdown item click
+  const dropdownItem = event.target.closest('.wysiwyg-dropdown-item');
+  if (dropdownItem) {
+    event.preventDefault();
+    event.stopPropagation();
+    const value = dropdownItem.dataset.value;
+    handleHeadingCommand(value);
+    closeAllDropdowns();
+    updateToolbarButtonStates();
+    return;
+  }
+
+  // Close dropdowns when clicking elsewhere in toolbar
+  closeAllDropdowns();
+
+  // Handle regular button click
   const button = event.target.closest('.wysiwyg-toolbar-btn');
   if (!button) return;
 
@@ -112,6 +163,25 @@ function handleToolbarClick(event) {
   }
 
   updateToolbarButtonStates();
+}
+
+/**
+ * Toggle dropdown open/closed
+ */
+function toggleDropdown(dropdown) {
+  const isOpen = dropdown.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    dropdown.classList.add('open');
+  }
+}
+
+/**
+ * Close all dropdowns
+ */
+function closeAllDropdowns() {
+  if (!floatingToolbar) return;
+  floatingToolbar.querySelectorAll('.wysiwyg-dropdown.open').forEach(d => d.classList.remove('open'));
 }
 
 /**
@@ -143,14 +213,61 @@ function handleLinkCommand() {
 }
 
 /**
+ * Handle heading command - formats block as heading or paragraph
+ */
+function handleHeadingCommand(tagName) {
+  document.execCommand('formatBlock', false, tagName);
+}
+
+/**
+ * Get the current block element's tag name for heading state detection
+ */
+function getCurrentBlockTagName() {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return 'p';
+
+  let node = selection.anchorNode;
+  // Walk up to find the block element
+  while (node && node !== currentWysiwygElement) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toLowerCase();
+      if (['h2', 'h3', 'h4', 'p'].includes(tagName)) {
+        return tagName;
+      }
+    }
+    node = node.parentNode;
+  }
+  return 'p';
+}
+
+/**
  * Update toolbar button states based on current selection
  */
 function updateToolbarButtonStates() {
   if (!floatingToolbar) return;
 
+  const currentBlockTag = getCurrentBlockTagName();
+
+  // Update block format dropdown label
+  const blockFormatDropdown = floatingToolbar.querySelector('[data-dropdown="blockFormat"]');
+  if (blockFormatDropdown) {
+    const labelEl = blockFormatDropdown.querySelector('.wysiwyg-dropdown-label');
+    const option = BLOCK_FORMAT_OPTIONS.find(opt => opt.value === currentBlockTag);
+    if (labelEl && option) {
+      labelEl.textContent = option.label;
+    }
+    // Mark active item in dropdown
+    blockFormatDropdown.querySelectorAll('.wysiwyg-dropdown-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.value === currentBlockTag);
+    });
+  }
+
+  // Update regular button states
   const buttons = floatingToolbar.querySelectorAll('.wysiwyg-toolbar-btn');
   buttons.forEach(btn => {
     const command = btn.dataset.command;
+
+    // Handle other commands
     if (command && document.queryCommandState) {
       try {
         const isActive = document.queryCommandState(command);
@@ -278,6 +395,124 @@ export function openWysiwygEditor(fieldKey, fieldIndex) {
 }
 
 /**
+ * Check if an element is empty (contains only whitespace, <br>, or &nbsp;)
+ */
+function isEmptyElement(element) {
+  if (element.nodeType === Node.TEXT_NODE) {
+    return !element.textContent.trim();
+  }
+  if (element.nodeType !== Node.ELEMENT_NODE) {
+    return true;
+  }
+  const tagName = element.tagName.toLowerCase();
+  if (tagName === 'br') {
+    return true;
+  }
+  // Check if element contains only whitespace, <br>, or &nbsp;
+  const text = element.textContent.replace(/\u00A0/g, '').trim(); // Remove &nbsp; and whitespace
+  if (text) {
+    return false;
+  }
+  // Element has no meaningful text, check if it only has <br> children
+  const hasOnlyBrOrEmpty = Array.from(element.childNodes).every(child => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      return !child.textContent.trim();
+    }
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      return child.tagName.toLowerCase() === 'br' || isEmptyElement(child);
+    }
+    return true;
+  });
+  return hasOnlyBrOrEmpty;
+}
+
+/**
+ * Check if element is an inline formatting element.
+ */
+function isInlineFormattingElement(element) {
+  const inlineTags = ['b', 'i', 'u', 'strong', 'em', 'a', 'span'];
+  return inlineTags.includes(element.tagName.toLowerCase());
+}
+
+/**
+ * Recursively trim leading <br> tags from within an element.
+ * Handles cases like <p><b><br><br>D</b></p> -> <p><b>D</b></p>
+ */
+function trimLeadingBrWithinElement(element) {
+  while (element.firstChild) {
+    const first = element.firstChild;
+
+    if (first.nodeType === Node.TEXT_NODE) {
+      if (!first.textContent.trim()) {
+        first.remove();
+        continue;
+      }
+      // Has text content, stop
+      break;
+    }
+
+    if (first.nodeType === Node.ELEMENT_NODE) {
+      if (first.tagName.toLowerCase() === 'br') {
+        first.remove();
+        continue;
+      }
+      // Recurse into inline formatting elements
+      if (isInlineFormattingElement(first)) {
+        trimLeadingBrWithinElement(first);
+        // After trimming, if element is now empty, remove it
+        if (isEmptyElement(first)) {
+          first.remove();
+          continue;
+        }
+      }
+      // Has content, stop
+      break;
+    }
+
+    first.remove();
+  }
+}
+
+/**
+ * Trim leading empty elements from a contenteditable container.
+ * Removes leading <br>, empty elements (including nested <br> in formatting tags),
+ * and whitespace-only text nodes. Also trims leading <br> from within the first
+ * non-empty element.
+ */
+function trimLeadingEmptyElements(container) {
+  if (!container) return;
+
+  while (container.firstChild) {
+    const first = container.firstChild;
+
+    // Handle text nodes with only whitespace
+    if (first.nodeType === Node.TEXT_NODE) {
+      if (!first.textContent.trim()) {
+        first.remove();
+        continue;
+      }
+      // Has content, stop trimming
+      break;
+    }
+
+    // Handle element nodes - remove any empty element
+    // This handles nested cases like <p><u><b><br></b></u></p>
+    if (first.nodeType === Node.ELEMENT_NODE) {
+      if (isEmptyElement(first)) {
+        first.remove();
+        continue;
+      }
+      // First non-empty element - trim leading <br> from within it
+      trimLeadingBrWithinElement(first);
+      break;
+    }
+
+    // Remove other node types (comments, etc.)
+    first.remove();
+  }
+}
+
+/**
  * Handle input changes
  */
 function handleWysiwygInput() {
@@ -287,14 +522,33 @@ function handleWysiwygInput() {
   positionToolbar(currentWysiwygElement);
 
   // Wrap any orphan text nodes in <p> tags
+  // Merge with adjacent <p> siblings when possible to avoid one-char-per-paragraph issue
   const childNodes = Array.from(currentWysiwygElement.childNodes);
   childNodes.forEach(node => {
     if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+      // Check if immediate previous sibling is a <p> - if so, append to it
+      const prevSibling = node.previousSibling;
+      if (prevSibling && prevSibling.nodeType === Node.ELEMENT_NODE && prevSibling.tagName === 'P') {
+        prevSibling.appendChild(node);
+        return;
+      }
+
+      // Check if immediate next sibling is a <p> - if so, prepend to it
+      const nextSibling = node.nextSibling;
+      if (nextSibling && nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.tagName === 'P') {
+        nextSibling.insertBefore(node, nextSibling.firstChild);
+        return;
+      }
+
+      // No adjacent <p>, create new one
       const p = document.createElement('p');
       node.parentNode.insertBefore(p, node);
       p.appendChild(node);
     }
   });
+
+  // Trim leading empty elements (same as trimHtml does for strings)
+  trimLeadingEmptyElements(currentWysiwygElement);
 
   // Live resize content based on height - use RAF debouncing to avoid layout thrashing
   // Cancel any pending scale calculation
@@ -404,6 +658,7 @@ function handleWysiwygBlur(event) {
  * Handle selection changes for toolbar state
  */
 function handleWysiwygSelection() {
+  closeAllDropdowns();
   updateToolbarButtonStates();
 }
 

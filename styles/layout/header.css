@@ -48,6 +48,14 @@
   flex-shrink: 0;
 }
 
+.header-project-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .header-project-name {
   display: flex;
   flex-direction: row;
@@ -77,6 +85,51 @@
 .header-project-name.placeholder span {
   color: var(--gray-500);
   font-style: italic;
+}
+
+/* Storage location badge next to project name */
+.header-storage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.header-storage-badge svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.header-storage-badge.storage-local {
+  background: transparent;
+  color: var(--gray-500);
+  padding: 0;
+  margin-left: 4px;
+}
+
+.header-storage-badge.storage-local svg {
+  stroke: var(--gray-300);
+  width: 16px;
+  height: 16px;
+}
+
+.header-storage-badge.storage-drive {
+  background: transparent;
+  color: var(--gray-300);
+  padding: 0;
+  margin-left: 4px;
+}
+
+.header-storage-badge.storage-drive svg {
+  stroke: var(--gray-300);
+  width: 16px;
+  height: 16px;
 }
 
 /* Edit icon hidden by default */
@@ -132,7 +185,8 @@
 }
 
 .header-project-name.editing span,
-.header-project-name.editing .edit-icon {
+.header-project-name.editing .edit-icon,
+.header-project-name.editing + .header-storage-badge {
   display: none;
 }
 
@@ -399,5 +453,16 @@
 
   .header-project-input {
     width: 150px;
+  }
+
+  /* Hide storage badge text, show icon only */
+  .header-storage-badge {
+    padding: 4px;
+    font-size: 0;
+  }
+
+  .header-storage-badge svg {
+    width: 14px;
+    height: 14px;
   }
 }

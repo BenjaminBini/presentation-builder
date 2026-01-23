@@ -115,7 +115,29 @@ export const SAMPLE_PROJECT = {
         text: 'Combinez visuels et texte pour un impact maximal.\n\nL\'image peut être une URL externe ou un chemin local.\n\nLe texte s\'adapte automatiquement à l\'espace disponible.'
       }
     },
-    // 7. Section for data templates
+    // 7. Text slide with rich text
+    {
+      template: 'text',
+      data: {
+        content: `<h1>Template Texte Libre</h1>
+<p>Ce template permet d'écrire du <strong>texte riche</strong> avec une mise en forme avancée.</p>
+<h2>Fonctionnalités</h2>
+<ul>
+<li>Titres de différents niveaux (<strong>H1</strong>, <strong>H2</strong>, <strong>H3</strong>)</li>
+<li>Texte en <strong>gras</strong>, <em>italique</em> ou <u>souligné</u></li>
+<li>Listes à puces et numérotées</li>
+<li>Liens hypertextes</li>
+</ul>
+<h2>Cas d'usage</h2>
+<ol>
+<li>Slides de contenu libre</li>
+<li>Notes détaillées</li>
+<li>Explications complexes</li>
+</ol>
+<p>Le texte s'adapte automatiquement à la taille de la slide.</p>`
+      }
+    },
+    // 8. Section for data templates
     {
       template: 'section',
       data: {
@@ -124,7 +146,7 @@ export const SAMPLE_PROJECT = {
         subtitle: 'Visualisez vos chiffres et processus'
       }
     },
-    // 8. Stats slide
+    // 9. Stats slide
     {
       template: 'stats',
       data: {
@@ -136,7 +158,7 @@ export const SAMPLE_PROJECT = {
         ]
       }
     },
-    // 9. Timeline slide
+    // 10. Timeline slide
     {
       template: 'timeline',
       data: {
@@ -149,7 +171,7 @@ export const SAMPLE_PROJECT = {
         ]
       }
     },
-    // 10. Comparison/Table slide
+    // 11. Comparison/Table slide
     {
       template: 'comparison',
       data: {
@@ -165,7 +187,7 @@ export const SAMPLE_PROJECT = {
         highlightColumn: 3
       }
     },
-    // 11. Section for technical templates
+    // 12. Section for technical templates
     {
       template: 'section',
       data: {
@@ -174,7 +196,7 @@ export const SAMPLE_PROJECT = {
         subtitle: 'Pour les développeurs et architectes'
       }
     },
-    // 12. Code slide
+    // 13. Code slide
     {
       template: 'code',
       data: {
@@ -197,7 +219,7 @@ pres.addSlide('title', { title: 'Hello World' });`,
         description: 'Coloration syntaxique automatique pour de nombreux langages'
       }
     },
-    // 13. Code-annotated slide
+    // 14. Code-annotated slide
     {
       template: 'code-annotated',
       data: {
@@ -221,7 +243,7 @@ pres.addSlide('title', { title: 'Hello World' });`,
         ]
       }
     },
-    // 14. Mermaid slide
+    // 15. Mermaid slide
     {
       template: 'mermaid',
       data: {
@@ -238,7 +260,7 @@ pres.addSlide('title', { title: 'Hello World' });`,
     F -->|Non| C`
       }
     },
-    // 15. Section for other templates
+    // 16. Section for other templates
     {
       template: 'section',
       data: {
@@ -247,7 +269,7 @@ pres.addSlide('title', { title: 'Hello World' });`,
         subtitle: 'Citations et diagrammes interactifs'
       }
     },
-    // 16. Quote slide
+    // 17. Quote slide
     {
       template: 'quote',
       data: {
@@ -257,7 +279,7 @@ pres.addSlide('title', { title: 'Hello World' });`,
         authorImage: ''
       }
     },
-    // 17. Draw.io slide
+    // 18. Draw.io slide
     {
       template: 'drawio',
       data: {
@@ -266,7 +288,7 @@ pres.addSlide('title', { title: 'Hello World' });`,
         diagram: SAMPLE_DIAGRAM_SVG
       }
     },
-    // 18. Final title slide
+    // 19. Final title slide
     {
       template: 'title',
       data: {

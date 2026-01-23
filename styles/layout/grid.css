@@ -1,16 +1,24 @@
 /* Grid and Layout Utilities */
 
-/* Main App Layout */
+/* Main App Layout - 3-column grid with right file sidebar */
 .app {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px 1fr 37px;
   grid-template-rows: 56px 1fr;
   height: 100vh;
   transition: grid-template-columns 0.2s ease;
 }
 
 .app.sidebar-collapsed {
-  grid-template-columns: 37px 1fr;
+  grid-template-columns: 37px 1fr 37px;
+}
+
+.app.file-sidebar-expanded {
+  grid-template-columns: 280px 1fr 280px;
+}
+
+.app.sidebar-collapsed.file-sidebar-expanded {
+  grid-template-columns: 37px 1fr 280px;
 }
 
 /* Main Content Area */

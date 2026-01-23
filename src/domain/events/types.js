@@ -28,6 +28,8 @@ export const EventTypes = {
   TAB_SWITCHED: 'ui:tab:switched',
   MODAL_OPENED: 'ui:modal:opened',
   MODAL_CLOSED: 'ui:modal:closed',
+  FILE_SIDEBAR_TOGGLED: 'ui:file-sidebar:toggled',
+  FILE_SIDEBAR_TAB_CHANGED: 'ui:file-sidebar:tab:changed',
 
   // Preview events
   PREVIEW_UPDATED: 'preview:updated',
@@ -52,6 +54,7 @@ export const EventTypes = {
   DRIVE_SYNC_COMPLETED: 'drive:sync:completed',
   DRIVE_SYNC_ERROR: 'drive:sync:error',
   DRIVE_CONFLICT: 'drive:conflict',
+  DRIVE_STATE_CHANGED: 'drive:state:changed',
 
   // Inline editing events
   INLINE_EDIT_STARTED: 'inline:edit:started',

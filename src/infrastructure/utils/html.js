@@ -187,8 +187,148 @@ export function sanitizeHtml(html) {
 }
 
 /**
+ * Check if a DOM element is empty (contains only whitespace, <br>, or &nbsp;).
+ * Handles nested cases like <p><u><b><br></b></u></p>.
+ * @param {Node} element - DOM node to check
+ * @returns {boolean} True if element is empty
+ */
+function isEmptyElement(element) {
+  if (element.nodeType === Node.TEXT_NODE) {
+    return !element.textContent.trim();
+  }
+  if (element.nodeType !== Node.ELEMENT_NODE) {
+    return true;
+  }
+  const tagName = element.tagName.toLowerCase();
+  if (tagName === 'br') {
+    return true;
+  }
+  // Check if element contains only whitespace, <br>, or &nbsp;
+  const text = element.textContent.replace(/\u00A0/g, '').trim();
+  if (text) {
+    return false;
+  }
+  // Element has no meaningful text, check if it only has empty children
+  const hasOnlyEmptyChildren = Array.from(element.childNodes).every(child => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      return !child.textContent.trim();
+    }
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      return child.tagName.toLowerCase() === 'br' || isEmptyElement(child);
+    }
+    return true;
+  });
+  return hasOnlyEmptyChildren;
+}
+
+/**
+ * Check if element is an inline formatting element.
+ * @param {Element} element - DOM element
+ * @returns {boolean}
+ */
+function isInlineFormattingElement(element) {
+  const inlineTags = ['b', 'i', 'u', 'strong', 'em', 'a', 'span'];
+  return inlineTags.includes(element.tagName.toLowerCase());
+}
+
+/**
+ * Recursively trim leading <br> tags from within an element.
+ * Handles cases like <p><b><br><br>D</b></p> -> <p><b>D</b></p>
+ * @param {HTMLElement} element - Element to trim within
+ */
+function trimLeadingBrWithinElement(element) {
+  while (element.firstChild) {
+    const first = element.firstChild;
+
+    if (first.nodeType === Node.TEXT_NODE) {
+      if (!first.textContent.trim()) {
+        first.remove();
+        continue;
+      }
+      // Has text content, stop
+      break;
+    }
+
+    if (first.nodeType === Node.ELEMENT_NODE) {
+      if (first.tagName.toLowerCase() === 'br') {
+        first.remove();
+        continue;
+      }
+      // Recurse into inline formatting elements
+      if (isInlineFormattingElement(first)) {
+        trimLeadingBrWithinElement(first);
+        // After trimming, if element is now empty, remove it
+        if (isEmptyElement(first)) {
+          first.remove();
+          continue;
+        }
+      }
+      // Has content, stop
+      break;
+    }
+
+    first.remove();
+  }
+}
+
+/**
+ * Trim leading empty elements from a container (DOM-based).
+ * Handles nested cases like <p><u><b><br></b></u></p>.
+ * Also trims leading <br> from within the first non-empty element.
+ * @param {HTMLElement} container - Container element
+ */
+function trimLeadingEmptyNodes(container) {
+  while (container.firstChild) {
+    const first = container.firstChild;
+    if (first.nodeType === Node.TEXT_NODE) {
+      if (!first.textContent.trim()) {
+        first.remove();
+        continue;
+      }
+      break;
+    }
+    if (first.nodeType === Node.ELEMENT_NODE) {
+      if (isEmptyElement(first)) {
+        first.remove();
+        continue;
+      }
+      // First non-empty element - trim leading <br> from within it
+      trimLeadingBrWithinElement(first);
+      break;
+    }
+    first.remove();
+  }
+}
+
+/**
+ * Trim trailing empty elements from a container (DOM-based).
+ * Handles nested cases like <p><u><b><br></b></u></p>.
+ * @param {HTMLElement} container - Container element
+ */
+function trimTrailingEmptyNodes(container) {
+  while (container.lastChild) {
+    const last = container.lastChild;
+    if (last.nodeType === Node.TEXT_NODE) {
+      if (!last.textContent.trim()) {
+        last.remove();
+        continue;
+      }
+      break;
+    }
+    if (last.nodeType === Node.ELEMENT_NODE) {
+      if (isEmptyElement(last)) {
+        last.remove();
+        continue;
+      }
+      break;
+    }
+    last.remove();
+  }
+}
+
+/**
  * Trim trailing whitespace, <br> tags, zero-width spaces, and empty paragraphs from HTML.
- * Also trims leading whitespace.
+ * Also trims leading whitespace. Handles nested empty elements like <p><u><b><br></b></u></p>.
  * @param {string} html - HTML string to trim
  * @returns {string} Trimmed HTML string
  */
@@ -205,17 +345,14 @@ export function trimHtml(html) {
   // Trim leading/trailing whitespace
   result = result.trim();
 
-  // Remove trailing <br>, <br/>, <br /> tags (with optional whitespace)
-  result = result.replace(/(\s*<br\s*\/?>\s*)+$/gi, '');
+  // Use DOM-based trimming for leading/trailing empty elements (handles nested cases)
+  const temp = document.createElement('div');
+  temp.innerHTML = result;
 
-  // Remove leading <br> tags
-  result = result.replace(/^(\s*<br\s*\/?>\s*)+/gi, '');
+  trimLeadingEmptyNodes(temp);
+  trimTrailingEmptyNodes(temp);
 
-  // Remove trailing empty paragraphs <p></p>, <p>&nbsp;</p>, <p><br></p>
-  result = result.replace(/(\s*<p>\s*(<br\s*\/?>|&nbsp;|\s)*<\/p>\s*)+$/gi, '');
-
-  // Remove leading empty paragraphs
-  result = result.replace(/^(\s*<p>\s*(<br\s*\/?>|&nbsp;|\s)*<\/p>\s*)+/gi, '');
+  result = temp.innerHTML;
 
   // Clean up multiple consecutive <br> tags (more than 2) to just 2
   result = result.replace(/(<br\s*\/?>\s*){3,}/gi, '<br><br>');

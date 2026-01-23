@@ -60,15 +60,6 @@ export function initModalBehaviors() {
     });
 }
 
-/**
- * Open the projects modal
- */
-export function openProjectsModal() {
-    if (window.openProjectModal) {
-        window.openProjectModal();
-    }
-}
-
 // Prompt modal - stores callback for when confirmed
 let promptCallback = null;
 
@@ -107,17 +98,3 @@ export function confirmPromptModal() {
     closeModal('promptModal');
 }
 
-// Drive conflict - stores resolve callback from sync service
-let conflictResolveCallback = null;
-
-export function setConflictResolver(resolver) {
-    conflictResolveCallback = resolver;
-}
-
-export function resolveConflict(choice) {
-    if (conflictResolveCallback) {
-        conflictResolveCallback(choice);
-        conflictResolveCallback = null;
-    }
-    closeModal('driveConflictModal');
-}

@@ -22,6 +22,9 @@ dev-debug.log
 # Dependency directories
 # Environment variables
 .env
+
+# Server token storage
+.tokens.json
 # Editor directories and files
 .idea
 .vscode
