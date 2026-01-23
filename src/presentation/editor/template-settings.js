@@ -15,7 +15,7 @@ export function renderTemplateSettings(slide) {
                         <span class="inline-color-label">Taille du logo</span>
                         <div class="slider-control">
                             <input type="range" min="50" max="200" value="${logoSize}"
-                                   oninput="updateField('logoSize', parseInt(this.value)); this.nextElementSibling.textContent = this.value + '%'">
+                                   oninput="App.updateField('logoSize', parseInt(this.value)); this.nextElementSibling.textContent = this.value + '%'">
                             <span class="slider-value">${logoSize}%</span>
                         </div>
                     </div>
@@ -33,7 +33,7 @@ export function renderTemplateSettings(slide) {
                     <label class="toolbar-toggle">
                         <span class="toolbar-toggle-label">Tag</span>
                         <input type="checkbox" ${showTag ? 'checked' : ''}
-                               onchange="updateField('showTag', this.checked); updatePreview();">
+                               onchange="App.updateField('showTag', this.checked); App.updatePreview();">
                     </label>
                 </div>
             </div>
@@ -50,12 +50,12 @@ export function renderTemplateSettings(slide) {
                     <label class="toolbar-toggle">
                         <span class="toolbar-toggle-label">Durées</span>
                         <input type="checkbox" ${showDuration ? 'checked' : ''}
-                               onchange="updateField('showDuration', this.checked); renderEditor(); updatePreview();">
+                               onchange="App.updateField('showDuration', this.checked); App.renderEditor(); App.updatePreview();">
                     </label>
                     <label class="toolbar-toggle">
                         <span class="toolbar-toggle-label">Sous-titres</span>
                         <input type="checkbox" ${showSubtitle ? 'checked' : ''}
-                               onchange="updateField('showSubtitle', this.checked); renderEditor(); updatePreview();">
+                               onchange="App.updateField('showSubtitle', this.checked); App.renderEditor(); App.updatePreview();">
                     </label>
                 </div>
             </div>
