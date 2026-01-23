@@ -156,7 +156,7 @@ import {
 } from './presentation/app/import-modal.js';
 
 // Inline editing (auto-initializes on DOM ready)
-import './presentation/inline-editing/index.js';
+import inlineEditor from './presentation/inline-editing/index.js';
 
 // ============================================================================
 // THIN WRAPPER FUNCTIONS
@@ -440,31 +440,26 @@ function initializeApp() {
 }
 
 // ============================================================================
-// EXPOSE TO WINDOW
+// EXPOSE TO WINDOW VIA App CONTROLLER
 // ============================================================================
 
-// Note: window.* exports are kept for HTML onclick handlers and legacy compatibility
-// New code should import directly from modules instead of using window globals
-Object.assign(window, {
-    // Templates - needed for presentation.js which uses window.renderTemplate and window.getPreviewStyles
-    renderTemplate, getPreviewStyles, adjustTextTemplateScale,
-
-    // UI functions - needed for HTML onclick handlers
+// Single global entry point for HTML onclick handlers
+// Usage: onclick="App.closeModal('save')" instead of onclick="closeModal('save')"
+window.App = {
+    // UI functions
     renderSlideList, selectSlide, renderEditor, updatePreview, scalePreviewSlide,
     updateHeaderTitle, editProjectTitle, finishEditProjectTitle, handleTitleKeydown,
     switchSidebarTab, toggleSidebar, toggleEditorPanel, switchEditorTab,
     renderSettingsPanel, initTemplateGrid, updateAppThemeColors, renderThemeSelector, renderColorList, initThemeColorPickerEvents, selectTheme,
     updateSidebarTabUnderline, updateEditorTabUnderline,
 
-    // Slide management - needed for HTML onclick handlers
+    // Slide management
     addSlide, selectTemplate, deleteSlide, duplicateSlide, moveSlide, duplicateSlideAt, deleteSlideAt,
 
-    // Drag and drop - handlers are set on window directly in list.js
-
-    // Presentation - needed for HTML onclick handlers
+    // Presentation
     startPresentation, exitPresentation, prevSlidePlayer, nextSlidePlayer, scalePlayerSlide,
 
-    // Field updates - needed for HTML onchange/onclick handlers in editor
+    // Field updates (editor handlers)
     updateField, changeTemplate,
     updateArrayItem, removeArrayItem, addArrayItem,
     updateColumnField, updateColumnItem, removeColumnItem, addColumnItem,
@@ -475,13 +470,13 @@ Object.assign(window, {
     updateTableCell, removeTableRow, addTableRow,
     updateAnnotationItem, removeAnnotationItem, addAnnotationItem,
 
-    // Projects - needed for HTML onclick handlers
+    // Projects
     showConfirm, hideConfirm, handleConfirmResponse,
     saveCurrentProject, loadProject, deleteProject, createNewProject, renameProject,
     openSaveProjectModal, closeSaveProjectModal, saveProjectWithName, validateSaveProjectName,
     exportToJSON, importFromJSON, triggerFileInput,
 
-    // Modal & UI functions - needed for HTML onclick handlers
+    // Modal & UI
     closeModal, newProject, createEmptyProject, createDemoProject,
     saveProject, exportProject, importProject, exportToGoogleSlides,
     exportToHtml, confirmImport, confirmSaveProject, onSaveStatusClick,
@@ -489,27 +484,118 @@ Object.assign(window, {
     openPromptModal, cancelPromptModal, confirmPromptModal,
     handleFileSelect, handleImport,
 
-    // Theme color picker functions - needed for HTML onclick handlers
+    // Theme color picker
     toggleThemeColorPicker, closeAllThemeColorPickers,
     resetColorOverride, resetAllColorOverrides,
 
-    // Editor color selector functions - needed for HTML onclick handlers
+    // Editor color selector
     toggleColorPicker, selectSlideColor, updateSlideColor, resetSlideColor,
     showColorName, hideColorName,
 
-    // State functions - needed for sidebar.js window.renderSettingsPanel check
+    // State
     dismissUnsavedAlert,
 
-    // Drive - needed for external access
+    // Drive
     driveAuth, driveAPI, driveStorageService, driveStateMachine, DriveState,
 
-    // File sidebar - needed for onclick handlers
+    // File sidebar
     toggleFileSidebar: () => fileSidebar.toggle(),
     switchFileSidebarTab: (tab) => fileSidebar.switchTab(tab),
     FileSidebar: window.FileSidebar,
     FileList,
 
-    // Mermaid initialization - kept for window.initMermaid call in theme.js
+    // Inline editing - Image Picker
+    closeImagePicker: () => inlineEditor.closeImagePicker(),
+    confirmImageSelection: () => inlineEditor.confirmImageSelection(),
+    clearImage: () => inlineEditor.clearImage(),
+    switchImagePickerTab: (tab) => {
+        document.querySelectorAll('.image-picker-tab').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+        document.getElementById('imagePickerUrl').style.display = tab === 'url' ? 'block' : 'none';
+        document.getElementById('imagePickerUpload').style.display = tab === 'upload' ? 'block' : 'none';
+    },
+    handleImageUrlInput: (url) => {
+        if (!url) {
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            return;
+        }
+        const img = new Image();
+        img.onload = () => {
+            inlineEditor.selectedImageData = url;
+            inlineEditor.showImagePreview(url);
+        };
+        img.onerror = () => {
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+        };
+        img.src = url;
+    },
+    handleImageFileSelect: (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                inlineEditor.selectedImageData = e.target.result;
+                inlineEditor.showImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+
+    // Inline editing - Code Editor
+    closeCodeEditor: () => inlineEditor.closeCodeEditor(),
+    confirmCodeEdit: () => inlineEditor.confirmCodeEdit(),
+    updateCodeEditorLineNumbers: () => {
+        const textarea = document.getElementById('codeEditorInput');
+        const lineNumbers = document.getElementById('codeEditorLineNumbers');
+        const startLineInput = document.getElementById('codeStartLine');
+        const showLineNumbersCheckbox = document.getElementById('codeShowLineNumbers');
+        if (!textarea || !lineNumbers) return;
+        const showLineNumbers = showLineNumbersCheckbox ? showLineNumbersCheckbox.checked : false;
+        if (!showLineNumbers) {
+            lineNumbers.style.display = 'none';
+            return;
+        }
+        lineNumbers.style.display = 'block';
+        const lines = textarea.value.split('\n');
+        const startLine = startLineInput ? parseInt(startLineInput.value) || 1 : 1;
+        let html = '';
+        for (let i = 0; i < lines.length; i++) {
+            html += `<div>${startLine + i}</div>`;
+        }
+        if (lines.length === 0) {
+            html = `<div>${startLine}</div>`;
+        }
+        lineNumbers.innerHTML = html;
+    },
+    syncLineNumbersScroll: () => {
+        const textarea = document.getElementById('codeEditorInput');
+        const lineNumbers = document.getElementById('codeEditorLineNumbers');
+        if (textarea && lineNumbers) {
+            lineNumbers.scrollTop = textarea.scrollTop;
+        }
+    },
+    updateCodeEditorEllipsis: () => {
+        const showEllipsisBeforeCheckbox = document.getElementById('codeShowEllipsisBefore');
+        const showEllipsisAfterCheckbox = document.getElementById('codeShowEllipsisAfter');
+        const ellipsisBefore = document.getElementById('codeEllipsisBefore');
+        const ellipsisAfter = document.getElementById('codeEllipsisAfter');
+        if (ellipsisBefore) {
+            ellipsisBefore.classList.toggle('visible', showEllipsisBeforeCheckbox?.checked || false);
+        }
+        if (ellipsisAfter) {
+            ellipsisAfter.classList.toggle('visible', showEllipsisAfterCheckbox?.checked || false);
+        }
+        window.App.updateCodeEditorLineNumbers();
+    },
+
+    // Inline editing - Draw.io
+    closeDrawioEditor: () => inlineEditor.closeDrawioEditor(),
+
+    // Drive Setup Modal
+    closeDriveSetupModal: () => window.DriveUI?.closeSetupModal(),
+
+    // Mermaid
     initMermaid: () => {
         if (window.mermaid) {
             window.mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
@@ -518,7 +604,13 @@ Object.assign(window, {
 
     // Initialize
     initializeApp, loadInitialProject
-});
+};
+
+// Also expose templates globally (used by presentation.js and other modules)
+window.renderTemplate = renderTemplate;
+window.getPreviewStyles = getPreviewStyles;
+window.adjustTextTemplateScale = adjustTextTemplateScale;
+window.getThemeColors = getThemeColors;
 
 // Initialize on DOM ready
 if (document.readyState === 'loading') {
