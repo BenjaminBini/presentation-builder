@@ -118,8 +118,7 @@ Object.assign(InlineEditor.prototype, {
   deleteTableRow
 });
 
-// Initialize HTML adapters for global onclick handlers
-import './html-adapters.js';
+// Note: HTML onclick handlers now use App controller (see main.js)
 
 // Export singleton instance as default
 export default inlineEditor;

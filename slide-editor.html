@@ -54,7 +54,7 @@
             <span class="header-title">Slide Editor</span>
           </h1>
           <div class="header-project-wrapper">
-            <div class="header-project-name" onclick="editProjectTitle()">
+            <div class="header-project-name" onclick="App.editProjectTitle()">
               <span id="headerProjectName">Sans titre</span>
               <svg class="edit-icon" viewBox="0 0 24 24">
                 <path
@@ -68,8 +68,8 @@
                 type="text"
                 id="headerProjectInput"
                 class="header-project-input"
-                onblur="finishEditProjectTitle()"
-                onkeydown="handleTitleKeydown(event)"
+                onblur="App.finishEditProjectTitle()"
+                onkeydown="App.handleTitleKeydown(event)"
               />
             </div>
             <span id="headerStorageBadge" class="header-storage-badge storage-local">
@@ -82,7 +82,7 @@
             <button
               class="btn btn-ghost save-status"
               id="saveStatus"
-              onclick="onSaveStatusClick()"
+              onclick="App.onSaveStatusClick()"
             >
               <!-- Save icon (for unsaved projects) -->
               <svg class="icon icon-save" viewBox="0 0 24 24">
@@ -114,10 +114,7 @@
                 <p>Enregistrez pour activer la sauvegarde automatique.</p>
                 <button
                   class="unsaved-alert-dismiss"
-                  onclick="
-                    event.stopPropagation();
-                    dismissUnsavedAlert();
-                  "
+                  onclick="event.stopPropagation(); App.dismissUnsavedAlert();"
                 >
                   Compris
                 </button>
@@ -128,7 +125,7 @@
         <div class="header-right">
           <button
             class="btn btn-ghost"
-            onclick="newProject()"
+            onclick="App.newProject()"
             title="Nouveau projet"
           >
             <svg class="icon" viewBox="0 0 24 24">
@@ -143,7 +140,7 @@
           </button>
           <button
             class="btn btn-ghost"
-            onclick="importProject()"
+            onclick="App.importProject()"
             title="Importer"
           >
             <svg class="icon" viewBox="0 0 24 24">
@@ -155,7 +152,7 @@
           </button>
           <button
             class="btn btn-primary"
-            onclick="startPresentation()"
+            onclick="App.startPresentation()"
             title="Présenter"
           >
             <svg class="icon" viewBox="0 0 24 24">
@@ -172,7 +169,7 @@
         <div class="sidebar-collapsed-view">
           <button
             class="sidebar-expand-btn"
-            onclick="toggleSidebar()"
+            onclick="App.toggleSidebar()"
             title="Ouvrir le panneau"
           >
             <svg class="icon" viewBox="0 0 24 24">
@@ -182,7 +179,7 @@
           <div class="compact-slide-list" id="compactSlideList"></div>
           <button
             class="compact-add-btn"
-            onclick="addSlide()"
+            onclick="App.addSlide()"
             title="Ajouter une slide"
           >
             <svg class="icon" viewBox="0 0 24 24">
@@ -197,7 +194,7 @@
             <button
               class="sidebar-tab active"
               data-tab="slides"
-              onclick="switchSidebarTab('slides')"
+              onclick="App.switchSidebarTab('slides')"
             >
               <svg
                 class="icon icon-sm"
@@ -214,7 +211,7 @@
             <button
               class="sidebar-tab"
               data-tab="settings"
-              onclick="switchSidebarTab('settings')"
+              onclick="App.switchSidebarTab('settings')"
             >
               <svg
                 class="icon icon-sm"
@@ -230,7 +227,7 @@
             </button>
             <button
               class="sidebar-collapse-btn"
-              onclick="toggleSidebar()"
+              onclick="App.toggleSidebar()"
               title="Réduire le panneau"
             >
               <svg class="icon collapse-icon" viewBox="0 0 24 24">
@@ -243,7 +240,7 @@
             <div class="slides-panel">
               <div class="slide-list" id="slideList"></div>
               <div class="slide-list-footer">
-                <button class="btn-add-slide" onclick="addSlide()">
+                <button class="btn-add-slide" onclick="App.addSlide()">
                   <svg class="icon" viewBox="0 0 24 24">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -261,7 +258,7 @@
               <div class="settings-section">
                 <div class="settings-section-header">
                   <h3>Personnalisation des couleurs</h3>
-                  <button class="reset-all-colors-btn" id="resetAllColorsBtn" onclick="resetAllColorOverrides()" title="Réinitialiser toutes les couleurs">
+                  <button class="reset-all-colors-btn" id="resetAllColorsBtn" onclick="App.resetAllColorOverrides()" title="Réinitialiser toutes les couleurs">
                     <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
                   </button>
                 </div>
@@ -288,7 +285,7 @@
         <div class="editor-panel" id="editorPanel">
           <div class="editor-header">
             <div class="editor-tabs">
-              <button class="editor-tab active" data-tab="properties" onclick="switchEditorTab('properties')">
+              <button class="editor-tab active" data-tab="properties" onclick="App.switchEditorTab('properties')">
                 <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px">
                   <line x1="4" y1="21" x2="4" y2="14"></line>
                   <line x1="4" y1="10" x2="4" y2="3"></line>
@@ -302,7 +299,7 @@
                 </svg>
                 Proprietes
               </button>
-              <button class="editor-tab" data-tab="colors" onclick="switchEditorTab('colors')">
+              <button class="editor-tab" data-tab="colors" onclick="App.switchEditorTab('colors')">
                 <svg class="icon icon-sm" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px">
                   <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
                   <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
@@ -316,7 +313,7 @@
             <button
               class="editor-collapse-btn"
               id="editorCollapseBtn"
-              onclick="toggleEditorPanel()"
+              onclick="App.toggleEditorPanel()"
               title="Réduire/Agrandir"
             >
               <svg class="icon collapse-icon" viewBox="0 0 24 24">
@@ -334,7 +331,7 @@
         <div class="file-sidebar-header">
           <button
             class="file-sidebar-toggle-btn"
-            onclick="toggleFileSidebar()"
+            onclick="App.toggleFileSidebar()"
             title="Basculer le panneau fichiers"
           >
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -346,7 +343,7 @@
             <button
               class="file-sidebar-tab active"
               data-tab="local"
-              onclick="switchFileSidebarTab('local')"
+              onclick="App.switchFileSidebarTab('local')"
             >
               <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
@@ -356,7 +353,7 @@
             <button
               class="file-sidebar-tab"
               data-tab="drive"
-              onclick="switchFileSidebarTab('drive')"
+              onclick="App.switchFileSidebarTab('drive')"
             >
               <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
@@ -366,7 +363,7 @@
             <button
               class="file-sidebar-tab"
               data-tab="file"
-              onclick="switchFileSidebarTab('file')"
+              onclick="App.switchFileSidebarTab('file')"
             >
               <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -410,7 +407,7 @@
       <div class="modal" style="width: 440px">
         <div class="modal-header">
           <h3>Nouveau projet</h3>
-          <button class="modal-close" onclick="closeModal('newProjectModal')">
+          <button class="modal-close" onclick="App.closeModal('newProjectModal')">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -426,7 +423,7 @@
         <div class="modal-body">
           <p class="modal-description">Choisissez comment démarrer votre nouveau projet :</p>
           <div class="new-project-options">
-            <button class="new-project-option" onclick="createEmptyProject()">
+            <button class="new-project-option" onclick="App.createEmptyProject()">
               <div class="new-project-option-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -440,7 +437,7 @@
                 <span class="new-project-option-desc">Commencez avec une slide de titre</span>
               </div>
             </button>
-            <button class="new-project-option" onclick="createDemoProject()">
+            <button class="new-project-option" onclick="App.createDemoProject()">
               <div class="new-project-option-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
@@ -464,7 +461,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeModal('newProjectModal')">
+          <button class="btn btn-secondary" onclick="App.closeModal('newProjectModal')">
             Annuler
           </button>
         </div>
@@ -476,7 +473,7 @@
       <div class="modal" style="width: 400px">
         <div class="modal-header">
           <h3>Enregistrer le projet</h3>
-          <button class="modal-close" onclick="closeModal('saveProjectModal')">
+          <button class="modal-close" onclick="App.closeModal('saveProjectModal')">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -498,14 +495,8 @@
               type="text"
               id="saveProjectName"
               placeholder="Ma présentation"
-              oninput="validateSaveProjectName()"
-              onkeydown="
-                if (
-                  event.key === 'Enter' &&
-                  !document.getElementById('saveProjectBtn').disabled
-                )
-                  confirmSaveProject();
-              "
+              oninput="App.validateSaveProjectName()"
+              onkeydown="if (event.key === 'Enter' && !document.getElementById('saveProjectBtn').disabled) App.confirmSaveProject();"
             />
             <span class="field-hint field-error" id="saveProjectError"></span>
           </div>
@@ -513,14 +504,14 @@
         <div class="modal-footer">
           <button
             class="btn btn-secondary"
-            onclick="closeModal('saveProjectModal')"
+            onclick="App.closeModal('saveProjectModal')"
           >
             Annuler
           </button>
           <button
             class="btn btn-primary"
             id="saveProjectBtn"
-            onclick="confirmSaveProject()"
+            onclick="App.confirmSaveProject()"
             disabled
           >
             Enregistrer
@@ -534,7 +525,7 @@
       <div class="modal">
         <div class="modal-header">
           <h3>Choisir un template</h3>
-          <button class="modal-close" onclick="closeModal('addSlideModal')">
+          <button class="modal-close" onclick="App.closeModal('addSlideModal')">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -558,7 +549,7 @@
       <div class="modal modal-lg">
         <div class="modal-header">
           <h3>Importer une présentation</h3>
-          <button class="modal-close" onclick="closeModal('importModal')">
+          <button class="modal-close" onclick="App.closeModal('importModal')">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -577,7 +568,7 @@
             <button
               class="import-tab active"
               data-tab="file"
-              onclick="switchImportTab('file')"
+              onclick="App.switchImportTab('file')"
             >
               <svg class="icon" viewBox="0 0 24 24">
                 <path
@@ -590,7 +581,7 @@
             <button
               class="import-tab"
               data-tab="code"
-              onclick="switchImportTab('code')"
+              onclick="App.switchImportTab('code')"
             >
               <svg class="icon" viewBox="0 0 24 24">
                 <polyline points="16 18 22 12 16 6" />
@@ -605,7 +596,7 @@
             <div
               class="file-drop-zone"
               id="fileDropZone"
-              onclick="document.getElementById('importFileInput').click()"
+              onclick="App.triggerFileInput()"
             >
               <div class="file-drop-icon">
                 <svg viewBox="0 0 24 24">
@@ -632,7 +623,7 @@
                 <polyline points="14 2 14 8 20 8" />
               </svg>
               <span id="selectedFileName"></span>
-              <button class="btn-icon" onclick="clearSelectedFile(event)">
+              <button class="btn-icon" onclick="App.clearSelectedFile(event)">
                 <svg class="icon icon-sm" viewBox="0 0 24 24">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -649,7 +640,7 @@
                 <span>JSON</span>
                 <button
                   class="btn btn-ghost btn-sm"
-                  onclick="formatJsonInput()"
+                  onclick="App.formatJsonInput()"
                 >
                   <svg class="icon icon-sm" viewBox="0 0 24 24">
                     <line x1="21" y1="10" x2="3" y2="10" />
@@ -676,10 +667,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeModal('importModal')">
+          <button class="btn btn-secondary" onclick="App.closeModal('importModal')">
             Annuler
           </button>
-          <button class="btn btn-primary" onclick="confirmImport()">
+          <button class="btn btn-primary" onclick="App.confirmImport()">
             Importer
           </button>
         </div>
@@ -691,7 +682,7 @@
       <div class="modal modal-xl">
         <div class="modal-header">
           <h3>Éditer le code</h3>
-          <button class="modal-close" onclick="closeCodeEditor()">
+          <button class="modal-close" onclick="App.closeCodeEditor()">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -712,7 +703,7 @@
                 <input
                   type="checkbox"
                   id="codeShowLineNumbers"
-                  onchange="updateCodeEditorLineNumbers()"
+                  onchange="App.updateCodeEditorLineNumbers()"
                 />
                 Afficher les numéros de ligne
               </label>
@@ -724,7 +715,7 @@
                 id="codeStartLine"
                 min="1"
                 value="1"
-                onchange="updateCodeEditorLineNumbers()"
+                onchange="App.updateCodeEditorLineNumbers()"
               />
             </div>
             <div class="code-editor-option">
@@ -732,7 +723,7 @@
                 <input
                   type="checkbox"
                   id="codeShowEllipsisBefore"
-                  onchange="updateCodeEditorEllipsis()"
+                  onchange="App.updateCodeEditorEllipsis()"
                 />
                 "..." au début
               </label>
@@ -742,7 +733,7 @@
                 <input
                   type="checkbox"
                   id="codeShowEllipsisAfter"
-                  onchange="updateCodeEditorEllipsis()"
+                  onchange="App.updateCodeEditorEllipsis()"
                 />
                 "..." à la fin
               </label>
@@ -763,8 +754,8 @@
                 class="code-editor-input"
                 spellcheck="false"
                 placeholder="// Votre code ici"
-                oninput="updateCodeEditorLineNumbers()"
-                onscroll="syncLineNumbersScroll()"
+                oninput="App.updateCodeEditorLineNumbers()"
+                onscroll="App.syncLineNumbersScroll()"
               ></textarea>
               <div class="code-editor-ellipsis-line" id="codeEllipsisAfter">
                 ...
@@ -773,10 +764,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeCodeEditor()">
+          <button class="btn btn-secondary" onclick="App.closeCodeEditor()">
             Annuler
           </button>
-          <button class="btn btn-primary" onclick="confirmCodeEdit()">
+          <button class="btn btn-primary" onclick="App.confirmCodeEdit()">
             Enregistrer
           </button>
         </div>
@@ -789,7 +780,7 @@
         <div class="modal-header">
           <h3>Éditer le diagramme</h3>
           <span class="drawio-save-status" id="drawioSaveStatus"></span>
-          <button class="modal-close" onclick="closeDrawioEditor()">
+          <button class="modal-close" onclick="App.closeDrawioEditor()">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -818,18 +809,15 @@
             type="text"
             id="promptModalInput"
             placeholder="Nom du projet"
-            onkeydown="
-              if (event.key === 'Enter') confirmPromptModal();
-              if (event.key === 'Escape') cancelPromptModal();
-            "
+            onkeydown="if (event.key === 'Enter') App.confirmPromptModal(); if (event.key === 'Escape') App.cancelPromptModal();"
           />
           <span class="prompt-error" id="promptModalError"></span>
         </div>
         <div class="prompt-actions">
-          <button class="btn btn-secondary" onclick="cancelPromptModal()">
+          <button class="btn btn-secondary" onclick="App.cancelPromptModal()">
             Annuler
           </button>
-          <button class="btn btn-primary" onclick="confirmPromptModal()">
+          <button class="btn btn-primary" onclick="App.confirmPromptModal()">
             Enregistrer
           </button>
         </div>
@@ -841,7 +829,7 @@
       <div class="modal modal-lg">
         <div class="modal-header">
           <h3>Choisir une image</h3>
-          <button class="modal-close" onclick="closeImagePicker()">
+          <button class="modal-close" onclick="App.closeImagePicker()">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -859,7 +847,7 @@
             <button
               class="image-picker-tab active"
               data-tab="url"
-              onclick="switchImagePickerTab('url')"
+              onclick="App.switchImagePickerTab('url')"
             >
               <svg class="icon" viewBox="0 0 24 24">
                 <path
@@ -874,7 +862,7 @@
             <button
               class="image-picker-tab"
               data-tab="upload"
-              onclick="switchImagePickerTab('upload')"
+              onclick="App.switchImagePickerTab('upload')"
             >
               <svg class="icon" viewBox="0 0 24 24">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -889,7 +877,7 @@
               type="text"
               id="imageUrlInput"
               placeholder="https://example.com/image.jpg"
-              oninput="handleImageUrlInput(this.value)"
+              oninput="App.handleImageUrlInput(this.value)"
             />
           </div>
           <div
@@ -945,13 +933,13 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-danger" onclick="clearImage()">
+          <button class="btn btn-danger" onclick="App.clearImage()">
             Supprimer l'image
           </button>
-          <button class="btn btn-secondary" onclick="closeImagePicker()">
+          <button class="btn btn-secondary" onclick="App.closeImagePicker()">
             Annuler
           </button>
-          <button class="btn btn-primary" onclick="confirmImageSelection()">
+          <button class="btn btn-primary" onclick="App.confirmImageSelection()">
             Confirmer
           </button>
         </div>
@@ -964,21 +952,21 @@
       id="importFileInput"
       class="hidden-input"
       accept=".json"
-      onchange="handleFileSelect(event)"
+      onchange="App.handleFileSelect(event)"
     />
     <input
       type="file"
       id="importInput"
       class="hidden-input"
       accept=".json"
-      onchange="handleImport(event)"
+      onchange="App.handleImport(event)"
     />
     <input
       type="file"
       id="imageFileInput"
       class="hidden-input"
       accept="image/*"
-      onchange="handleImageFileSelect(event)"
+      onchange="App.handleImageFileSelect(event)"
     />
 
     <!-- Drive Setup Modal -->
@@ -986,7 +974,7 @@
       <div class="modal" style="width: 420px">
         <div class="modal-header">
           <h3>Google Drive</h3>
-          <button class="modal-close" onclick="DriveUI.closeSetupModal()">
+          <button class="modal-close" onclick="App.closeDriveSetupModal()">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -1003,7 +991,7 @@
           <!-- Content rendered dynamically by DriveUI -->
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="DriveUI.closeSetupModal()">
+          <button class="btn btn-secondary" onclick="App.closeDriveSetupModal()">
             Fermer
           </button>
         </div>
@@ -1017,7 +1005,7 @@
           <span class="player-title" id="playerTitle"></span>
           <span class="player-counter" id="playerCounter"></span>
         </div>
-        <button class="btn btn-ghost player-exit" onclick="exitPresentation()">
+        <button class="btn btn-ghost player-exit" onclick="App.exitPresentation()">
           <svg class="icon" viewBox="0 0 24 24">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
@@ -1028,7 +1016,7 @@
       <div class="player-content">
         <button
           class="player-nav player-nav-prev"
-          onclick="prevSlidePlayer()"
+          onclick="App.prevSlidePlayer()"
           title="Slide précédente"
         >
           <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
@@ -1038,7 +1026,7 @@
         </div>
         <button
           class="player-nav player-nav-next"
-          onclick="nextSlidePlayer()"
+          onclick="App.nextSlidePlayer()"
           title="Slide suivante"
         >
           <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
