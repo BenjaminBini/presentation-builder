@@ -45,18 +45,18 @@ export function initPanelStates() {
     }
 
     // Render compact slide list
-    if (window.renderCompactSlideList) window.renderCompactSlideList();
+    if (window.App && window.App.renderCompactSlideList) window.App.renderCompactSlideList();
 
     // Initialize resize handle
     initEditorResize();
 
     // Initialize tab underlines
     setTimeout(() => {
-        if (typeof window.updateSidebarTabUnderline === 'function') {
-            window.updateSidebarTabUnderline();
+        if (window.App && typeof window.App.updateSidebarTabUnderline === 'function') {
+            window.App.updateSidebarTabUnderline();
         }
-        if (typeof window.updateEditorTabUnderline === 'function') {
-            window.updateEditorTabUnderline();
+        if (window.App && typeof window.App.updateEditorTabUnderline === 'function') {
+            window.App.updateEditorTabUnderline();
         }
     }, 100);
 }
@@ -73,7 +73,7 @@ export function toggleSidebar() {
 
     // Update preview scaling after layout change
     setTimeout(() => {
-        if (window.scalePreviewSlide) window.scalePreviewSlide();
+        if (window.App && window.App.scalePreviewSlide) window.App.scalePreviewSlide();
     }, 250);
 }
 
@@ -93,7 +93,7 @@ export function toggleEditorPanel() {
 
     // Update preview scaling after layout change
     setTimeout(() => {
-        if (window.scalePreviewSlide) window.scalePreviewSlide();
+        if (window.App && window.App.scalePreviewSlide) window.App.scalePreviewSlide();
     }, 250);
 }
 
@@ -123,7 +123,7 @@ function initEditorResize() {
             const newHeight = Math.max(100, Math.min(startHeight + deltaY, maxHeight));
             panel.style.height = newHeight + 'px';
             setEditorHeight(newHeight);
-            if (window.scalePreviewSlide) window.scalePreviewSlide();
+            if (window.App && window.App.scalePreviewSlide) window.App.scalePreviewSlide();
         }
 
         function onMouseUp() {

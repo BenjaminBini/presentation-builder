@@ -13,8 +13,8 @@ import { TEMPLATES } from '../../config/templates.js';
  * Handle template selection via event delegation
  */
 function handleSelectTemplate(_event, _element, params) {
-  if (typeof window.selectTemplate === 'function') {
-    window.selectTemplate(params.template);
+  if (window.App && typeof window.App.selectTemplate === 'function') {
+    window.App.selectTemplate(params.template);
   }
 }
 
@@ -63,8 +63,8 @@ export function switchSidebarTab(tab) {
 
     updateSidebarTabUnderline();
 
-    if (tab === 'settings' && window.renderSettingsPanel) {
-        window.renderSettingsPanel();
+    if (tab === 'settings' && window.App && window.App.renderSettingsPanel) {
+        window.App.renderSettingsPanel();
     }
 }
 
@@ -85,9 +85,9 @@ export function updateSidebarTabUnderline() {
 }
 
 export function renderSettingsPanel() {
-    if (window.renderThemeSelector) window.renderThemeSelector();
-    if (window.renderColorList) window.renderColorList();
-    if (window.initThemeColorPickerEvents) window.initThemeColorPickerEvents();
+    if (window.App && window.App.renderThemeSelector) window.App.renderThemeSelector();
+    if (window.App && window.App.renderColorList) window.App.renderColorList();
+    if (window.App && window.App.initThemeColorPickerEvents) window.App.initThemeColorPickerEvents();
 }
 
 export function initTemplateGrid() {

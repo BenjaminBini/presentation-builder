@@ -290,9 +290,12 @@ export function renderThemeColorDropdown(colorKey, currentValue) {
                     data-input-action="update-hue" data-key="${colorKey}">
             </div>
             <div class="hex-input-row">
-                <span class="hex-preview-swatch" style="background-color: ${currentValue}" data-action="close-theme-color-pickers"></span>
+                <span class="hex-preview-swatch" style="background-color: ${currentValue}"></span>
                 <input type="text" class="hex-input" value="${currentValue}" maxlength="7"
                     data-input-action="validate-hex" data-key="${colorKey}">
+                <button type="button" class="hex-validate-btn" data-action="confirm-theme-color" data-key="${colorKey}" title="Valider">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
             </div>
         </div>
     `;
