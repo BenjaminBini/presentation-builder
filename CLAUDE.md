@@ -9,13 +9,6 @@ npx live-server .
 # Open slide-editor.html
 ```
 
-## Commands
-
-```bash
-# Generate static HTML
-node slide-generator/index.js examples/presentation-data.json output.html
-```
-
 ## Architecture
 
 Event-driven, layered architecture:
