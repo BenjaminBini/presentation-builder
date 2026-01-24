@@ -9,50 +9,37 @@ import {
 import { adjustTextFieldScale } from "../../components/text-field.js";
 
 /**
- * Render two-columns template
+ * Render two-columns template with WYSIWYG content
  */
 export function renderTwoColumnsTemplate(data, colorStyles) {
+  const showTag = data.showTag === true;
+  const leftRaw = data.left?.content || "<p>Contenu colonne gauche...</p>";
+  const rightRaw = data.right?.content || "<p>Contenu colonne droite...</p>";
+  const leftContent = trimHtml(sanitizeHtml(leftRaw));
+  const rightContent = trimHtml(sanitizeHtml(rightRaw));
+
   return `
                 <div class="slide-content template-two-columns" ${colorStyles}>
-                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
-                      data.title || "",
-                    )}</h2>
+                    <div class="header-bar">
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
+                          data.title || "",
+                        )}</h2>
+                        ${showTag ? `<span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(data.tag || "")}</span>` : ""}
+                    </div>
                     <div class="columns">
-                        <div class="column">
-                            <h3 data-editable="text" data-field-key="left.title" data-placeholder="Titre colonne gauche">${escapeHtml(
-                              data.left?.title || "",
-                            )}</h3>
-                            <ul class="repeatable-list" data-list-key="left.items">
-                                ${(data.left?.items || [])
-                                  .map(
-                                    (item, i) =>
-                                      `<li class="repeatable-item"><span class="item-text" data-editable="text" data-field-key="left.items" data-field-index="${i}" data-placeholder="Point ${
-                                        i + 1
-                                      }">${escapeHtml(
-                                        item,
-                                      )}</span><button class="delete-item-btn" data-list-key="left.items" data-item-index="${i}" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></li>`,
-                                  )
-                                  .join("")}
-                                <li class="add-item-row"><button class="add-item-btn" data-list-key="left.items" title="Ajouter un élément">+ Ajouter</button></li>
-                            </ul>
+                        <div class="column" data-text-field>
+                            <div class="text-content-container" data-text-field-area>
+                                <div class="text-content text-field-content wysiwyg-editable" data-text-field-content data-editable="wysiwyg" data-field-key="left.content">
+                                    ${leftContent}
+                                </div>
+                            </div>
                         </div>
-                        <div class="column">
-                            <h3 data-editable="text" data-field-key="right.title" data-placeholder="Titre colonne droite">${escapeHtml(
-                              data.right?.title || "",
-                            )}</h3>
-                            <ul class="repeatable-list" data-list-key="right.items">
-                                ${(data.right?.items || [])
-                                  .map(
-                                    (item, i) =>
-                                      `<li class="repeatable-item"><span class="item-text" data-editable="text" data-field-key="right.items" data-field-index="${i}" data-placeholder="Point ${
-                                        i + 1
-                                      }">${escapeHtml(
-                                        item,
-                                      )}</span><button class="delete-item-btn" data-list-key="right.items" data-item-index="${i}" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></li>`,
-                                  )
-                                  .join("")}
-                                <li class="add-item-row"><button class="add-item-btn" data-list-key="right.items" title="Ajouter un élément">+ Ajouter</button></li>
-                            </ul>
+                        <div class="column" data-text-field>
+                            <div class="text-content-container" data-text-field-area>
+                                <div class="text-content text-field-content wysiwyg-editable" data-text-field-content data-editable="wysiwyg" data-field-key="right.content">
+                                    ${rightContent}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -67,12 +54,16 @@ export function renderTextTemplate(data, colorStyles) {
   const rawContent = data.content || "<p>Votre texte ici...</p>";
   // Sanitize HTML to prevent XSS, then trim trailing whitespace/br tags
   const content = trimHtml(sanitizeHtml(rawContent));
+  const showTag = data.showTag === true;
 
   return `
                 <div class="slide-content template-text" ${colorStyles} data-text-field>
-                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
-                      data.title || "",
-                    )}</h2>
+                    <div class="header-bar">
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
+                          data.title || "",
+                        )}</h2>
+                        ${showTag ? `<span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(data.tag || "")}</span>` : ""}
+                    </div>
                     <div class="text-content-container" data-text-field-area>
                         <div class="text-content text-field-content wysiwyg-editable" data-text-field-content data-editable="wysiwyg" data-field-key="content">
                             ${content}
@@ -108,9 +99,11 @@ export function renderImageTextTemplate(data, colorStyles) {
   const content = rawContent
     ? trimHtml(sanitizeHtml(rawContent))
     : "<p>Votre texte ici...</p>";
+  const showTag = data.showTag === true;
+  const imageRight = data.imageRight === true;
 
   return `
-                <div class="slide-content template-image-text" ${colorStyles}>
+                <div class="slide-content template-image-text${imageRight ? ' image-right' : ''}" ${colorStyles}>
                     <div class="image-side" data-editable="image" data-field-key="image" style="position:relative;cursor:pointer;">
                         ${
                           data.image && sanitizeImageUrl(data.image)
@@ -121,9 +114,12 @@ export function renderImageTextTemplate(data, colorStyles) {
                         }
                     </div>
                     <div class="text-side" data-text-field>
-                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
-                          data.title || "",
-                        )}</h2>
+                        <div class="header-bar">
+                            <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
+                              data.title || "",
+                            )}</h2>
+                            ${showTag ? `<span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(data.tag || "")}</span>` : ""}
+                        </div>
                         <div class="text-content-container" data-text-field-area>
                             <div class="text-content text-field-content wysiwyg-editable" data-text-field-content data-editable="wysiwyg" data-field-key="content">
                                 ${content}
