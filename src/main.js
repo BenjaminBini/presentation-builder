@@ -398,10 +398,13 @@ function initializeApp() {
             startOnLoad: false,
             theme: 'default',
             flowchart: {
-                useMaxWidth: false,
-                htmlLabels: true,
-                nodeSpacing: 50,
-                rankSpacing: 50
+                htmlLabels: false,
+                useMaxWidth: true,
+                curve: 'basis'
+            },
+            themeVariables: {
+                fontSize: '18px',
+                fontFamily: 'Inter, sans-serif'
             }
         });
     }
