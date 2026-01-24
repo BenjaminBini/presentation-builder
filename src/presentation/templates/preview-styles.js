@@ -323,10 +323,10 @@ export function getPreviewStyles() {
         .template-mermaid .slide-tag { background: var(--slide-tagColor, var(--gradient-accent)); color: white; padding: 10px 24px; border-radius: 20px; font-size: 16px; font-weight: 600; }
         .template-mermaid .mermaid-description { font-size: 18px; color: var(--slide-descriptionColor, var(--gray-600)); margin-bottom: 24px; line-height: 1.5; flex-shrink: 0; }
         .template-mermaid .mermaid-container { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--gray-100); border-radius: 16px; padding: 30px; overflow: hidden; min-height: 0; }
-        .template-mermaid .mermaid { font-family: 'Inter', sans-serif; max-width: 100%; max-height: 100%; }
-        .template-mermaid .mermaid svg { max-width: 100%; max-height: 100%; height: auto; }
+        .template-mermaid .mermaid { font-family: 'Inter', sans-serif; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .template-mermaid .mermaid svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
         .template-mermaid .mermaid svg foreignObject { overflow: visible; }
-        .template-mermaid .mermaid svg .nodeLabel { white-space: nowrap; }
+        .template-mermaid .mermaid svg .nodeLabel { overflow: visible; white-space: nowrap; }
         /* Agenda - uses --agenda-scale (0.45-1) and --agenda-items for dynamic sizing */
         .template-agenda { --s: var(--agenda-scale, 1); --n: var(--agenda-items, 1); --list-height: 510px; --item-height: calc(var(--list-height) / var(--n)); background: var(--slide-bgColor, var(--white)); padding: 40px 80px 70px; height: 100%; position: relative; display: flex; flex-direction: column; box-sizing: border-box; }
         .template-agenda .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: calc(16px + 14px * var(--s)); padding-bottom: calc(10px + 10px * var(--s)); border-bottom: 3px solid var(--accent-main); flex-shrink: 0; }

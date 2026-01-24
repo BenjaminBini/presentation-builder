@@ -399,8 +399,9 @@ function initializeApp() {
             theme: 'default',
             flowchart: {
                 useMaxWidth: false,
-                htmlLabels: false,
-                wrappingWidth: 200
+                htmlLabels: true,
+                nodeSpacing: 50,
+                rankSpacing: 50
             }
         });
     }

@@ -268,7 +268,9 @@ export function initMermaid() {
         theme: 'default',
         flowchart: {
             useMaxWidth: false,
-            htmlLabels: false
+            htmlLabels: true,
+            nodeSpacing: 50,
+            rankSpacing: 50
         }
     });
 }
