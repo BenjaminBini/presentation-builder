@@ -267,20 +267,53 @@ export function initMermaid() {
     window.mermaid.initialize({
         startOnLoad: false,
         theme: 'base',
-        fontSize: 20,
         flowchart: {
             useMaxWidth: false,
             htmlLabels: true,
-            nodeSpacing: 85,
-            rankSpacing: 68
+            nodeSpacing: 60,
+            rankSpacing: 50,
+            padding: 15
         },
         themeVariables: {
+            // Font settings
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '16px',
+            // Primary nodes (rectangles, etc.)
             primaryColor: colors['accent-main'],
-            primaryTextColor: colors['text-main'],
+            primaryTextColor: '#FFFFFF',
             primaryBorderColor: colors['accent-alt'],
-            lineColor: '#525059',
+            // Secondary nodes
             secondaryColor: colors['accent-third'],
-            tertiaryColor: '#F5F5F5'
+            secondaryTextColor: '#FFFFFF',
+            secondaryBorderColor: colors['accent-alt'],
+            // Tertiary nodes
+            tertiaryColor: '#ECECEF',
+            tertiaryTextColor: '#1F1A24',
+            tertiaryBorderColor: '#BFBFC3',
+            // Lines and background
+            lineColor: '#525059',
+            mainBkg: '#FFFFFF',
+            textColor: '#1F1A24',
+            // Node defaults
+            nodeBkg: colors['accent-main'],
+            nodeTextColor: '#FFFFFF',
+            nodeBorder: colors['accent-alt'],
+            // Cluster (subgraph)
+            clusterBkg: '#F5F5F5',
+            clusterBorder: '#BFBFC3',
+            // Edges
+            edgeLabelBackground: '#FFFFFF',
+            // Sequence diagram
+            actorBkg: colors['accent-main'],
+            actorTextColor: '#FFFFFF',
+            actorBorder: colors['accent-alt'],
+            signalColor: '#525059',
+            signalTextColor: '#1F1A24',
+            labelBoxBkgColor: '#ECECEF',
+            labelTextColor: '#1F1A24',
+            noteBkgColor: colors['accent-third'],
+            noteTextColor: '#FFFFFF',
+            noteBorderColor: colors['accent-alt']
         }
     });
 }
