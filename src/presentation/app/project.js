@@ -261,59 +261,14 @@ export function handleTitleKeydown(event) {
 }
 
 export function initMermaid() {
-    if (typeof window.mermaid === 'undefined' || typeof window.getThemeColors === 'undefined') return;
+    if (typeof window.mermaid === 'undefined') return;
 
-    const colors = window.getThemeColors();
     window.mermaid.initialize({
         startOnLoad: false,
-        theme: 'base',
+        theme: 'default',
         flowchart: {
             useMaxWidth: false,
-            htmlLabels: true,
-            nodeSpacing: 60,
-            rankSpacing: 50,
-            padding: 15
-        },
-        themeVariables: {
-            // Font settings
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '16px',
-            // Primary nodes (rectangles, etc.)
-            primaryColor: colors['accent-main'],
-            primaryTextColor: '#FFFFFF',
-            primaryBorderColor: colors['accent-alt'],
-            // Secondary nodes
-            secondaryColor: colors['accent-third'],
-            secondaryTextColor: '#FFFFFF',
-            secondaryBorderColor: colors['accent-alt'],
-            // Tertiary nodes
-            tertiaryColor: '#ECECEF',
-            tertiaryTextColor: '#1F1A24',
-            tertiaryBorderColor: '#BFBFC3',
-            // Lines and background
-            lineColor: '#525059',
-            mainBkg: '#FFFFFF',
-            textColor: '#1F1A24',
-            // Node defaults
-            nodeBkg: colors['accent-main'],
-            nodeTextColor: '#FFFFFF',
-            nodeBorder: colors['accent-alt'],
-            // Cluster (subgraph)
-            clusterBkg: '#F5F5F5',
-            clusterBorder: '#BFBFC3',
-            // Edges
-            edgeLabelBackground: '#FFFFFF',
-            // Sequence diagram
-            actorBkg: colors['accent-main'],
-            actorTextColor: '#FFFFFF',
-            actorBorder: colors['accent-alt'],
-            signalColor: '#525059',
-            signalTextColor: '#1F1A24',
-            labelBoxBkgColor: '#ECECEF',
-            labelTextColor: '#1F1A24',
-            noteBkgColor: colors['accent-third'],
-            noteTextColor: '#FFFFFF',
-            noteBorderColor: colors['accent-alt']
+            htmlLabels: false
         }
     });
 }

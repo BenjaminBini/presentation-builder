@@ -394,7 +394,15 @@ function initializeApp() {
 
     // Initialize mermaid
     if (window.mermaid) {
-        window.mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        window.mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: false,
+                wrappingWidth: 200
+            }
+        });
     }
 
     // Resize observer for preview
