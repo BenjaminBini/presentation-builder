@@ -18,17 +18,9 @@
   min-height: 100%;
 }
 
-/* Hover effect for editable text field - apply to area so outline isn't clipped */
+/* Text field area - no hover effect here, handled by inner [data-editable] */
 .preview-slide [data-text-field-area]:has([data-editable]) {
-  transition:
-    outline 0.15s ease,
-    background 0.15s ease;
   cursor: text;
-}
-
-.preview-slide [data-text-field-area]:has([data-editable]):hover {
-  outline: 2px dashed var(--accent-third);
-  outline-offset: 4px;
 }
 
 /* ============================================

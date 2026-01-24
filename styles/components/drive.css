@@ -282,14 +282,6 @@
     justify-content: flex-end;
 }
 
-.btn-danger {
-    color: var(--error, #ef4444);
-}
-
-.btn-danger:hover {
-    background: var(--error-light, #fef2f2);
-}
-
 /* Drive Projects Section in Modal */
 .drive-projects-section {
     margin-top: 20px;

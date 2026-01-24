@@ -152,8 +152,4 @@
   display: none !important;
 }
 
-/* Remove extra padding for delete buttons in player */
-#presentationPlayer .repeatable-item {
-  padding-right: 0 !important;
-}
 

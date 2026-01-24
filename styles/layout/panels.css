@@ -275,12 +275,14 @@
 
 /* Color List in Editor Panel */
 .editor-panel .color-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  flex-direction: row;
 }
 
 .editor-panel .color-item {
+  width: 200px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -330,18 +332,25 @@
 .editor-panel .color-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .editor-panel .color-name {
   font-size: 12px;
   font-weight: 500;
   color: var(--gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editor-panel .color-value {
   font-size: 11px;
   color: var(--gray-500);
   font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editor-panel .color-reset {
@@ -406,6 +415,10 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
