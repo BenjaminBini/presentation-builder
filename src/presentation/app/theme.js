@@ -59,7 +59,11 @@ function handleSelectTheme(_event, _element, params) {
 /**
  * Handle theme color picker toggle via event delegation
  */
-function handleToggleThemeColorPicker(_event, _element, params) {
+function handleToggleThemeColorPicker(event, _element, params) {
+  // Don't toggle if click originated from inside the dropdown
+  if (event.target.closest('.theme-color-dropdown')) {
+    return;
+  }
   toggleThemeColorPicker(params.key);
 }
 
@@ -111,10 +115,10 @@ export function selectTheme(themeKey) {
     // Use theme-service - handles state mutation, events, and unsaved changes
     changeThemeService(themeKey);
     updateAppThemeColors();
-    if (window.renderSettingsPanel) window.renderSettingsPanel();
+    if (window.App && window.App.renderSettingsPanel) window.App.renderSettingsPanel();
     refreshEditor();
     refreshPreview();
-    if (window.initMermaid) window.initMermaid(); // Re-init mermaid with new colors
+    if (window.App && window.App.initMermaid) window.App.initMermaid(); // Re-init mermaid with new colors
 }
 
 // Wrapper functions that pass setColorOverride callback
@@ -133,6 +137,10 @@ export function validateAndApplyHex(colorKey, value) {
 // Register additional theme color actions
 registerActions({
   'close-theme-color-pickers': () => closeAllThemeColorPickers(),
+  'confirm-theme-color': (event) => {
+    event.stopPropagation();
+    closeAllThemeColorPickers();
+  },
   'update-hue': (_event, element, params) => updateFromHue(params.key, element.value),
   'validate-hex': (_event, element, params) => validateAndApplyHex(params.key, element.value)
 });
@@ -255,6 +263,7 @@ export function toggleThemeColorPicker(colorKey) {
 // Handle spectrum mouse events
 function handleSpectrumMouseDown(e) {
     if (e.target.classList.contains('color-spectrum')) {
+        e.stopPropagation();
         setSpectrumDragging(true);
         const colorKey = e.target.closest('.theme-color-dropdown').id.replace('themeColorDropdown-', '');
         updateFromSpectrum(colorKey, e.clientX, e.clientY);
