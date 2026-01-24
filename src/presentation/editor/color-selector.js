@@ -158,8 +158,8 @@ export function hideColorName(btn) {
 // Toggle color picker dropdown
 export function toggleColorPicker(key) {
     // Close theme color picker from sidebar if open
-    if (typeof window.closeAllThemeColorPickers === 'function') {
-        window.closeAllThemeColorPickers();
+    if (window.App && typeof window.App.closeAllThemeColorPickers === 'function') {
+        window.App.closeAllThemeColorPickers();
     }
 
     const dropdown = document.getElementById(`colorDropdown-${key}`);
@@ -190,7 +190,7 @@ export function toggleColorPicker(key) {
 
 // Select color and close dropdown
 export function selectSlideColor(key, value) {
-    window.updateSlideColor(key, value);
+    updateSlideColor(key, value);
     // Dropdown will close when editor re-renders
 }
 

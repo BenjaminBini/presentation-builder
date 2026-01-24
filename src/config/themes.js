@@ -73,6 +73,14 @@ export const GRAY_LABELS = {
 
 // Color settings per template type
 export const TEMPLATE_COLOR_SETTINGS = {
+  cover: [
+    { key: 'bgColor', label: 'Fond', default: 'white' },
+    { key: 'accentColor', label: 'Accent', default: 'accent-main' },
+    { key: 'titleColor', label: 'Titre', default: 'bg-main' },
+    { key: 'subtitleColor', label: 'Sous-titre', default: 'gray-600' },
+    { key: 'authorColor', label: 'Auteur', default: 'accent-main' },
+    { key: 'dateColor', label: 'Date', default: 'gray-500' }
+  ],
   title: [
     { key: 'bgColor', label: 'Fond', default: 'bg-main' },
     { key: 'gradientColor', label: 'Dégradé', default: 'accent-main' },

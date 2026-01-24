@@ -44,16 +44,16 @@ export function renderStatsTemplate(data, colorStyles) {
  * Render timeline template
  */
 export function renderTimelineTemplate(data, colorStyles) {
-  const stepCount = (data.steps || []).length;
+  const stepCount = (data.steps || []).length || 1;
   return `
-                <div class="slide-content template-timeline" ${colorStyles}>
-                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
-                      data.title || ""
-                    )}</h2>
+                <div class="slide-content template-timeline" ${colorStyles} style="--step-count: ${stepCount};">
+                    <div class="header-bar">
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
+                          data.title || ""
+                        )}</h2>
+                    </div>
                     <div class="timeline-wrapper">
-                        <div class="timeline-line" style="left: calc(50% / ${
-                          stepCount || 1
-                        }); right: calc(50% / ${stepCount || 1});"></div>
+                        <div class="timeline-line"></div>
                         <div class="timeline repeatable-list" data-list-key="steps" data-list-type="object">
                             ${(data.steps || [])
                               .map(
@@ -104,11 +104,21 @@ export function renderAgendaTemplate(data, colorStyles) {
   // Add compact class when items are small (subtitle goes inline)
   const compactClass = clampedScale < 0.7 ? 'agenda-compact' : '';
 
+  const showTag = data.showTag === true;
   return `
                 <div class="slide-content template-agenda ${compactClass}" ${colorStyles} style="--agenda-scale: ${clampedScale.toFixed(3)}; --agenda-items: ${itemCount};" data-item-count="${itemCount}">
-                    <h2 data-editable="text" data-field-key="title" data-placeholder="Agenda">${escapeHtml(
-                      data.title || ""
-                    )}</h2>
+                    <div class="header-bar">
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Agenda">${escapeHtml(
+                          data.title || ""
+                        )}</h2>
+                        ${
+                          showTag
+                            ? `<span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(
+                                data.tag || ""
+                              )}</span>`
+                            : ""
+                        }
+                    </div>
                     <ul class="agenda-list repeatable-list" data-list-key="items"
                         ondragover="window.handleListItemDragOver(event)"
                         ondragleave="window.handleListItemDragLeave(event)"

@@ -109,11 +109,15 @@ export function renderComparisonTemplate(data, colorStyles) {
  * Render mermaid template
  */
 export function renderMermaidTemplate(data, colorStyles) {
+  const showTag = data.showTag === true;
   return `
                 <div class="slide-content template-mermaid" ${colorStyles}>
-                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
-                      data.title || ""
-                    )}</h2>
+                    <div class="header-bar">
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
+                          data.title || ""
+                        )}</h2>
+                        ${showTag ? `<span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(data.tag || "")}</span>` : ""}
+                    </div>
                     <p class="mermaid-description" data-editable="text" data-field-key="description" data-placeholder="Description du diagramme">${escapeHtml(
                       data.description || ""
                     )}</p>
@@ -130,13 +134,17 @@ export function renderMermaidTemplate(data, colorStyles) {
  * Render draw.io template
  */
 export function renderDrawioTemplate(data, colorStyles) {
+  const showTag = data.showTag === true;
   const placeholderSvg =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="6" rx="1"/><rect x="14" y="2" width="8" height="6" rx="1"/><rect x="8" y="16" width="8" height="6" rx="1"/><path d="M6 8v4h6M18 8v4h-6M12 12v4"/></svg>';
   return `
                 <div class="slide-content template-drawio" ${colorStyles}>
-                    <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
-                      data.title || ""
-                    )}</h2>
+                    <div class="header-bar">
+                        <h2 data-editable="text" data-field-key="title" data-placeholder="Titre">${escapeHtml(
+                          data.title || ""
+                        )}</h2>
+                        ${showTag ? `<span class="slide-tag" data-editable="text" data-field-key="tag" data-placeholder="Tag">${escapeHtml(data.tag || "")}</span>` : ""}
+                    </div>
                     <p class="drawio-description" data-editable="text" data-field-key="description" data-placeholder="Description">${escapeHtml(
                       data.description || ""
                     )}</p>

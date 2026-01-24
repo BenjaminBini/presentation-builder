@@ -6,11 +6,18 @@
     outline 0.15s ease,
     background 0.15s ease;
   cursor: pointer;
+  border-radius: 4px;
 }
 
 .preview-slide [data-editable]:hover {
   outline: 2px dashed var(--accent-third);
   outline-offset: 4px;
+}
+
+/* Disable hover effect when actively editing (WYSIWYG or inline text) */
+.preview-slide [data-editable].wysiwyg-editing:hover,
+.preview-slide [data-editable].inline-editing:hover {
+  outline: 2px solid var(--accent-main) !important;
 }
 
 .preview-slide [data-editable="text"]:hover,
@@ -57,6 +64,24 @@
   color: var(--gray-400);
   font-style: italic;
   pointer-events: none;
+}
+
+/* White placeholder for tag (on colored background) */
+.preview-slide .slide-tag[data-editable]:empty::before,
+.preview-slide .slide-tag[data-editable]:not(:focus):empty::before {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* White placeholder for section templates (on gradient/colored background) */
+.preview-slide .template-section [data-editable]:empty::before,
+.preview-slide .template-section [data-editable]:not(:focus):empty::before {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* White placeholder for cover-gradient (on gradient background) */
+.preview-slide .template-cover-gradient [data-editable]:empty::before,
+.preview-slide .template-cover-gradient [data-editable]:not(:focus):empty::before {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Overflow handling during editing */
@@ -484,10 +509,11 @@ body.is-dragging-list-item * {
 
 /* Smooth transitions for all list items during drag */
 .preview-slide .repeatable-item {
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1),
-              opacity 0.15s ease,
-              border-color 0.15s ease,
-              background 0.15s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    opacity 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 /* Agenda-specific ghost styling - absolutely positioned overlay */
@@ -504,7 +530,9 @@ body.is-dragging-list-item * {
   border-bottom: none !important;
   pointer-events: none;
   z-index: 5;
-  transition: opacity 0.15s ease, top 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    opacity 0.15s ease,
+    top 0.2s cubic-bezier(0.2, 0, 0, 1);
   height: auto !important;
   overflow: visible !important;
 }
@@ -529,7 +557,11 @@ body.is-dragging-list-item * {
   opacity: 0.6;
 }
 
-.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-number {
+.preview-slide
+  .template-agenda
+  .list-drop-indicator
+  .list-ghost-content
+  .agenda-number {
   width: calc(28px + 20px * var(--s, 1));
   height: calc(28px + 20px * var(--s, 1));
   background: rgba(252, 109, 38, 0.15);
@@ -544,21 +576,37 @@ body.is-dragging-list-item * {
   color: var(--accent-main);
 }
 
-.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-content {
+.preview-slide
+  .template-agenda
+  .list-drop-indicator
+  .list-ghost-content
+  .agenda-content {
   flex: 1;
   opacity: 0.5;
 }
 
-.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-title {
+.preview-slide
+  .template-agenda
+  .list-drop-indicator
+  .list-ghost-content
+  .agenda-title {
   color: var(--accent-main);
   font-size: calc(16px + 10px * var(--s, 1));
 }
 
-.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .agenda-duration {
+.preview-slide
+  .template-agenda
+  .list-drop-indicator
+  .list-ghost-content
+  .agenda-duration {
   opacity: 0.5;
   font-size: calc(11px + 5px * var(--s, 1));
 }
 
-.preview-slide .template-agenda .list-drop-indicator .list-ghost-content .delete-item-btn {
+.preview-slide
+  .template-agenda
+  .list-drop-indicator
+  .list-ghost-content
+  .delete-item-btn {
   display: none;
 }

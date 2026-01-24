@@ -4,8 +4,52 @@
 import { ICONS } from './icons.js';
 
 export const TEMPLATES = {
+  'cover-wide': {
+    name: 'Couverture Large',
+    icon: ICONS.cover,
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'subtitle', label: 'Sous-titre', type: 'text' },
+      { key: 'author', label: 'Auteur', type: 'text' },
+      { key: 'date', label: 'Date', type: 'text' },
+      { key: 'logo', label: 'URL du logo', type: 'text', hint: 'Laisser vide pour le logo GitLab' }
+    ]
+  },
+  'cover-gradient': {
+    name: 'Couverture Gradient',
+    icon: ICONS.cover,
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'subtitle', label: 'Sous-titre', type: 'text' },
+      { key: 'author', label: 'Auteur', type: 'text' },
+      { key: 'date', label: 'Date', type: 'text' },
+      { key: 'logo', label: 'URL du logo', type: 'text', hint: 'Laisser vide pour le logo GitLab' }
+    ]
+  },
+  'cover-diagonal': {
+    name: 'Couverture Diagonale',
+    icon: ICONS.cover,
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'subtitle', label: 'Sous-titre', type: 'text' },
+      { key: 'author', label: 'Auteur', type: 'text' },
+      { key: 'date', label: 'Date', type: 'text' },
+      { key: 'logo', label: 'URL du logo', type: 'text', hint: 'Laisser vide pour le logo GitLab' }
+    ]
+  },
+  'cover-shapes': {
+    name: 'Couverture Formes',
+    icon: ICONS.cover,
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'subtitle', label: 'Sous-titre', type: 'text' },
+      { key: 'author', label: 'Auteur', type: 'text' },
+      { key: 'date', label: 'Date', type: 'text' },
+      { key: 'logo', label: 'URL du logo', type: 'text', hint: 'Laisser vide pour le logo GitLab' }
+    ]
+  },
   title: {
-    name: 'Titre',
+    name: 'Outro',
     icon: ICONS.title,
     fields: [
       { key: 'title', label: 'Titre', type: 'text', required: true },
@@ -24,13 +68,22 @@ export const TEMPLATES = {
       { key: 'subtitle', label: 'Sous-titre', type: 'text' }
     ]
   },
-  bullets: {
-    name: 'Liste',
-    icon: ICONS.bullets,
+  'section-diagonal': {
+    name: 'Section Diagonale',
+    icon: ICONS.section,
     fields: [
+      { key: 'number', label: 'Numéro', type: 'text', hint: 'Ex: 01, 02...' },
       { key: 'title', label: 'Titre', type: 'text', required: true },
-      { key: 'tag', label: 'Tag', type: 'text', hint: 'Badge en haut à droite' },
-      { key: 'items', label: 'Éléments', type: 'array', required: true }
+      { key: 'subtitle', label: 'Sous-titre', type: 'text' }
+    ]
+  },
+  'section-minimal': {
+    name: 'Section Minimale',
+    icon: ICONS.section,
+    fields: [
+      { key: 'number', label: 'Numéro', type: 'text', hint: 'Ex: 01, 02...' },
+      { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'subtitle', label: 'Sous-titre', type: 'text' }
     ]
   },
   'two-columns': {
@@ -124,6 +177,7 @@ export const TEMPLATES = {
     icon: ICONS.agenda,
     fields: [
       { key: 'title', label: 'Titre', type: 'text', required: true },
+      { key: 'tag', label: 'Tag', type: 'text', hint: 'Badge en haut à droite' },
       { key: 'items', label: 'Points du sommaire', type: 'agenda-items', hint: 'Ajoutez les sujets avec durée optionnelle' }
     ]
   },

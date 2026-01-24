@@ -261,26 +261,19 @@ export function handleTitleKeydown(event) {
 }
 
 export function initMermaid() {
-    if (typeof window.mermaid === 'undefined' || typeof window.getThemeColors === 'undefined') return;
+    if (typeof window.mermaid === 'undefined') return;
 
-    const colors = window.getThemeColors();
     window.mermaid.initialize({
         startOnLoad: false,
-        theme: 'base',
-        fontSize: 20,
+        theme: 'default',
         flowchart: {
-            useMaxWidth: false,
-            htmlLabels: true,
-            nodeSpacing: 85,
-            rankSpacing: 68
+            htmlLabels: false,
+            useMaxWidth: true,
+            curve: 'basis'
         },
         themeVariables: {
-            primaryColor: colors['accent-main'],
-            primaryTextColor: colors['text-main'],
-            primaryBorderColor: colors['accent-alt'],
-            lineColor: '#525059',
-            secondaryColor: colors['accent-third'],
-            tertiaryColor: '#F5F5F5'
+            fontSize: '18px',
+            fontFamily: 'Inter, sans-serif'
         }
     });
 }

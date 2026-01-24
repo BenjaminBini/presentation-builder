@@ -24,8 +24,8 @@ function handleSelectSlide(_event, _element, params) {
  */
 function handleDuplicateSlide(event, _element, params) {
   event.stopPropagation();
-  if (typeof window.duplicateSlide === 'function') {
-    window.duplicateSlide(params.index);
+  if (window.App && typeof window.App.duplicateSlide === 'function') {
+    window.App.duplicateSlide(params.index);
   }
 }
 
@@ -34,8 +34,8 @@ function handleDuplicateSlide(event, _element, params) {
  */
 function handleDeleteSlide(event, _element, params) {
   event.stopPropagation();
-  if (typeof window.deleteSlide === 'function') {
-    window.deleteSlide(params.index);
+  if (window.App && typeof window.App.deleteSlide === 'function') {
+    window.App.deleteSlide(params.index);
   }
 }
 
@@ -275,8 +275,8 @@ function handleDrop(event, _targetIndex) {
     }
 
     if (draggedSlideIndex !== adjustedIndex) {
-      if (typeof window.moveSlide === 'function') {
-        window.moveSlide(draggedSlideIndex, adjustedIndex);
+      if (window.App && typeof window.App.moveSlide === 'function') {
+        window.App.moveSlide(draggedSlideIndex, adjustedIndex);
       }
     }
   }

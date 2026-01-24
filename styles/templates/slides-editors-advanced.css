@@ -394,6 +394,9 @@
 }
 
 .wysiwyg-editable.wysiwyg-editing {
+  outline: 2px solid var(--accent-main);
+  outline-offset: 4px;
+  border-radius: 4px;
   caret-color: var(--accent-main);
 }
 

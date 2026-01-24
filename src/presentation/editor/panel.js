@@ -14,8 +14,8 @@ import { registerActions } from '../event-delegation.js';
  * Handle toggle color picker via event delegation
  */
 function handleToggleColorPicker(_event, _element, params) {
-  if (typeof window.toggleColorPicker === 'function') {
-    window.toggleColorPicker(params.key);
+  if (window.App && typeof window.App.toggleColorPicker === 'function') {
+    window.App.toggleColorPicker(params.key);
   }
 }
 
@@ -24,8 +24,8 @@ function handleToggleColorPicker(_event, _element, params) {
  */
 function handleSelectSlideColor(event, _element, params) {
   event.stopPropagation();
-  if (typeof window.selectSlideColor === 'function') {
-    window.selectSlideColor(params.key, params.color);
+  if (window.App && typeof window.App.selectSlideColor === 'function') {
+    window.App.selectSlideColor(params.key, params.color);
   }
 }
 
@@ -34,8 +34,8 @@ function handleSelectSlideColor(event, _element, params) {
  */
 function handleResetSlideColor(event, _element, params) {
   event.stopPropagation();
-  if (typeof window.resetSlideColor === 'function') {
-    window.resetSlideColor(params.key);
+  if (window.App && typeof window.App.resetSlideColor === 'function') {
+    window.App.resetSlideColor(params.key);
   }
 }
 
@@ -43,8 +43,8 @@ function handleResetSlideColor(event, _element, params) {
  * Handle showing color name on hover
  */
 function handleShowColorName(_event, element, _params) {
-  if (typeof window.showColorName === 'function') {
-    window.showColorName(element);
+  if (window.App && typeof window.App.showColorName === 'function') {
+    window.App.showColorName(element);
   }
 }
 
@@ -52,8 +52,8 @@ function handleShowColorName(_event, element, _params) {
  * Handle hiding color name on hover leave
  */
 function handleHideColorName(_event, element, _params) {
-  if (typeof window.hideColorName === 'function') {
-    window.hideColorName(element);
+  if (window.App && typeof window.App.hideColorName === 'function') {
+    window.App.hideColorName(element);
   }
 }
 
@@ -71,7 +71,8 @@ let currentEditorTab = 'properties';
 
 // Template descriptions for better UX
 export const TEMPLATE_DESCRIPTIONS = {
-    title: 'Slide de couverture avec titre principal, sous-titre et informations de présentation.',
+    cover: 'Slide d\'ouverture avec mise en page asymétrique et bloc d\'accent coloré.',
+    title: 'Slide de titre centré, idéal pour une conclusion ou un titre secondaire.',
     section: 'Slide de transition pour introduire une nouvelle partie.',
     bullets: 'Liste à puces pour présenter des points clés.',
     'two-columns': 'Contenu organisé en deux colonnes côte à côte.',

@@ -24,8 +24,8 @@ export function renderTemplateSettings(slide) {
         `);
     }
 
-    if (slide.template === 'bullets') {
-        const showTag = slide.data.showTag !== false;
+    if (['text', 'two-columns', 'image-text', 'mermaid', 'drawio', 'agenda'].includes(slide.template)) {
+        const showTag = slide.data.showTag === true;
         settings.push(`
             <div class="editor-toolbar-section editor-toolbar-section-block">
                 <span class="editor-toolbar-label">Affichage</span>
@@ -34,6 +34,22 @@ export function renderTemplateSettings(slide) {
                         <span class="toolbar-toggle-label">Tag</span>
                         <input type="checkbox" ${showTag ? 'checked' : ''}
                                onchange="App.updateField('showTag', this.checked); App.updatePreview();">
+                    </label>
+                </div>
+            </div>
+        `);
+    }
+
+    if (slide.template === 'image-text') {
+        const imageRight = slide.data.imageRight === true;
+        settings.push(`
+            <div class="editor-toolbar-section editor-toolbar-section-block">
+                <span class="editor-toolbar-label">Position image</span>
+                <div class="settings-list">
+                    <label class="toolbar-toggle">
+                        <span class="toolbar-toggle-label">Image à droite</span>
+                        <input type="checkbox" ${imageRight ? 'checked' : ''}
+                               onchange="App.updateField('imageRight', this.checked); App.updatePreview();">
                     </label>
                 </div>
             </div>

@@ -101,6 +101,9 @@ export function sanitizeHtml(html) {
   // Allowed tags and their allowed attributes
   const allowedTags = {
     p: [],
+    h2: [],
+    h3: [],
+    h4: [],
     strong: [],
     b: [],
     em: [],

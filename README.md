@@ -1,6 +1,6 @@
 # Presentation Builder
 
-A visual slide presentation editor with a GitLab-style theme. Create professional presentations with 12 different slide templates, export to JSON, and generate static HTML.
+A visual slide presentation editor with a GitLab-style theme. Create professional presentations with 13 different slide templates and export to JSON.
 
 ## Live Demo
 
@@ -8,12 +8,11 @@ A visual slide presentation editor with a GitLab-style theme. Create professiona
 
 ## Features
 
-- **12 Slide Templates**: Title, Section, Bullets, Two-Columns, Image+Text, Quote, Stats, Code, Code-Annotated, Timeline, Table, Mermaid Diagrams
+- **13 Slide Templates**: Cover, Title, Section, Bullets, Two-Columns, Image+Text, Quote, Stats, Code, Code-Annotated, Timeline, Table, Mermaid Diagrams
 - **Visual Editor**: Intuitive drag-and-drop interface with live preview
 - **Theme Customization**: GitLab-inspired theme with customizable colors
 - **Presentation Mode**: Full-screen presentation with keyboard navigation
 - **JSON Export/Import**: Portable data format for sharing and backup
-- **Static HTML Generation**: Generate standalone HTML presentations
 - **Local Storage**: Auto-save projects in browser
 
 ## Quick Start
@@ -25,12 +24,6 @@ A visual slide presentation editor with a GitLab-style theme. Create professiona
 3. Select a template and edit content
 4. Click "Présenter" for presentation mode
 5. Export to JSON for backup
-
-### Generate Static HTML (Node.js)
-
-```bash
-node slide-generator/index.js examples/presentation-data.json output.html
-```
 
 ## For LLMs / AI Integration
 
@@ -49,7 +42,7 @@ See **[docs/LLM_INSTRUCTIONS.md](docs/LLM_INSTRUCTIONS.md)** for detailed instru
   "theme": { "base": "gitlab" },
   "slides": [
     {
-      "template": "title",
+      "template": "cover",
       "data": {
         "title": "Welcome",
         "subtitle": "Introduction to our topic"
@@ -80,7 +73,6 @@ See **[docs/LLM_INSTRUCTIONS.md](docs/LLM_INSTRUCTIONS.md)** for detailed instru
 │   ├── templates/        # Slide templates
 │   └── projects/         # Project management
 ├── styles/               # Modular CSS
-├── slide-generator/      # Static HTML generator (Node.js)
 ├── docs/                 # Documentation
 │   ├── LLM_INSTRUCTIONS.md  # AI/LLM integration guide
 │   ├── ARCHITECTURE.md   # System architecture
@@ -103,7 +95,8 @@ See **[docs/LLM_INSTRUCTIONS.md](docs/LLM_INSTRUCTIONS.md)** for detailed instru
 
 | Template | Description |
 |----------|-------------|
-| `title` | Cover slide with title, subtitle, author |
+| `cover` | Opening slide with split layout accent block |
+| `title` | Centered title slide (outro or secondary) |
 | `section` | Section divider with number |
 | `bullets` | Bullet point list |
 | `two-columns` | Side-by-side columns |

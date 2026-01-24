@@ -3,6 +3,7 @@
 
 export function getDefaultData(template) {
   const defaults = {
+    cover: { title: 'Titre de la présentation', subtitle: 'Sous-titre', author: '', date: '' },
     title: { title: 'Nouveau titre', subtitle: '', author: '', date: '' },
     section: { number: '01', title: 'Nouvelle section', subtitle: '' },
     bullets: { title: 'Liste', items: ['Premier élément', 'Deuxième élément'] },
