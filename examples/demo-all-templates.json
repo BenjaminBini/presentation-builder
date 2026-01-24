@@ -1,4 +1,5 @@
 {
+  "name": "Démo de tous les templates",
   "metadata": {
     "title": "Démo de tous les templates",
     "author": "Slide Editor",
@@ -10,6 +11,42 @@
     "overrides": {}
   },
   "slides": [
+    {
+      "template": "cover-wide",
+      "data": {
+        "title": "Couverture Large",
+        "subtitle": "Barre latérale élargie avec formes géométriques",
+        "author": "Équipe Slide Editor",
+        "date": "Janvier 2025"
+      }
+    },
+    {
+      "template": "cover-gradient",
+      "data": {
+        "title": "Couverture Gradient",
+        "subtitle": "Fond dégradé complet avec cercles flottants",
+        "author": "Équipe Slide Editor",
+        "date": "Janvier 2025"
+      }
+    },
+    {
+      "template": "cover-diagonal",
+      "data": {
+        "title": "Couverture Diagonale",
+        "subtitle": "Découpe en diagonale dynamique",
+        "author": "Équipe Slide Editor",
+        "date": "Janvier 2025"
+      }
+    },
+    {
+      "template": "cover-shapes",
+      "data": {
+        "title": "Couverture Formes",
+        "subtitle": "Formes colorées dispersées sur fond blanc",
+        "author": "Équipe Slide Editor",
+        "date": "Janvier 2025"
+      }
+    },
     {
       "template": "title",
       "data": {
@@ -110,7 +147,7 @@
     {
       "template": "stats",
       "data": {
-        "title": "Chiffres clés",
+        "title": "Données clés",
         "stats": [
           { "value": "14", "label": "Templates disponibles", "change": "+4" },
           { "value": "100%", "label": "Personnalisable", "change": "" },

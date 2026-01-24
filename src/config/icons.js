@@ -2,6 +2,9 @@
 // SVG icons for templates
 
 export const ICONS = {
+  // Cover - split layout with accent block (opening slide)
+  cover: '<svg class="template-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="8" height="18" rx="1.5" fill="currentColor" stroke="none"/><rect x="12" y="5" width="10" height="2.5" rx="0.5" fill="currentColor" stroke="none"/><rect x="12" y="9" width="8" height="2" rx="0.5" fill="currentColor" stroke="none" opacity="0.5"/><rect x="12" y="17" width="5" height="1.5" rx="0.5" fill="currentColor" stroke="none" opacity="0.4"/><rect x="12" y="19.5" width="4" height="1.5" rx="0.5" fill="currentColor" stroke="none" opacity="0.3"/></svg>',
+
   // Title - centered large heading with subtitle line
   title: '<svg class="template-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="6" y="13" width="12" height="2" rx="0.5" fill="currentColor" stroke="none" opacity="0.5"/></svg>',
 

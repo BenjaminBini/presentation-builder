@@ -32,8 +32,24 @@ This presentation builder uses a JSON-based format to define slides. Each presen
 
 ## Available Templates
 
-### 1. `title` - Cover Slide
-Opening slide with main title and presentation info.
+### 1. `cover` - Opening Cover Slide
+First slide with split layout featuring an accent color block on the left and content on the right. Ideal as a presentation opener.
+
+```json
+{
+  "template": "cover",
+  "data": {
+    "title": "Main Title",
+    "subtitle": "Subtitle text",
+    "author": "Author Name",
+    "date": "January 2025",
+    "logo": "https://url-to-logo.png"
+  }
+}
+```
+
+### 2. `title` - Centered Title Slide
+Centered slide with title and presentation info. Can be used as an outro or secondary title slide.
 
 ```json
 {
@@ -48,7 +64,7 @@ Opening slide with main title and presentation info.
 }
 ```
 
-### 2. `section` - Section Divider
+### 3. `section` - Section Divider
 Transition slide to introduce a new section.
 
 ```json
@@ -62,7 +78,7 @@ Transition slide to introduce a new section.
 }
 ```
 
-### 3. `bullets` - Bullet List
+### 4. `bullets` - Bullet List
 List of key points with optional tag badge.
 
 ```json
@@ -80,7 +96,7 @@ List of key points with optional tag badge.
 }
 ```
 
-### 4. `two-columns` - Two Column Layout
+### 5. `two-columns` - Two Column Layout
 Content organized in two side-by-side columns.
 
 ```json
@@ -100,7 +116,7 @@ Content organized in two side-by-side columns.
 }
 ```
 
-### 5. `image-text` - Image with Text
+### 6. `image-text` - Image with Text
 Image alongside descriptive text.
 
 ```json
@@ -115,7 +131,7 @@ Image alongside descriptive text.
 }
 ```
 
-### 6. `quote` - Citation
+### 7. `quote` - Citation
 Featured quote with attribution.
 
 ```json
@@ -130,7 +146,7 @@ Featured quote with attribution.
 }
 ```
 
-### 7. `stats` - Statistics Display
+### 8. `stats` - Statistics Display
 Key metrics displayed prominently.
 
 ```json
@@ -161,7 +177,7 @@ Key metrics displayed prominently.
 
 **Note:** The `change` field is optional. Positive values (starting with +) display in green, negative values (starting with -) display in red.
 
-### 8. `code` - Code Block
+### 9. `code` - Code Block
 Simple code display with syntax highlighting appearance.
 
 ```json
@@ -176,7 +192,7 @@ Simple code display with syntax highlighting appearance.
 }
 ```
 
-### 9. `code-annotated` - Annotated Code
+### 10. `code-annotated` - Annotated Code
 Code with side annotations pointing to specific lines.
 
 ```json
@@ -213,7 +229,7 @@ Code with side annotations pointing to specific lines.
 - `annotations[].title`: Bold title for annotation (optional)
 - `annotations[].text`: Description text (required)
 
-### 10. `timeline` - Process/Timeline
+### 11. `timeline` - Process/Timeline
 Sequential steps or events.
 
 ```json
@@ -249,7 +265,7 @@ Sequential steps or events.
 
 **Note:** The `icon` field can be a number, emoji, or short text (max 3 characters).
 
-### 11. `comparison` - Table/Comparison
+### 12. `comparison` - Table/Comparison
 Data table with optional column highlighting.
 
 ```json
@@ -278,7 +294,7 @@ Data table with optional column highlighting.
   - `true` or `"true"`: Displays as green checkmark (✓)
   - `false` or `"false"`: Displays as red cross (✗)
 
-### 12. `mermaid` - Diagram
+### 13. `mermaid` - Diagram
 Mermaid.js diagram rendering.
 
 ```json
@@ -327,7 +343,7 @@ The default theme is GitLab-style. You can override specific colors:
 
 ## Best Practices for LLMs
 
-1. **Slide Count:** Aim for 8-15 slides for a typical presentation. Start with a `title` slide.
+1. **Slide Count:** Aim for 8-15 slides for a typical presentation. Start with a `cover` slide (use `title` for outros or secondary title slides).
 
 2. **Section Structure:** Use `section` slides to break up content into logical parts (every 3-4 content slides).
 
@@ -362,7 +378,7 @@ The default theme is GitLab-style. You can override specific colors:
   },
   "slides": [
     {
-      "template": "title",
+      "template": "cover",
       "data": {
         "title": "Introducing ProductX",
         "subtitle": "The Future of Workflow Automation",
@@ -446,25 +462,4 @@ The default theme is GitLab-style. You can override specific colors:
     }
   ]
 }
-```
-
-## File Outputs
-
-The system can generate:
-1. **JSON Export** - Portable data format for backup/sharing
-2. **Static HTML** - Self-contained presentation file via `slide-generator/index.js`
-
-## Usage with Node.js
-
-To generate static HTML from JSON:
-
-```bash
-node slide-generator/index.js examples/presentation-data.json output.html
-```
-
-Or import and use programmatically:
-
-```javascript
-const { loadPresentationData, generateHtml, writeOutput } = require('./slide-generator');
-// ... (see slide-generator/index.js for full implementation)
 ```

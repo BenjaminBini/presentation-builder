@@ -1,7 +1,7 @@
 // src/templates/renderer.js
 // Main template render dispatcher
 import { getSlideColorStyles } from './theme.js';
-import { renderTitleTemplate, renderSectionTemplate, renderBulletsTemplate, renderQuoteTemplate } from './components/basic.js';
+import { renderCoverTemplate, renderCoverWideTemplate, renderCoverGradientTemplate, renderCoverDiagonalTemplate, renderCoverShapesTemplate, renderTitleTemplate, renderSectionTemplate, renderSectionDiagonalTemplate, renderSectionMinimalTemplate, renderQuoteTemplate } from './components/basic.js';
 import { renderTwoColumnsTemplate, renderImageTextTemplate, renderTextTemplate } from './components/layout.js';
 import { renderCodeTemplate, renderCodeAnnotatedTemplate } from './components/code.js';
 import { renderComparisonTemplate, renderMermaidTemplate, renderDrawioTemplate } from './components/comparison.js';
@@ -16,14 +16,32 @@ export function renderTemplate(template, data) {
   const colorStyles = getSlideColorStyles(template, data.colors);
 
   switch (template) {
+    case "cover":
+      return renderCoverTemplate(data, colorStyles);
+
+    case "cover-wide":
+      return renderCoverWideTemplate(data, colorStyles);
+
+    case "cover-gradient":
+      return renderCoverGradientTemplate(data, colorStyles);
+
+    case "cover-diagonal":
+      return renderCoverDiagonalTemplate(data, colorStyles);
+
+    case "cover-shapes":
+      return renderCoverShapesTemplate(data, colorStyles);
+
     case "title":
       return renderTitleTemplate(data, colorStyles);
 
     case "section":
       return renderSectionTemplate(data, colorStyles);
 
-    case "bullets":
-      return renderBulletsTemplate(data, colorStyles);
+    case "section-diagonal":
+      return renderSectionDiagonalTemplate(data, colorStyles);
+
+    case "section-minimal":
+      return renderSectionMinimalTemplate(data, colorStyles);
 
     case "two-columns":
       return renderTwoColumnsTemplate(data, colorStyles);

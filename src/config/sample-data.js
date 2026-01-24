@@ -32,7 +32,47 @@ export const SAMPLE_PROJECT = {
     overrides: {}
   },
   slides: [
-    // 1. Title slide
+    // 1. Cover wide
+    {
+      template: 'cover-wide',
+      data: {
+        title: 'Couverture Large',
+        subtitle: 'Barre élargie avec formes géométriques',
+        author: 'Slide Editor',
+        date: new Date().toLocaleDateString('fr-FR')
+      }
+    },
+    // 3. Cover gradient
+    {
+      template: 'cover-gradient',
+      data: {
+        title: 'Couverture Gradient',
+        subtitle: 'Fond dégradé avec cercles flottants',
+        author: 'Slide Editor',
+        date: new Date().toLocaleDateString('fr-FR')
+      }
+    },
+    // 4. Cover diagonal
+    {
+      template: 'cover-diagonal',
+      data: {
+        title: 'Couverture Diagonale',
+        subtitle: 'Découpe en diagonale dynamique',
+        author: 'Slide Editor',
+        date: new Date().toLocaleDateString('fr-FR')
+      }
+    },
+    // 4. Cover shapes
+    {
+      template: 'cover-shapes',
+      data: {
+        title: 'Couverture Formes',
+        subtitle: 'Formes colorées sur fond blanc',
+        author: 'Slide Editor',
+        date: new Date().toLocaleDateString('fr-FR')
+      }
+    },
+    // 5. Title slide
     {
       template: 'title',
       data: {
@@ -42,7 +82,7 @@ export const SAMPLE_PROJECT = {
         date: new Date().toLocaleDateString('fr-FR')
       }
     },
-    // 2. Agenda slide
+    // 7. Agenda slide
     {
       template: 'agenda',
       data: {
