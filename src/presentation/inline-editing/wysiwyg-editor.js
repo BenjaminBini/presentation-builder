@@ -581,6 +581,170 @@ function isInListItem() {
 }
 
 /**
+ * Get the current list item element
+ */
+function getCurrentListItem() {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return null;
+
+  let node = selection.anchorNode;
+  while (node && node !== currentWysiwygElement) {
+    if (node.nodeName === 'LI') return node;
+    node = node.parentNode;
+  }
+  return null;
+}
+
+/**
+ * Get the current nesting depth of a list item (1 = top level)
+ */
+function getListDepth(li) {
+  let depth = 0;
+  let node = li;
+  while (node && node !== currentWysiwygElement) {
+    if (node.nodeName === 'UL' || node.nodeName === 'OL') {
+      depth++;
+    }
+    node = node.parentElement;
+  }
+  return depth;
+}
+
+/**
+ * Indent a list item (increase nesting level)
+ * Creates a nested <ul> or <ol> inside the previous sibling <li>
+ * Limited to 2 levels of nesting (3 total levels)
+ * If the li has its own nested list, its children become siblings in the target list
+ */
+function indentListItem(li) {
+  if (!li) return;
+
+  const parentList = li.parentElement;
+  if (!parentList || (parentList.nodeName !== 'UL' && parentList.nodeName !== 'OL')) return;
+
+  // Limit to 3 levels total (depth 1 = top, depth 2 = nested, depth 3 = max)
+  const currentDepth = getListDepth(li);
+  if (currentDepth >= 3) return;
+
+  const prevSibling = li.previousElementSibling;
+
+  // Can only indent if there's a previous sibling to nest under
+  if (!prevSibling || prevSibling.nodeName !== 'LI') return;
+
+  // Check if current li has a nested list - its children will become siblings
+  const liNestedList = li.querySelector(':scope > ul, :scope > ol');
+  const liChildren = liNestedList ? Array.from(liNestedList.children) : [];
+
+  // Remove the nested list from li before moving
+  if (liNestedList) {
+    liNestedList.remove();
+  }
+
+  // Check if previous sibling already has a nested list
+  let nestedList = prevSibling.querySelector(':scope > ul, :scope > ol');
+
+  if (!nestedList) {
+    // Create a new nested list of the same type as parent
+    nestedList = document.createElement(parentList.nodeName.toLowerCase());
+    prevSibling.appendChild(nestedList);
+  }
+
+  // Move the current li into the nested list
+  nestedList.appendChild(li);
+
+  // Move former children to become siblings after the li
+  liChildren.forEach(child => {
+    nestedList.appendChild(child);
+  });
+
+  // Restore cursor position
+  restoreCursorToElement(li);
+}
+
+/**
+ * Outdent a list item (decrease nesting level)
+ * Moves the <li> out of its parent nested list
+ */
+function outdentListItem(li) {
+  if (!li) return;
+
+  const parentList = li.parentElement;
+  if (!parentList || (parentList.nodeName !== 'UL' && parentList.nodeName !== 'OL')) return;
+
+  const grandparentLi = parentList.parentElement;
+
+  // Can only outdent if the parent list is nested inside another li
+  if (!grandparentLi || grandparentLi.nodeName !== 'LI') return;
+
+  const grandparentList = grandparentLi.parentElement;
+  if (!grandparentList || (grandparentList.nodeName !== 'UL' && grandparentList.nodeName !== 'OL')) return;
+
+  // Get siblings that come after this li in the nested list
+  const followingSiblings = [];
+  let sibling = li.nextElementSibling;
+  while (sibling) {
+    followingSiblings.push(sibling);
+    sibling = sibling.nextElementSibling;
+  }
+
+  // Move the li to after the grandparent li
+  grandparentList.insertBefore(li, grandparentLi.nextSibling);
+
+  // If there were following siblings, they need to become a nested list under this li
+  if (followingSiblings.length > 0) {
+    let newNestedList = li.querySelector(':scope > ul, :scope > ol');
+    if (!newNestedList) {
+      newNestedList = document.createElement(parentList.nodeName.toLowerCase());
+      li.appendChild(newNestedList);
+    }
+    followingSiblings.forEach(sib => newNestedList.appendChild(sib));
+  }
+
+  // Clean up empty parent list
+  if (parentList.children.length === 0) {
+    parentList.remove();
+  }
+
+  // Restore cursor position
+  restoreCursorToElement(li);
+}
+
+/**
+ * Restore cursor to the beginning of an element
+ */
+function restoreCursorToElement(element) {
+  const selection = window.getSelection();
+  const range = document.createRange();
+
+  // Find first text node or set cursor at start of element
+  const firstTextNode = findFirstTextNode(element);
+  if (firstTextNode) {
+    range.setStart(firstTextNode, 0);
+    range.collapse(true);
+  } else {
+    range.selectNodeContents(element);
+    range.collapse(true);
+  }
+
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+/**
+ * Find the first text node within an element
+ */
+function findFirstTextNode(element) {
+  if (element.nodeType === Node.TEXT_NODE) {
+    return element;
+  }
+  for (const child of element.childNodes) {
+    const textNode = findFirstTextNode(child);
+    if (textNode) return textNode;
+  }
+  return null;
+}
+
+/**
  * Handle keydown events
  */
 function handleWysiwygKeydown(event) {
@@ -618,12 +782,16 @@ function handleWysiwygKeydown(event) {
   }
 
   // Handle Tab/Shift+Tab for list indentation
-  if (event.key === 'Tab' && isInListItem()) {
+  if (event.key === 'Tab') {
     event.preventDefault();
-    if (event.shiftKey) {
-      document.execCommand('outdent', false, null);
-    } else {
-      document.execCommand('indent', false, null);
+    const li = getCurrentListItem();
+    if (li) {
+      // In a list item: indent/outdent the list level
+      if (event.shiftKey) {
+        outdentListItem(li);
+      } else {
+        indentListItem(li);
+      }
     }
   }
 
